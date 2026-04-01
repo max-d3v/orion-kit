@@ -1,6 +1,6 @@
 {
-  "id": "1471e8fb-8def-415d-9245-0d3369f859dc",
-  "prevId": "77f275e0-e4f2-4dc8-b7fe-0f6e2af6980b",
+  "id": "48d3db92-49a2-40e0-89ae-2e5450106e8f",
+  "prevId": "1471e8fb-8def-415d-9245-0d3369f859dc",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -10,20 +10,10 @@
       "columns": {
         "id": {
           "name": "id",
-          "type": "integer",
+          "type": "uuid",
           "primaryKey": true,
           "notNull": true,
-          "identity": {
-            "type": "always",
-            "name": "tasks_id_seq",
-            "schema": "public",
-            "increment": "1",
-            "startWith": "1",
-            "minValue": "1",
-            "maxValue": "2147483647",
-            "cache": "1",
-            "cycle": false
-          }
+          "default": "gen_random_uuid()"
         },
         "user_id": {
           "name": "user_id",
@@ -92,20 +82,10 @@
       "columns": {
         "id": {
           "name": "id",
-          "type": "integer",
+          "type": "uuid",
           "primaryKey": true,
           "notNull": true,
-          "identity": {
-            "type": "always",
-            "name": "user_preferences_id_seq",
-            "schema": "public",
-            "increment": "1",
-            "startWith": "1",
-            "minValue": "1",
-            "maxValue": "2147483647",
-            "cache": "1",
-            "cycle": false
-          }
+          "default": "gen_random_uuid()"
         },
         "user_id": {
           "name": "user_id",
@@ -227,7 +207,9 @@
         "user_preferences_user_id_unique": {
           "name": "user_preferences_user_id_unique",
           "nullsNotDistinct": false,
-          "columns": ["user_id"]
+          "columns": [
+            "user_id"
+          ]
         }
       },
       "policies": {},
@@ -240,9 +222,10 @@
       "columns": {
         "id": {
           "name": "id",
-          "type": "varchar(255)",
+          "type": "uuid",
           "primaryKey": true,
-          "notNull": true
+          "notNull": true,
+          "default": "gen_random_uuid()"
         },
         "name": {
           "name": "name",
@@ -304,7 +287,9 @@
         "users_email_unique": {
           "name": "users_email_unique",
           "nullsNotDistinct": false,
-          "columns": ["email"]
+          "columns": [
+            "email"
+          ]
         }
       },
       "policies": {},
@@ -316,7 +301,12 @@
     "public.task_status": {
       "name": "task_status",
       "schema": "public",
-      "values": ["todo", "in-progress", "completed", "cancelled"]
+      "values": [
+        "todo",
+        "in-progress",
+        "completed",
+        "cancelled"
+      ]
     }
   },
   "schemas": {},

@@ -227,9 +227,7 @@
         "user_preferences_clerk_user_id_unique": {
           "name": "user_preferences_clerk_user_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "clerk_user_id"
-          ]
+          "columns": ["clerk_user_id"]
         }
       },
       "policies": {},
@@ -241,12 +239,7 @@
     "public.task_status": {
       "name": "task_status",
       "schema": "public",
-      "values": [
-        "todo",
-        "in-progress",
-        "completed",
-        "cancelled"
-      ]
+      "values": ["todo", "in-progress", "completed", "cancelled"]
     }
   },
   "schemas": {},

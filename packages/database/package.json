@@ -6,7 +6,8 @@
   "exports": {
     ".": "./src/index.ts",
     "./client": "./src/client.ts",
-    "./schema": "./src/schema.ts"
+    "./schema": "./src/schema.ts",
+    "./drizzle-zod": "./src/drizzle-zod.ts"
   },
   "scripts": {
     "db:generate": "drizzle-kit generate",
@@ -21,16 +22,17 @@
   },
   "dependencies": {
     "@neondatabase/serverless": "^0.10.4",
-    "drizzle-orm": "^0.38.3",
-    "drizzle-zod": "^0.8.3",
-    "zod": "^3.25.76"
+    "drizzle-orm": "catalog:schemas",
+    "drizzle-zod": "catalog:schemas",
+    "zod": "catalog:schemas"
   },
   "devDependencies": {
+    "@types/pg": "^8.20.0",
     "@workspace/typescript-config": "workspace:*",
     "dotenv": "^16.4.7",
-    "drizzle-kit": "^0.31.2",
+    "drizzle-kit": "catalog:schemas",
     "eslint": "^9.23.0",
-    "tsx": "^4.19.2",
+    "tsx": "^4.21.0",
     "typescript": "^5.9.2"
   }
 }

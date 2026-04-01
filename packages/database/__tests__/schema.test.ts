@@ -1,8 +1,8 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
   createTaskInputSchema,
-  updateTaskInputSchema,
   insertUserPreferenceSchema,
+  updateTaskInputSchema,
 } from "../src/schema";
 
 describe("Database Schemas", () => {

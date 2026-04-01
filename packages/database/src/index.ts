@@ -1,23 +1,15 @@
-export { db } from "./client";
-
-export { userPreferences, tasks, taskStatusEnum } from "./schema";
-
-export type {
-  UserPreference,
-  InsertUserPreference,
-  Task,
-  InsertTask,
-} from "./schema";
-
 export {
-  insertUserPreferenceSchema,
-  selectUserPreferenceSchema,
-  updateUserPreferencesSchema,
-  insertTaskSchema,
-  selectTaskSchema,
-  createTaskInputSchema,
-  updateTaskInputSchema,
-  users,
-} from "./schema";
-
-export { eq, and, or, not, isNull, isNotNull, desc, asc } from "drizzle-orm";
+  and,
+  asc,
+  count,
+  desc,
+  eq,
+  ilike,
+  isNotNull,
+  isNull,
+  not,
+  or,
+  sql,
+} from "drizzle-orm";
+export { db } from "./client";
+export { taskStatusEnum, tasks, userPreferences, users } from "./schema";
