@@ -1,19 +1,7 @@
-import { type NextRequest, NextResponse } from "next/server";
+import { authMiddleware } from "@workspace/auth/proxy";
 
-export default function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl;
-
-  // Protect dashboard routes
-  if (pathname.startsWith("/dashboard")) {
-    // For client-side navigation, we can't check Authorization headers in middleware
-    // The client-side auth check will happen in the dashboard layout
-    // This middleware is mainly for server-side redirects
-    return NextResponse.next();
-  }
-
-  return NextResponse.next();
-}
+export default authMiddleware();
 
 export const config = {
-  matcher: ["/dashboard/:path*"],
+  matcher: ["/dashboard/:path*", "/rpc/:path*"],
 };
