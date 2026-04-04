@@ -1,9 +1,9 @@
 import { z } from "zod";
 
-export const getUserTasksWithCountInputSchema = z.object({
+//export const getUserTasksInputSchema =
+
+export const getUserTasksInputSchema = z.object({
   userId: z.string().uuid(),
 });
 
-export type GetUserTasksWithCountInput = z.infer<
-  typeof getUserTasksWithCountInputSchema
->;
+export type GetUserTasksInput = z.infer<typeof getUserTasksInputSchema>;

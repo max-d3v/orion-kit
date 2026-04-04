@@ -17,9 +17,11 @@
     "typescript": "^5"
   },
   "dependencies": {
+    "@clerk/nextjs": "^7.0.8",
+    "@orpc/server": "^1.13.13",
+    "@workspace/auth": "workspace:*",
     "@workspace/core": "workspace:*",
     "@workspace/types": "workspace:*",
-    "@orpc/server": "^1.13.13",
     "zod": "catalog:schemas"
   }
 }

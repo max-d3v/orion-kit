@@ -126,7 +126,9 @@ export const updateOne = async (
   return user;
 };
 
-export const deleteOne = async (params: DeleteUserParams): Promise<UserRawObject> => {
+export const deleteOne = async (
+  params: DeleteUserParams
+): Promise<UserRawObject> => {
   const { id } = params;
 
   const result = await db.delete(users).where(eq(users.id, id)).returning();

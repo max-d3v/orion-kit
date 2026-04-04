@@ -1,6 +1,6 @@
-import * as taskRepo from "@workspace/repository/tasks";
+import { tasksRepository } from "@workspace/repository";
 import type { TaskRawObject } from "@workspace/types/repository/tasks";
-import type { GetUserTasksWithCountInput } from "@workspace/types/tasks";
+import type { GetUserTasksInput } from "@workspace/types/use-cases/tasks";
 
 const countTasksByStatus = (tasks: TaskRawObject[]) => ({
   completed: tasks.filter((t) => t.status === "completed").length,
@@ -8,11 +8,11 @@ const countTasksByStatus = (tasks: TaskRawObject[]) => ({
   todo: tasks.filter((t) => t.status === "todo").length,
 });
 
-export const getUserTasksWithCount = async (
-  params: GetUserTasksWithCountInput
-) => {
+export const getUserTasks = async (params: GetUserTasksInput) => {};
+
+export const getUserTasksWithCount = async (params: GetUserTasksInput) => {
   const { userId } = params;
-  const tasks = await taskRepo.find(userId);
+  const tasks = await tasksRepository.find(userId);
   const taskCounts = countTasksByStatus(tasks);
   return { tasks, taskCounts };
 };
