@@ -1,6 +1,3 @@
-"use client";
-
-import type { Task } from "@workspace/types";
 import {
   Card,
   CardContent,
@@ -9,12 +6,10 @@ import {
   CardTitle,
 } from "@workspace/ui/components/card";
 import { CheckCircle2, Circle, Clock } from "lucide-react";
+import { TaskRawObject } from "@workspace/types/repository/tasks";
 
-interface DashboardTasksPreviewProps {
-  readonly tasks: Task[];
-}
 
-const getStatusIcon = (status: Task["status"]) => {
+const getStatusIcon = (status: TaskRawObject["status"]) => {
   switch (status) {
     case "completed":
       return <CheckCircle2 className="h-5 w-5 text-green-500" />;
@@ -27,7 +22,7 @@ const getStatusIcon = (status: Task["status"]) => {
   }
 };
 
-const getStatusText = (status: Task["status"]): string => {
+const getStatusText = (status: TaskRawObject["status"]): string => {
   switch (status) {
     case "completed":
       return "Completed";
@@ -40,11 +35,10 @@ const getStatusText = (status: Task["status"]): string => {
   }
 };
 
-export function DashboardTasksPreview({ tasks }: DashboardTasksPreviewProps) {
+export function DashboardTasksPreview({tasks}: {tasks: TaskRawObject[]}) {
   const recentTasks = tasks
     .sort(
-      (a, b) =>
-        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
     )
     .slice(0, 5);
 

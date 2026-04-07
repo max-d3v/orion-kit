@@ -1,4 +1,3 @@
-"use client";
 
 import {
   Card,
@@ -6,20 +5,16 @@ import {
   CardHeader,
   CardTitle,
 } from "@workspace/ui/components/card";
+import { TaskRawObject } from "@workspace/types/repository/tasks";
 
-interface DashboardStatsProps {
-  readonly completed: number;
-  readonly inProgress: number;
-  readonly todo: number;
-  readonly total: number;
-}
 
-export function DashboardStats({
-  total,
-  completed,
-  inProgress,
-  todo,
-}: DashboardStatsProps) {
+
+export function DashboardStats({tasks}: {tasks: TaskRawObject[]}) {
+
+  const total = tasks.length;
+  const completed = tasks.filter((task) => task.status === "completed").length;
+  const inProgress = tasks.filter((task) => task.status === "in-progress").length;
+  const todo = tasks.filter((task) => task.status === "todo").length;
   return (
     <div className="grid gap-4 md:grid-cols-4">
       <Card>
