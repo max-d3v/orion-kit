@@ -1,45 +1,9 @@
-"use client";
-
 import { Button } from "@workspace/ui/components/button";
 import { OrionLogo } from "@workspace/ui/components/orion-logo";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useEffect } from "react";
 import { ModeToggle } from "@/components/mode-toggle";
-import { useAuth } from "@/hooks/use-auth";
 
 export default function RootPage() {
-  const { data: authData, isPending } = useAuth();
-  const router = useRouter();
-
-  // Redirect to dashboard if user is logged in
-  useEffect(() => {
-    if (!isPending && authData?.data) {
-      router.push("/dashboard");
-    }
-  }, [authData, isPending, router]);
-
-  // Show loading while checking auth
-  if (isPending) {
-    return (
-      <div className="flex min-h-screen flex-col items-center justify-center p-4">
-        <div className="absolute top-4 right-4">
-          <ModeToggle />
-        </div>
-        <div className="mb-8 flex flex-col items-center gap-4">
-          <OrionLogo size="lg" />
-          <p className="text-muted-foreground">Loading...</p>
-        </div>
-      </div>
-    );
-  }
-
-  // Don't render if user is logged in (will redirect)
-  if (authData?.data) {
-    return null;
-  }
-
-  // Show landing page
   return (
     <div className="flex min-h-screen flex-col items-center justify-center p-4">
       <div className="absolute top-4 right-4">

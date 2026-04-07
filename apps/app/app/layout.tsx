@@ -1,6 +1,7 @@
 import "@workspace/ui/globals.css";
 import { Toaster } from "sonner";
 import { Providers } from "@/app/providers";
+import "@workspace/rpc/orpc/orpc.server";
 
 export const metadata = {
   title: "Orion Kit",
