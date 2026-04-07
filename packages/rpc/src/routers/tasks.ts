@@ -1,6 +1,7 @@
 import {
   createTask,
   deleteTask,
+  getUserTasks,
   getUserTasksWithCount,
   updateTask,
 } from "@workspace/core/use-cases/tasks";
@@ -17,7 +18,10 @@ const tasksRouter = {
     const { tasks, taskCounts } = await getUserTasksWithCount({ userId: id });
     return { tasks, taskCounts };
   }),
-
+  getUserTasks: authenticatedProcedure.handler(async ({ context }) => {
+    const { id } = context.user;
+    return getUserTasks({ userId: id });
+  }),
   create: authenticatedProcedure
     .input(createTaskInputSchema)
     .handler(async ({ context, input }) => {

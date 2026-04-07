@@ -1,5 +1,6 @@
 import { RPCHandler } from "@orpc/server/fetch";
 import { router } from "@workspace/rpc";
+import { headers } from "next/headers";
 
 const handler = new RPCHandler(router);
 
