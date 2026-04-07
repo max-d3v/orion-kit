@@ -1,0 +1,25 @@
+{
+  "name": "@workspace/data-layer",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "exports": {
+    "./client": "./src/query-client.ts",
+    "./hydration": "./src/hydration.tsx",
+    "./orpc-tanstack-util": "./src/orpc-tanstack-util.ts"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@types/react": "^19.2.14"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "@tanstack/react-query": "catalog:data-layer",
+    "@orpc/tanstack-query": "catalog:data-layer",
+    "@workspace/rpc": "workspace:*",
+    "react": "catalog:web",
+    "react-dom": "catalog:web"
+  }
+}
