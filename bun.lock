@@ -5,6 +5,7 @@
     "": {
       "name": "orion-kit",
       "dependencies": {
+        "@t3-oss/env-nextjs": "^0.13.11",
         "root": "tanstack/react-query",
       },
       "devDependencies": {
@@ -224,6 +225,7 @@
         "@react-email/components": "0.5.0",
         "@react-email/render": "1.4.0",
         "resend": "^6.1.2",
+        "zod": "catalog:schemas",
       },
       "devDependencies": {
         "@types/node": "^20.19.9",
@@ -243,10 +245,12 @@
       "dependencies": {
         "@trigger.dev/sdk": "4.0.4",
         "dotenv": "^16.4.7",
+        "zod": "catalog:schemas",
       },
       "devDependencies": {
         "@workspace/typescript-config": "workspace:*",
         "typescript": "^5.9.2",
+        "zod": "catalog:schemas",
       },
     },
     "packages/observability": {
@@ -259,6 +263,7 @@
         "@axiomhq/react": "^0.1.5",
         "next": "catalog:web",
         "react": "catalog:web",
+        "zod": "catalog:schemas",
       },
       "devDependencies": {
         "@types/node": "^20.19.9",
@@ -270,6 +275,7 @@
       "name": "@workspace/payment",
       "version": "0.0.1",
       "dependencies": {
+        "@workspace/types": "workspace:*",
         "dotenv": "^16.4.7",
         "stripe": "^17.5.0",
         "zod": "catalog:schemas",
@@ -323,6 +329,7 @@
       "dependencies": {
         "@workspace/database": "workspace:*",
         "@workspace/payment": "workspace:*",
+        "stripe": "^22.0.1",
         "zod": "catalog:schemas",
       },
       "devDependencies": {
@@ -2692,6 +2699,8 @@
     "@workspace/observability/typescript": ["typescript@5.9.3", "", { "bin": { "tsc": "bin/tsc", "tsserver": "bin/tsserver" } }, "sha512-jl1vZzPDinLr9eUt3J/t7V6FgNEw9QjvBPdysz9KfQDD41fQrC2Y4vKQdiaUpFT4bXlb1RHhLpp8wtm6M5TgSw=="],
 
     "@workspace/payment/typescript": ["typescript@5.9.3", "", { "bin": { "tsc": "bin/tsc", "tsserver": "bin/tsserver" } }, "sha512-jl1vZzPDinLr9eUt3J/t7V6FgNEw9QjvBPdysz9KfQDD41fQrC2Y4vKQdiaUpFT4bXlb1RHhLpp8wtm6M5TgSw=="],
+
+    "@workspace/types/stripe": ["stripe@22.0.1", "", { "peerDependencies": { "@types/node": ">=18" }, "optionalPeers": ["@types/node"] }, "sha512-Yw764pZ6s8Xu4CtUZdD5uWOkw6gc9xzO9OKylCuj1gMhMDLbyGbDtaPNNSFE4mB6njYSHESYIVbF1iIzUfAl2g=="],
 
     "@workspace/types/typescript": ["typescript@5.9.3", "", { "bin": { "tsc": "bin/tsc", "tsserver": "bin/tsserver" } }, "sha512-jl1vZzPDinLr9eUt3J/t7V6FgNEw9QjvBPdysz9KfQDD41fQrC2Y4vKQdiaUpFT4bXlb1RHhLpp8wtm6M5TgSw=="],
 
