@@ -1,5 +1,4 @@
 "use client";
-
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -12,19 +11,24 @@ import { Separator } from "@workspace/ui/components/separator";
 import { SidebarTrigger } from "@workspace/ui/components/sidebar";
 import { usePathname } from "next/navigation";
 import { ModeToggle } from "@/components/mode-toggle";
+import { useMemo } from "react";
 
 export function DashboardHeader() {
   const pathname = usePathname();
 
   const paths = pathname.split("/").filter(Boolean);
 
-  const breadcrumbs = paths.map((path, index) => {
-    const href = `/${paths.slice(0, index + 1).join("/")}`;
-    const label = path.charAt(0).toUpperCase() + path.slice(1);
-    const isLast = index === paths.length - 1;
+  const breadcrumbs = useMemo(
+    () =>
+      paths.map((path, index) => {
+        const href = `/${paths.slice(0, index + 1).join("/")}`;
+        const label = path.charAt(0).toUpperCase() + path.slice(1);
+        const isLast = index === paths.length - 1;
 
-    return { href, label, isLast };
-  });
+        return { href, label, isLast };
+      }),
+    [paths]
+  );
 
   return (
     <header className="flex h-16 shrink-0 items-center gap-2 border-b">

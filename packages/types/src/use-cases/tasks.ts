@@ -8,6 +8,8 @@ export type TasksListResponse = {
   inProgress: number;
   todo: number;
 };
+export type Task = TaskRawObject;
+
 export type CreateTaskResponse = TaskRawObject;
 export type DeleteTaskResponse = { deleted: boolean }
 

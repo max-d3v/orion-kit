@@ -1,15 +1,14 @@
-
+import type { Task } from "@workspace/types/use-cases/tasks";
 import {
   Card,
   CardContent,
   CardHeader,
   CardTitle,
 } from "@workspace/ui/components/card";
-import { TaskRawObject } from "@workspace/types/repository/tasks";
 
 
 
-export function DashboardStats({tasks}: {tasks: TaskRawObject[]}) {
+export function DashboardStats({tasks}: {tasks: Task[]}) {
 
   const total = tasks.length;
   const completed = tasks.filter((task) => task.status === "completed").length;
