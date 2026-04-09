@@ -1,5 +1,6 @@
 import { db, eq, userPreferences } from "@workspace/database";
 import { logger } from "@workspace/observability/server";
+import { env } from "@workspace/payment/keys";
 import {
   handleWebhookEvent,
   verifyWebhookSignature,
@@ -9,12 +10,6 @@ import type { ApiErrorResponse, ApiResponse } from "@workspace/types/billing";
 import { NextResponse } from "next/server";
 
 export const runtime = "nodejs";
-
-const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
-
-if (!webhookSecret) {
-  throw new Error("STRIPE_WEBHOOK_SECRET is not defined");
-}
 
 const dbAdapter: WebhookDatabaseAdapter = {
   updateUserSubscription: async (data) => {
@@ -92,7 +87,11 @@ export async function POST(req: Request) {
       return NextResponse.json(errorResponse, { status: 400 });
     }
 
-    const event = verifyWebhookSignature(body, signature, webhookSecret);
+    const event = verifyWebhookSignature(
+      body,
+      signature,
+      env.STRIPE_WEBHOOK_SECRET
+    );
 
     logger.info("Stripe webhook received", {
       eventId: event.id,

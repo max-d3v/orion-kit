@@ -2,8 +2,9 @@ import { Button } from "@workspace/ui/components/button";
 import { OrionLogo } from "@workspace/ui/components/orion-logo";
 import Link from "next/link";
 import { ModeToggle } from "@/components/mode-toggle";
+import { env } from "@/keys";
 
-const linkUrl = process.env.NEXT_PUBLIC_LINK_URL!;
+const linkUrl = env.NEXT_PUBLIC_LINK_URL;
 
 export function Header() {
   return (

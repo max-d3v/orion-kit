@@ -1,7 +1,8 @@
 import { Button } from "@workspace/ui/components/button";
 import { Github, Sparkles } from "lucide-react";
+import { env } from "@/keys";
 
-const linkUrl = process.env.NEXT_PUBLIC_DOCS_URL;
+const linkUrl = env.NEXT_PUBLIC_DOCS_URL;
 
 export function Hero() {
   return (
