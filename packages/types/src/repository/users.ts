@@ -1,8 +1,8 @@
-import { users } from "@workspace/database";
 import {
   createInsertSchema,
   createUpdateSchema,
 } from "@workspace/database/drizzle-zod";
+import { users } from "@workspace/database/schema";
 import { z } from "zod";
 import { listBaseParamsSchema } from "./base";
 

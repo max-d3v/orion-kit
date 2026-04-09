@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "exports": {
-    "./billing": "./src/billing.ts",
+    "./payments/*": "./src/payments/*.ts",
     "./repository/*": "./src/repository/*.ts",
     "./errors/*": "./src/errors/*.ts",
     "./use-cases/*": "./src/use-cases/*.ts"
@@ -15,7 +15,7 @@
   },
   "dependencies": {
     "@workspace/database": "workspace:*",
-    "@workspace/payment": "workspace:*",
+    "stripe": "^22.0.1",
     "zod": "catalog:schemas"
   },
   "devDependencies": {

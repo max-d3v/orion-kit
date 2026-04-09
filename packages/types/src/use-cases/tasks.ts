@@ -1,17 +1,15 @@
-import type { ApiResponse } from "../billing";
-import type { TaskRawObject } from "../repository/tasks";
 import { z } from "zod";
+import type { TaskRawObject } from "../repository/tasks";
 
-export type Task = TaskRawObject;
 export type TasksListResponse = {
-  data: Task[];
+  data: TaskRawObject[];
   total: number;
   completed: number;
   inProgress: number;
   todo: number;
 };
-export type CreateTaskResponse = ApiResponse<Task>;
-export type DeleteTaskResponse = ApiResponse<{ deleted: boolean }>;
+export type CreateTaskResponse = TaskRawObject;
+export type DeleteTaskResponse = { deleted: boolean }
 
 export const getUserTasksInputSchema = z.object({
   userId: z.string().uuid(),

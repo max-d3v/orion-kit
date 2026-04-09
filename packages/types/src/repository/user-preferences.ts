@@ -1,8 +1,8 @@
-import { userPreferences } from "@workspace/database";
 import {
   createInsertSchema,
   createUpdateSchema,
 } from "@workspace/database/drizzle-zod";
+import { userPreferences } from "@workspace/database/schema";
 import { z } from "zod";
 
 export const createUserPreferenceInputSchema =
