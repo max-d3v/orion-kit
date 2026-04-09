@@ -4,9 +4,7 @@
   "type": "module",
   "private": true,
   "exports": {
-    ".": "./trigger/example.ts",
-    "./trigger/example": "./trigger/example.ts",
-    "./trigger/schedule": "./trigger/schedule.ts"
+    "./trigger/*": "./trigger/*.ts"
   },
   "scripts": {
     "clean": "rm -rf .turbo node_modules",
@@ -16,10 +14,12 @@
   },
   "dependencies": {
     "@trigger.dev/sdk": "4.0.4",
-    "dotenv": "^16.4.7"
+    "dotenv": "^16.4.7",
+    "zod": "catalog:schemas"
   },
   "devDependencies": {
     "@workspace/typescript-config": "workspace:*",
-    "typescript": "^5.9.2"
+    "typescript": "^5.9.2",
+    "zod": "catalog:schemas"
   }
 }
