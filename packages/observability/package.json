@@ -4,7 +4,6 @@
   "private": true,
   "type": "module",
   "exports": {
-    ".": "./src/index.ts",
     "./server": "./src/server.ts",
     "./client": "./src/client.ts"
   },
@@ -18,7 +17,8 @@
     "@axiomhq/nextjs": "^0.1.5",
     "@axiomhq/react": "^0.1.5",
     "next": "catalog:web",
-    "react": "catalog:web"
+    "react": "catalog:web",
+    "zod": "catalog:schemas"
   },
   "devDependencies": {
     "@workspace/typescript-config": "workspace:*",

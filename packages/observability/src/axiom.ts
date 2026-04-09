@@ -1,9 +1,8 @@
 import { Axiom } from "@axiomhq/js";
-
-const AXIOM_TOKEN = process.env.NEXT_PUBLIC_AXIOM_TOKEN || "";
+import { env } from "./keys";
 
 const axiomClient = new Axiom({
-  token: AXIOM_TOKEN,
+  token: env.NEXT_PUBLIC_AXIOM_TOKEN,
 });
 
 export default axiomClient;
