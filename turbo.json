@@ -5,25 +5,7 @@
     "build": {
       "dependsOn": ["^build"],
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
-      "outputs": [".next/**", "!.next/cache/**", "dist/**"],
-      "env": [
-        "DATABASE_URL",
-        "AUTH_JWT_SECRET",
-        "NEXT_PUBLIC_APP_URL",
-        "NEXT_PUBLIC_API_URL",
-        "STRIPE_SECRET_KEY",
-        "STRIPE_WEBHOOK_SECRET",
-        "NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY",
-        "NEXT_PUBLIC_STRIPE_PRICE_ID_PRO",
-        "NEXT_PUBLIC_STRIPE_PRICE_ID_ENTERPRISE",
-        "NEXT_PUBLIC_POSTHOG_KEY",
-        "NEXT_PUBLIC_POSTHOG_HOST",
-        "NEXT_PUBLIC_AXIOM_TOKEN",
-        "NEXT_PUBLIC_AXIOM_DATASET",
-        "RESEND_API_KEY",
-        "FROM_EMAIL",
-        "RESEND_TOKEN"
-      ]
+      "outputs": [".next/**", "!.next/cache/**", "dist/**"]
     },
     "typecheck": {
       "dependsOn": ["^typecheck"]
