@@ -4,14 +4,16 @@
   "type": "module",
   "private": true,
   "exports": {
-    ".": "./src/index.ts",
-    "./templates": "./src/templates/index.ts"
+    "./client": "./src/client.ts",
+    "./server": "./src/server.ts",
+    "./templates/*": "./src/templates/*.tsx"
   },
   "scripts": {
     "lint": "eslint . --max-warnings 0",
     "typecheck": "tsc --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
+    "zod": "catalog:schemas",
     "@react-email/components": "0.5.0",
     "@react-email/render": "1.4.0",
     "resend": "^6.1.2"
