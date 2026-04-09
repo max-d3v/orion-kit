@@ -1,7 +1,5 @@
-import {
-  tasksRepository,
-  userPreferencesRepository,
-} from "@workspace/repository";
+import * as tasksRepository from "@workspace/repository/entities/tasks";
+import * as userPreferencesRepository from "@workspace/repository/entities/user-preferences";
 import type { TaskRawObject } from "@workspace/types/repository/tasks";
 import type { GetUserTasksInput } from "@workspace/types/use-cases/tasks";
 import { assertTaskOwnership } from "../authorization/tasks";

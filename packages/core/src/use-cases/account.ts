@@ -1,4 +1,4 @@
-import { usersRepository } from "@workspace/repository";
+import * as usersRepository from "@workspace/repository/entities/users";
 
 export const updateProfile = async (params: {
   userId: string;

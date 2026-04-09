@@ -4,7 +4,7 @@ import {
   createCheckoutSession,
   getSubscription,
 } from "@workspace/payment/server";
-import { userPreferencesRepository } from "@workspace/repository";
+import * as userPreferencesRepository from "@workspace/repository/entities/user-preferences";
 import {
   assertHasStripeCustomer,
   assertHasSubscription,
