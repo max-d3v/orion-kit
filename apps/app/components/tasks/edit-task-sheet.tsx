@@ -2,7 +2,9 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { CreateTaskInput } from "@workspace/types/use-cases/tasks";
-import { type Task, updateTaskInputSchema } from "@workspace/types/use-cases/tasks";
+import {
+  updateTaskInputSchema,
+} from "@workspace/types/use-cases/tasks";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -42,22 +44,28 @@ import {
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { useDeleteTask, useUpdateTask } from "@/hooks/use-tasks";
+import { useTasksContext } from "./context";
+import { useQueryClient } from "@tanstack/react-query";
 import { StatusIcon, statusConfig } from "./task-status-config";
+import { updateTask as updateTaskMutation, deleteTask as deleteTaskMutation } from "@/components/tasks/mutations";
+import { useMutation } from "@tanstack/react-query";
 
-interface EditTaskSheetProps {
-  onOpenChange: (open: boolean) => void;
-  open: boolean;
-  task: Task | null;
-}
+export function EditTaskSheet() {
+  const queryClient = useQueryClient();
 
-export function EditTaskSheet({
-  task,
-  open,
-  onOpenChange,
-}: EditTaskSheetProps) {
-  const updateTask = useUpdateTask();
-  const deleteTask = useDeleteTask();
+  const { selectedTask: task, setSelectedTask } = useTasksContext();
+  const open = task !== null;
+  const onOpenChange = (isOpen: boolean) => {
+    if (!isOpen) {
+      setSelectedTask(null);
+    }
+  };
+  const { mutateAsync: updateTask, isPending: isUpdatingTask } = useMutation(
+    updateTaskMutation(queryClient)
+  );
+  const { mutateAsync: deleteTask, isPending: isDeletingTask } = useMutation(
+    deleteTaskMutation(queryClient)
+  );
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
   const form = useForm({
@@ -83,13 +91,11 @@ export function EditTaskSheet({
     if (!task) {
       return;
     }
-
-    await updateTask.mutateAsync({
+    await updateTask({
       id: task.id,
-      updates: data,
+      ...data,
     });
-
-    onOpenChange(false);
+    setSelectedTask(null);
   };
 
   const handleDelete = async () => {
@@ -97,14 +103,16 @@ export function EditTaskSheet({
       return;
     }
 
-    await deleteTask.mutateAsync(task.id);
+    await deleteTask({ id: task.id });
     setShowDeleteDialog(false);
-    onOpenChange(false);
+    setSelectedTask(null);
   };
 
   if (!task) {
     return null;
   }
+
+  const formStatus = form.watch("status");
 
   return (
     <Sheet onOpenChange={onOpenChange} open={open}>
@@ -144,11 +152,13 @@ export function EditTaskSheet({
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button className="justify-start gap-2" variant="outline">
-                  {form.watch("status") && (
-                    <StatusIcon status={form.watch("status")!} />
+                  {formStatus ? (
+                    <StatusIcon status={formStatus} />
+                  ) : (
+                    <Circle className="mr-2 h-4 w-4 text-muted-foreground" />
                   )}
-                  {form.watch("status")
-                    ? statusConfig[form.watch("status")!].label
+                  {formStatus
+                    ? statusConfig[formStatus].label
                     : "Select status"}
                 </Button>
               </DropdownMenuTrigger>
@@ -184,11 +194,11 @@ export function EditTaskSheet({
         </div>
         <SheetFooter className="gap-2">
           <Button
-            disabled={updateTask.isPending || form.formState.isSubmitting}
+            disabled={isUpdatingTask || form.formState.isSubmitting}
             onClick={form.handleSubmit(handleSubmit)}
             type="button"
           >
-            {updateTask.isPending ? (
+            {isUpdatingTask ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 Saving...
@@ -199,12 +209,12 @@ export function EditTaskSheet({
           </Button>
           <Button
             className="w-full"
-            disabled={deleteTask.isPending}
+            disabled={isDeletingTask}
             onClick={() => setShowDeleteDialog(true)}
             size="sm"
             variant="destructive"
           >
-            {deleteTask.isPending ? (
+            {isDeletingTask ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 Deleting...
@@ -235,10 +245,10 @@ export function EditTaskSheet({
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-              disabled={deleteTask.isPending}
+              disabled={isDeletingTask}
               onClick={handleDelete}
             >
-              {deleteTask.isPending ? (
+              {isDeletingTask ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   Deleting...

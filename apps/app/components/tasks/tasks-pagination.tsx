@@ -9,18 +9,14 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@workspace/ui/components/pagination";
+import { useTasksContext } from "./context";
 
-interface TasksPaginationProps {
-  currentPage: number;
-  onPageChange: (page: number) => void;
-  totalPages: number;
-}
+export function TasksPagination() {
+  const { currentPage, totalPages, setCurrentPage: onPageChange } = useTasksContext();
 
-export function TasksPagination({
-  currentPage,
-  totalPages,
-  onPageChange,
-}: TasksPaginationProps) {
+  if (totalPages <= 1) {
+    return null;
+  }
   const getVisiblePages = () => {
     const delta = 2;
     const start = Math.max(2, currentPage - delta);

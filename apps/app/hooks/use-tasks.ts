@@ -72,48 +72,6 @@ export function useCreateTask() {
   });
 }
 
-export function useUpdateTask() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: ({
-      id,
-      updates,
-    }: {
-      id: string;
-      updates: Omit<UpdateTaskInput, "id">;
-    }) => updateTask(id, updates),
-    onSuccess: (response) => {
-      showSuccessToast("Task updated", response.message);
-
-      queryClient.invalidateQueries({ queryKey: tasksKeys.lists() });
-
-      queryClient.setQueryData<TasksListResponse>(tasksKeys.lists(), (old) => {
-        if (!old) {
-          return old;
-        }
-        const updatedTask = response.data;
-
-        const updatedData = old.data.map((task) =>
-          task.id === updatedTask.id ? updatedTask : task
-        );
-
-        const { completed, inProgress, todo } = getStatusCount(updatedData);
-
-        return {
-          ...old,
-          data: updatedData,
-          completed,
-          inProgress,
-          todo,
-        };
-      });
-    },
-    onError: (error) => {
-      showErrorToast(error, "Failed to update task");
-    },
-  });
-}
 
 export function useDeleteTask() {
   const queryClient = useQueryClient();

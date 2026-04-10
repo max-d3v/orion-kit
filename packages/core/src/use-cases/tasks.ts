@@ -12,7 +12,7 @@ const countTasksByStatus = (tasks: TaskRawObject[]) => ({
 
 export const getUserTasks = async (params: GetUserTasksInput) => {
   const { userId } = params;
-  return tasksRepository.find(userId);
+  return await tasksRepository.list({ userId });
 };
 
 export const getUserTasksWithCount = async (params: GetUserTasksInput) => {

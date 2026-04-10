@@ -16,6 +16,9 @@
       "performance": {
         "noBarrelFile": "off"
       },
+      "complexity": {
+        "noVoid": "off"
+      },
       "style": {
         "useConsistentTypeDefinitions": {
           "options": {

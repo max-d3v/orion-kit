@@ -20,13 +20,13 @@ const tasksRouter = {
   }),
   getUserTasks: authenticatedProcedure.handler(async ({ context }) => {
     const { id } = context.user;
-    return getUserTasks({ userId: id });
+    return await getUserTasks({ userId: id });
   }),
   create: authenticatedProcedure
     .input(createTaskInputSchema)
     .handler(async ({ context, input }) => {
       const { id } = context.user;
-      return createTask({ userId: id, ...input });
+      return await createTask({ userId: id, ...input });
     }),
 
   update: authenticatedProcedure
@@ -34,14 +34,14 @@ const tasksRouter = {
     .handler(async ({ context, input }) => {
       const { id: userId } = context.user;
       const { id: taskId, ...data } = input;
-      return updateTask({ userId, taskId, data });
+      return await updateTask({ userId, taskId, data });
     }),
 
   delete: authenticatedProcedure
     .input(deleteTaskInputSchema)
     .handler(async ({ context, input }) => {
       const { id: userId } = context.user;
-      return deleteTask({ userId, taskId: input.id });
+      return await deleteTask({ userId, taskId: input.id });
     }),
 };
 

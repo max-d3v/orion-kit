@@ -20,16 +20,10 @@ import { Textarea } from "@workspace/ui/components/textarea";
 import { Loader2, Plus } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { useCreateTask } from "@/hooks/use-tasks";
+import { useTasksContext } from "./context";
 
-interface CreateTaskDialogProps {
-  onOpenChange: (open: boolean) => void;
-  open: boolean;
-}
-
-export function CreateTaskDialog({
-  open,
-  onOpenChange,
-}: CreateTaskDialogProps) {
+export function CreateTaskDialog() {
+  const { isCreateDialogOpen, setCreateDialogOpen } = useTasksContext();
   const createTask = useCreateTask();
 
   const form = useForm({
@@ -43,11 +37,11 @@ export function CreateTaskDialog({
   const handleSubmit = async (data: CreateTaskInput) => {
     await createTask.mutateAsync(data);
     form.reset();
-    onOpenChange(false);
+    setCreateDialogOpen(false);
   };
 
   return (
-    <Dialog onOpenChange={onOpenChange} open={open}>
+    <Dialog onOpenChange={setCreateDialogOpen} open={isCreateDialogOpen}>
       <DialogTrigger asChild>
         <Button>
           <Plus className="mr-2 h-4 w-4" />
