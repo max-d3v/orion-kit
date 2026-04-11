@@ -3,7 +3,7 @@
   "type": "module",
   "private": true,
   "exports": {
-    ".": "./src/index.ts",
+    "./router": "./src/router.ts",
     "./orpc/*": "./src/orpc/*.ts"
   },
   "scripts": {

@@ -4,3 +4,5 @@ import { authMiddleware } from "./middleware/auth";
 export const publicProcedure = os;
 
 export const authenticatedProcedure = publicProcedure.use(authMiddleware);
+
+export const webhookProcedure = publicProcedure
