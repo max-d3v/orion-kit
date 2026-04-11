@@ -1,370 +1,226 @@
 ---
 title: Type System
-description: How types flow from database to API to frontend
+description: How types flow from database schema through repository, use cases, and RPC to the frontend
 ---
 
-**Centralized type system** where `@workspace/types` combines domain entities with API response interfaces.
+:::tip[TL;DR]
+Database schema is the source of truth. Drizzle ORM infers entity types. The `@workspace/types` package defines contracts for each layer (repository raw objects, use case inputs/outputs, error types). oRPC provides automatic end-to-end type inference from procedure definitions to TanStack Query hooks. No manual API client types needed.
+:::
 
-## Architecture
+## Type Flow
 
 ```
-@workspace/database              @workspace/payment
-┌─────────────────────┐         ┌──────────────────┐
-│ - Task entity       │         │ - CheckoutSession│
-│ - Zod schemas       │         │ - PricingPlan    │
-│ - Insert types      │         │ - PortalSession  │
-└──────────┬──────────┘         └────────┬─────────┘
-           │                             │
-           └──────────┬──────────────────┘
-                      ↓
-           @workspace/types
-        ┌──────────────────────────┐
-        │ Generic API interfaces:  │
-        │ - ApiResponse<T>         │
-        │ - ListResponse<T>        │
-        │                          │
-        │ Domain-specific files:   │
-        │ - tasks.ts               │
-        │ - billing.ts             │
-        │ - preferences.ts         │
-        └─────────┬────────────────┘
-                  │
-                  │ Re-exports everything
-                  ↓
-        ┌─────────┴──────────┐
-        │                    │
-    API Routes         Frontend Hooks
-  (Validate & Return)   (Query & Mutate)
+Drizzle Schema (source of truth)
+       │
+       ├─> Inferred entity types (Task, User, UserPreference)
+       ├─> Drizzle-Zod auto-generated schemas
+       │
+       ▼
+@workspace/types
+       │
+       ├─> repository/*   (raw object types for data access)
+       ├─> use-cases/*     (input schemas + response types)
+       ├─> errors/*        (HttpError class)
+       └─> payments/*      (Stripe domain types)
+       │
+       ▼
+@workspace/rpc (oRPC)
+       │
+       ├─> Input validated with Zod schemas from types
+       ├─> Return types inferred from use case functions
+       └─> oRPC auto-generates client types
+       │
+       ▼
+Apps (automatic type inference via oRPC)
+       │
+       └─> useSuspenseQuery(orpc.tasks.getUserTasksWithCount.queryOptions())
+           // TypeScript knows the exact return shape
 ```
 
 ## Type Ownership
 
-| Type Category          | Owner                 | Example                                           |
-| ---------------------- | --------------------- | ------------------------------------------------- |
-| **Database entities**  | `@workspace/database` | `Task`, `UserPreference`, `InsertTask`            |
-| **Zod schemas**        | `@workspace/database` | `createTaskInputSchema`, `updateTaskInputSchema`  |
-| **Payment domain**     | `@workspace/payment`  | `CheckoutSession`, `PricingPlan`, `PortalSession` |
-| **Generic responses**  | `@workspace/types`    | `ApiResponse<T>`, `ListResponse<T>`               |
-| **Input types**        | `@workspace/types`    | `CreateTaskInput`, `UpdateTaskInput`              |
-| **API response types** | `@workspace/types`    | `TaskResponse`, `TasksListResponse`               |
+| Type Category | Owner Package | Example |
+| ------------- | ------------- | ------- |
+| Database entities | `@workspace/database` | `tasks`, `users`, `userPreferences` tables |
+| Raw object types | `@workspace/types/repository/*` | `TaskRawObject`, `UserRawObject` |
+| Use case inputs | `@workspace/types/use-cases/*` | `createTaskInputSchema`, `UpdateTaskInput` |
+| Error types | `@workspace/types/errors/*` | `HttpError` |
+| Payment types | `@workspace/types/payments/*` | `CheckoutSession`, `PricingPlan` |
+| Zod schemas | `@workspace/database` (via drizzle-zod) | Auto-generated insert/select schemas |
 
-### Key Principle
+## Layer-by-Layer Type Definitions
 
-- **Domain packages** (database, payment) own the data models and validation schemas
-- **Types package** re-exports domain types and composes them into API response types
-- **Apps** (api, app) import everything from `@workspace/types` for consistency
+### Database Layer
 
-## Complete Example: Task Creation Flow
-
-### 1. Database Package (`@workspace/database`)
-
-Defines the entity and validation:
+Drizzle schema is the source of truth. Types are inferred, not manually written:
 
 ```typescript
 // packages/database/src/schema.ts
 export const tasks = pgTable("tasks", {
-  id: integer().primaryKey().generatedAlwaysAsIdentity(),
+  id: uuid().primaryKey().defaultRandom(),
+  userId: varchar("user_id", { length: 255 }).notNull(),
   title: varchar({ length: 255 }).notNull(),
-  status: varchar({ length: 50 }).notNull().default("todo"),
-  userId: varchar({ length: 255 }).notNull(),
-  createdAt: timestamp().notNull().defaultNow(),
+  description: text(),
+  status: taskStatusEnum().default("todo").notNull(),
+  dueDate: timestamp("due_date"),
+  completedAt: timestamp("completed_at"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
-// Auto-generated types
-export type Task = typeof tasks.$inferSelect;
-export type InsertTask = typeof tasks.$inferInsert;
-
-// Zod schemas for validation
-export const createTaskInputSchema = createInsertSchema(tasks, {
-  title: z.string().min(1).max(255),
-  status: z.enum(["todo", "in-progress", "completed"]).optional(),
-}).omit({
-  id: true,
-  userId: true,
-  createdAt: true,
-  updatedAt: true,
-});
+// Inferred types (never manually defined)
+// typeof tasks.$inferSelect -> full row type
+// typeof tasks.$inferInsert -> insert type (optionals for defaults)
 ```
 
-### 2. Types Package (`@workspace/types`)
+### Types Package - Repository Contracts
 
-Re-exports and composes:
+The types package defines what the repository layer returns:
 
 ```typescript
-// packages/types/src/tasks.ts
-import type { Task, InsertTask } from "@workspace/database/schema";
-import type { ApiResponse, ListResponse } from "./api";
+// packages/types/src/repository/tasks.ts
+import type { tasks } from "@workspace/database/schema";
 
-// ============================================
-// RE-EXPORT ENTITY
-// ============================================
-export type { Task } from "@workspace/database/schema";
+export type TaskRawObject = typeof tasks.$inferSelect;
 
-// ============================================
-// RE-EXPORT ZOD SCHEMAS
-// ============================================
-export { createTaskInputSchema } from "@workspace/database/schema";
-
-// ============================================
-// INPUT TYPES (TypeScript)
-// ============================================
-export type CreateTaskInput = Omit<
-  InsertTask,
-  "id" | "userId" | "createdAt" | "updatedAt"
->;
-
-// ============================================
-// API RESPONSE TYPES (composed with generics)
-// ============================================
-export type TaskResponse = ApiResponse<Task>;
-
-export interface TasksListResponse extends ListResponse<Task> {
+export type CreateTaskParams = {
   userId: string;
-  userName: string;
-  completed: number;
-  inProgress: number;
-  todo: number;
-}
+  title: string;
+  description?: string;
+  status?: string;
+};
 
-export type CreateTaskResponse = ApiResponse<Task>;
+export type UpdateTaskParams = Partial<{
+  title: string;
+  description: string;
+  status: string;
+  dueDate: Date;
+  completedAt: Date;
+}>;
 ```
 
-### 3. API Route (`apps/api`)
+### Types Package - Use Case Contracts
 
-Validates and returns typed response:
+Input validation schemas and response types for the business logic layer:
 
 ```typescript
-// apps/api/app/tasks/route.ts
-import { db, tasks } from "@workspace/database";
-import { createTaskInputSchema } from "@workspace/types";
-import type { CreateTaskResponse } from "@workspace/types";
+// packages/types/src/use-cases/tasks.ts
+import { z } from "zod";
 
-export async function POST(req: Request) {
-  const body = await req.json();
+export const createTaskInputSchema = z.object({
+  title: z.string().min(1).max(255),
+  description: z.string().optional(),
+});
 
-  // 1. Validate with Zod
-  const validation = createTaskInputSchema.safeParse(body);
-  if (!validation.success) {
-    return NextResponse.json({ error: validation.error }, { status: 400 });
+export const updateTaskInputSchema = z.object({
+  id: z.string().uuid(),
+  title: z.string().min(1).max(255).optional(),
+  description: z.string().optional(),
+  status: z.enum(["todo", "in-progress", "completed", "cancelled"]).optional(),
+  dueDate: z.date().optional(),
+});
+
+export type CreateTaskInput = z.infer<typeof createTaskInputSchema>;
+export type UpdateTaskInput = z.infer<typeof updateTaskInputSchema>;
+```
+
+### Types Package - Error Types
+
+```typescript
+// packages/types/src/errors/http.ts
+export class HttpError extends Error {
+  statusCode: number;
+  details?: unknown;
+
+  constructor(statusCode: number, message: string, details?: unknown) {
+    super(message);
+    this.statusCode = statusCode;
+    this.details = details;
   }
-
-  // 2. Insert to database
-  const [newTask] = await db
-    .insert(tasks)
-    .values({
-      userId: userId,
-      ...validation.data,
-    })
-    .returning();
-
-  // 3. Return typed response
-  const response: CreateTaskResponse = {
-    success: true,
-    message: "Task created successfully",
-    data: newTask,
-  };
-
-  return NextResponse.json(response);
 }
 ```
 
-### 4. Frontend Hook (`apps/app`)
+### RPC Layer - Automatic Type Inference
 
-Uses same types for queries and mutations:
-
-```typescript
-// apps/app/hooks/use-tasks.ts
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { createTask } from "@/lib/api/tasks";
-import type {
-  CreateTaskInput,
-  CreateTaskResponse,
-  TasksListResponse,
-} from "@workspace/types";
-
-export function useCreateTask() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: (input: CreateTaskInput) => createTask(input),
-    onSuccess: (response: CreateTaskResponse) => {
-      // TypeScript knows the exact shape of response.data
-      const newTask = response.data;
-
-      // Update cache with type-safe operations
-      queryClient.setQueryData<TasksListResponse>(["tasks"], (old) => {
-        if (!old) return old;
-        return {
-          ...old,
-          data: [newTask, ...old.data],
-          total: old.total + 1,
-          todo: old.todo + 1,
-        };
-      });
-    },
-  });
-}
-```
-
-### 5. API Client (`apps/app/lib/api`)
-
-Typed request and response:
+oRPC procedures are typed automatically. The return type of the handler becomes the response type. Input schemas provide input validation and typing:
 
 ```typescript
-// apps/app/lib/api/tasks.ts
-import type { CreateTaskInput, CreateTaskResponse } from "@workspace/types";
+// packages/rpc/src/routers/tasks.ts
+export const tasksRouter = {
+  // Return type inferred from use case function
+  getUserTasksWithCount: authenticatedProcedure.handler(async ({ context }) => {
+    return taskUseCases.getUserTasksWithCount({ userId: context.user.id });
+    // TypeScript infers: { tasks: TaskRawObject[], taskCounts: {...} }
+  }),
 
-export const createTask = async (
-  input: CreateTaskInput
-): Promise<CreateTaskResponse> => {
-  const res = await fetch(`${API_URL}/tasks`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(input),
-  });
-
-  if (!res.ok) throw new Error("Failed to create task");
-
-  return res.json();
+  // Input type inferred from Zod schema
+  create: authenticatedProcedure
+    .input(createTaskInputSchema)
+    .handler(async ({ context, input }) => {
+      // input is typed as CreateTaskInput
+      return taskUseCases.createTask({ userId: context.user.id, ...input });
+    }),
 };
 ```
 
-## Benefits of This Architecture
+### Frontend - Automatic Query Typing
 
-### ✅ Single Source of Truth
-
-Database schema changes automatically propagate:
+The client gets full type inference from oRPC. No manual type definitions:
 
 ```typescript
-// Add field to database
-export const tasks = pgTable("tasks", {
-  priority: varchar({ length: 20 }), // NEW
-});
+// In a client component
+const { data } = useSuspenseQuery(
+  orpc.tasks.getUserTasksWithCount.queryOptions()
+);
+// data is typed as { tasks: TaskRawObject[], taskCounts: {...} }
+// TypeScript knows the exact shape without any manual type imports
 
-// ✅ TypeScript immediately catches this everywhere
-const task: Task = response.data;
-task.priority; // Type-safe access
+const { mutateAsync } = useMutation(
+  orpc.tasks.create.mutationOptions()
+);
+// mutateAsync expects CreateTaskInput
+// Returns the created task with full type information
 ```
 
-### ✅ No Type Duplication
+## Export Pattern in Types Package
 
-API and frontend share identical types:
+The types package uses wildcard path exports so each domain is importable directly:
 
-```typescript
-// API knows the response shape
-const response: CreateTaskResponse = { success: true, data: newTask };
-
-// Frontend receives exact same shape
-const { data } = await createTask(input); // Type: CreateTaskResponse
-```
-
-### ✅ Compile-Time Safety
-
-TypeScript catches mismatches before runtime:
-
-```typescript
-// ❌ TypeScript error if API returns wrong shape
-const response: CreateTaskResponse = {
-  success: true,
-  // Missing 'data' field - TypeScript error
-};
-
-// ❌ TypeScript error if frontend expects wrong type
-queryClient.setQueryData<TasksListResponse>(["tasks"], {
-  data: [], // Missing required fields: total, userId, etc.
-});
-```
-
-### ✅ Clear Ownership & Organization
-
-Each package has a specific responsibility:
-
-- **`@workspace/database`** - Owns entities and validation schemas
-- **`@workspace/payment`** - Owns payment domain types
-- **`@workspace/types`** - Composes everything into API contracts
-- **Apps** - Import only from `@workspace/types`
-
-## Import Guidelines
-
-### ✅ Always import from `@workspace/types`
-
-```typescript
-// ✅ CORRECT - All apps import from types package
-import type {
-  Task,
-  CreateTaskInput,
-  CreateTaskResponse,
-  TasksListResponse,
-} from "@workspace/types";
-
-import { createTaskInputSchema } from "@workspace/types";
-```
-
-### ❌ Never import directly from domain packages in apps
-
-```typescript
-// ❌ WRONG - Don't import from database in apps
-import type { Task } from "@workspace/database";
-
-// ❌ WRONG - Don't import from payment in apps
-import type { PricingPlan } from "@workspace/payment";
-```
-
-### ❌ Never define response types in apps
-
-```typescript
-// ❌ WRONG - apps/api/lib/types.ts should NOT exist
-export interface CreateTaskResponse {
-  success: boolean;
-  data: Task;
+```json
+{
+  "exports": {
+    "./payments/*": "./src/payments/*.ts",
+    "./repository/*": "./src/repository/*.ts",
+    "./errors/*": "./src/errors/*.ts",
+    "./use-cases/*": "./src/use-cases/*.ts"
+  }
 }
-
-// ✅ CORRECT - Define in packages/types/src/tasks.ts
-export type CreateTaskResponse = ApiResponse<Task>;
 ```
 
-## File Structure Reference
-
-```
-packages/types/src/
-├── api.ts                 # Generic interfaces (ApiResponse, ListResponse)
-├── tasks.ts               # Task domain (re-exports + responses)
-├── billing.ts             # Billing domain (re-exports + responses)
-├── preferences.ts         # Preferences domain (re-exports + responses)
-└── index.ts               # Re-exports everything
-```
-
-Each domain file follows this pattern:
+Import examples:
 
 ```typescript
-// 1. Re-export entities from domain package
-export type { Entity } from "@workspace/database";
-
-// 2. Re-export Zod schemas for validation
-export { createEntitySchema } from "@workspace/database";
-
-// 3. Define Input types (TypeScript only)
-export type CreateEntityInput = Omit<InsertEntity, "id" | "userId">;
-
-// 4. Define API Response types (composed with generics)
-export type CreateEntityResponse = ApiResponse<Entity>;
-export type EntityListResponse = ListResponse<Entity>;
+import type { TaskRawObject } from "@workspace/types/repository/tasks";
+import { createTaskInputSchema } from "@workspace/types/use-cases/tasks";
+import { HttpError } from "@workspace/types/errors/http";
+import type { PricingPlan } from "@workspace/types/payments/pricing";
 ```
 
-## Summary
+## Key Principles
 
-The type system ensures end-to-end type safety by:
+1. **Schema is the source of truth.** Database schema defines entities. Types are inferred, never duplicated.
 
-1. **Database** defines entities with Drizzle ORM
-2. **Types package** re-exports entities and composes API responses
-3. **Both API and frontend** import from `@workspace/types`
-4. **TypeScript** catches any mismatches at compile-time
+2. **Zod schemas validate at boundaries.** Input validation happens in the RPC layer via Zod schemas defined in the types package. The core and repository layers trust that input is already validated.
 
-This creates a single source of truth where schema changes automatically propagate through the entire stack.
+3. **oRPC eliminates manual API types.** No `ApiResponse<T>`, no `TasksListResponse`. The procedure return type IS the response type. The client infers it automatically.
+
+4. **Types package defines contracts between layers.** Repository types define what the data access layer returns. Use case types define what the business logic layer accepts.
+
+5. **Apps never import types from internal packages.** With oRPC, apps get types automatically from the procedure definitions. Explicit type imports are only needed for form schemas or shared utilities.
 
 ## Related
 
-- [Architecture Overview](/architecture/overview) - Complete system architecture
-- [Database Package](/packages/database) - Schema and validation
-- [Types Package](/packages/types) - API response types
-- [Zod Guide](/guide/zod) - Validation patterns
+- [Monorepo Overview](/architecture/overview) - Export patterns and import conventions
+- [Clean Architecture](/architecture/clean-architecture) - Layer responsibilities
+- [Types Package](/packages/types) - Detailed package documentation
+- [Database Package](/packages/database) - Schema definitions

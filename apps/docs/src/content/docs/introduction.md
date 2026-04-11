@@ -1,84 +1,96 @@
 ---
 title: Introduction
-description: Production-ready SaaS boilerplate for Next.js
+description: Production-ready SaaS monorepo with clean architecture and end-to-end type safety
 ---
 
 :::tip[What is Orion Kit?]
-A production-ready SaaS boilerplate that gets you from zero to deployed faster. Built with Next.js 15, TypeScript, and modern tools. Everything you need to launch a SaaS business.
+A production-ready SaaS monorepo built on clean architecture principles. Uses oRPC for type-safe RPC, Clerk for authentication, Drizzle ORM with Neon PostgreSQL, and TanStack Query for data management. Everything is end-to-end type-safe from database schema to UI components.
 :::
-
-**Orion Kit** is a production-ready SaaS boilerplate that gets you from zero to deployed faster. Built with Next.js 15, TypeScript, and modern tools.
 
 ## What You Get
 
-- 🔐 **Authentication** - Custom JWT with protected routes
-- 🗄️ **Database** - Neon Postgres + Drizzle ORM
-- 💳 **Payments** - Stripe subscriptions & billing
-- 📧 **Email** - Resend with React Email templates
-- 🎨 **UI** - shadcn/ui + Tailwind CSS
-- 📊 **Analytics** - PostHog + Axiom logging
-- ⚡ **Jobs** - Trigger.dev background tasks
-- 🧪 **Testing** - Vitest + Playwright E2E
+- **Clean Architecture** - Layered packages: RPC, Core (Use Cases + Authorization), Repository, Database
+- **oRPC** - End-to-end type-safe RPC with automatic TanStack Query integration
+- **Clerk Auth** - Managed authentication abstracted into a swappable package
+- **Drizzle ORM** - Type-safe database with Neon PostgreSQL and auto-generated Zod schemas
+- **Stripe Payments** - Subscriptions, checkout, billing portal, and webhooks
+- **Resend Email** - React Email templates with transactional delivery
+- **PostHog + Axiom** - Product analytics and structured logging
+- **Trigger.dev** - Background jobs and scheduled tasks
+- **Vitest + Playwright** - Unit and E2E testing
 
-## What's Included
+## Architecture at a Glance
 
-### 🎨 **Frontend Applications**
+```
+Presentation (Apps)
+       |
+  Data Layer (TanStack Query + Hydration)
+       |
+  RPC Layer (oRPC routers + auth middleware)
+       |
+  Core Layer (Use Cases + Authorization)
+       |
+  Repository Layer (Drizzle queries)
+       |
+  Database (Neon PostgreSQL)
+```
 
-- **Web** - Marketing landing page with SEO optimization
-- **App** - Complete user dashboard with tasks, billing, analytics, settings
-- **Docs** - Comprehensive documentation site
+Each layer depends only on the layer below it. Business rules live in the Core package. Data access lives in the Repository package. The RPC layer exposes use cases as authenticated procedures. Apps never talk to the database directly.
 
-### 🔧 **Backend & Infrastructure**
+## Applications
 
-- **API** - REST API with authentication, payments, webhooks
-- **Database** - Neon Postgres with Drizzle ORM
-- **Studio** - Database management interface
+| App | Purpose | Technology | Port |
+| --- | ------- | ---------- | ---- |
+| **app** | User dashboard | Next.js + oRPC client + TanStack Query | 3001 |
+| **api** | oRPC server | Next.js + oRPC handler + Clerk middleware | 3002 |
+| **web** | Marketing landing page | Next.js (static) | 3000 |
+| **studio** | Database browser | Drizzle Studio | 3003 |
+| **docs** | Documentation | Astro + Starlight | 3004 |
 
-### 📦 **Shared Packages**
+## Core Packages
 
-- **@workspace/ui** - shadcn/ui components with Tailwind CSS
-- **@workspace/types** - End-to-end TypeScript definitions
-- **@workspace/auth** - Custom JWT authentication system
-- **@workspace/database** - Type-safe database operations
-- **@workspace/payment** - Stripe subscriptions & billing
-- **@workspace/email** - Resend email templates
-- **@workspace/analytics** - PostHog integration
-- **@workspace/observability** - Axiom logging
+| Package | Layer | Purpose |
+| ------- | ----- | ------- |
+| **@workspace/rpc** | API | oRPC routers, auth middleware, procedure definitions |
+| **@workspace/core** | Business Logic | Use cases, authorization rules |
+| **@workspace/repository** | Data Access | Drizzle queries, CRUD operations |
+| **@workspace/data-layer** | Client Sync | TanStack Query client, hydration, oRPC utilities |
+| **@workspace/auth** | Authentication | Clerk abstraction (server, client, components) |
+| **@workspace/database** | Infrastructure | Drizzle schema, Neon client, migrations |
+| **@workspace/types** | Contracts | Shared types, Zod schemas, error classes |
 
-### 🚀 **Production Features**
+## Auxiliary Packages
 
-- **Authentication** - Custom JWT with protected routes
-- **Payments** - Stripe subscriptions with billing portal
-- **Email** - Welcome emails and notifications
-- **Analytics** - User behavior tracking and insights
-- **Monitoring** - Error tracking and performance metrics
-- **Testing** - Unit tests and E2E testing with Playwright
+| Package | Purpose | Service |
+| ------- | ------- | ------- |
+| **@workspace/analytics** | Product analytics | PostHog + Vercel Analytics |
+| **@workspace/observability** | Logging + monitoring | Axiom |
+| **@workspace/payment** | Billing + subscriptions | Stripe |
+| **@workspace/email** | Transactional email | Resend |
+| **@workspace/jobs** | Background tasks | Trigger.dev |
+| **@workspace/ui** | Component library | shadcn/ui + Radix + Tailwind v4 |
 
-### 🎯 **Key Benefits**
+## External Services
 
-- **Complete SaaS** - Everything you need to launch
-- **Type-safe** - End-to-end TypeScript from database to UI
-- **Production-ready** - Includes payments, analytics, monitoring
-- **No vendor lock-in** - You own all the code
-- **Easy to customize** - Modify any part to fit your needs
-
-## Type-Safe Stack
-
-Database Schema → Auto-generated Types → Shared Packages → API + Frontend
-
-Everything is type-safe from database to UI with zero duplication. Change a database column and TypeScript will catch all the places that need updating.
+| Service | Purpose | Package |
+| ------- | ------- | ------- |
+| **Clerk** | Authentication and user management | @workspace/auth |
+| **Neon** | Serverless PostgreSQL database | @workspace/database |
+| **PostHog** | Product analytics and event tracking | @workspace/analytics |
+| **Stripe** | Payment processing and subscriptions | @workspace/payment |
+| **Axiom** | Structured logging and monitoring | @workspace/observability |
+| **Resend** | Transactional email delivery | @workspace/email |
+| **Trigger.dev** | Background job execution | @workspace/jobs |
+| **Vercel** | Hosting and deployment | All apps |
 
 ## Quick Start
 
 ```bash
-# Click "Use this template" on GitHub, then:
-git clone https://github.com/YOUR-USERNAME/your-project-name
-cd your-project-name
-pnpm install
-pnpm dev
+# Clone the template
+git clone https://github.com/Mumma6/orion-kit your-project
+cd your-project
+bun install
+bun dev
 ```
 
-**Next:** [Getting Started →](/getting-started)  
-**Learn:** [Architecture →](/architecture) · [Packages →](/packages)
-
-**GitHub:** [github.com/Mumma6/orion-kit](https://github.com/Mumma6/orion-kit)
+**Next:** [Architecture Overview](/architecture/overview) | [Applications](/apps) | [Core Packages](/packages)

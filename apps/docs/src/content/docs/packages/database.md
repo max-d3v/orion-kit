@@ -1,111 +1,185 @@
 ---
-title: Database Package
-description: Drizzle ORM + Neon Postgres
+title: Database
+description: Drizzle ORM schema, Neon PostgreSQL client, migrations, and seeding
 ---
 
-Type-safe database with **Drizzle ORM** + **Neon** serverless Postgres. Auto-generated types and Zod schemas.
+The Database package (`@workspace/database`) defines the PostgreSQL schema with Drizzle ORM and provides the database client connected to Neon. It is the foundation of the data layer -- all types are inferred from the schema, and all queries go through the Drizzle client.
 
-## Setup
+**ORM:** Drizzle ORM
+**Database:** Neon PostgreSQL (serverless)
+**Layer:** Infrastructure
+**Consumed by:** `@workspace/repository`
 
-```bash
-# Get connection string from neon.tech (use Pooled Connection)
-# Add to packages/database/.env
-DATABASE_URL=postgresql://user:pass@host/db?sslmode=require
+## Package Exports
 
-# Push schema
-pnpm db:push
-
-# Open Studio GUI
-pnpm db:studio
+```json
+{
+  "exports": {
+    "./client": "./src/client.ts",
+    "./schema": "./src/schema.ts",
+    "./drizzle-zod": "./src/drizzle-zod.ts",
+    "./keys": "./src/keys.ts"
+  }
+}
 ```
 
-## Tables
+| Export | Purpose |
+| ------ | ------- |
+| `./client` | Drizzle client instance (`db`) |
+| `./schema` | Table definitions, enums, relations |
+| `./drizzle-zod` | Re-export of drizzle-zod for schema-to-Zod |
+| `./keys` | t3-env validation for `DATABASE_URL` |
 
-- **`user_preferences`** - User settings, theme, Stripe data
-- **`tasks`** - User tasks with status, due dates
+## Schema
 
-## Usage
+### Task Status Enum
 
 ```typescript
-import { db, tasks, userPreferences, eq } from "@workspace/database";
+export const taskStatusEnum = pgEnum("task_status", [
+  "todo",
+  "in-progress",
+  "completed",
+  "cancelled",
+]);
+```
 
-// Query
-const userTasks = await db.select().from(tasks).where(eq(tasks.userId, userId));
+### Users Table
 
-// Insert
-await db.insert(tasks).values({
-  userId: userId,
-  title: "Deploy",
-  status: "todo",
+```typescript
+export const users = pgTable("users", {
+  id: uuid().primaryKey().defaultRandom(),
+  name: varchar({ length: 255 }),
+  email: varchar({ length: 255 }).unique().notNull(),
+  emailVerified: timestamp("email_verified"),
+  image: varchar({ length: 255 }),
+  password: varchar({ length: 255 }),
+  welcomeMailSent: boolean("welcome_mail_sent").default(false),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
-
-// Update
-await db
-  .update(userPreferences)
-  .set({ theme: "dark" })
-  .where(eq(userPreferences.userId, userId));
 ```
 
-## Validation with Drizzle-Zod
-
-**Drizzle-Zod** automatically generates Zod schemas from your Drizzle tables, ensuring validation stays in sync with your database schema.
-
-### How It Works
+### User Preferences Table
 
 ```typescript
-import { pgTable, integer, varchar } from "drizzle-orm/pg-core";
-import { createInsertSchema, createSelectSchema } from "drizzle-zod";
+export const userPreferences = pgTable("user_preferences", {
+  id: uuid().primaryKey().defaultRandom(),
+  userId: varchar("user_id", { length: 255 }).unique().notNull(),
 
-// 1. Define Drizzle table
+  // Display preferences
+  theme: varchar({ length: 50 }).default("system"),
+  language: varchar({ length: 10 }).default("en"),
+  timezone: varchar({ length: 100 }),
+
+  // Task defaults
+  defaultTaskStatus: varchar("default_task_status", { length: 50 }).default("todo"),
+
+  // Notifications
+  emailNotifications: boolean("email_notifications").default(true),
+  taskReminders: boolean("task_reminders").default(false),
+  weeklyDigest: boolean("weekly_digest").default(true),
+  pushNotifications: boolean("push_notifications").default(false),
+
+  // Stripe billing
+  stripeCustomerId: varchar("stripe_customer_id", { length: 255 }),
+  stripeSubscriptionId: varchar("stripe_subscription_id", { length: 255 }),
+  stripeSubscriptionStatus: varchar("stripe_subscription_status", { length: 50 }),
+  stripePriceId: varchar("stripe_price_id", { length: 255 }),
+  stripeCurrentPeriodEnd: timestamp("stripe_current_period_end"),
+  plan: varchar({ length: 50 }).default("free"),
+
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+```
+
+### Tasks Table
+
+```typescript
 export const tasks = pgTable("tasks", {
-  id: integer().primaryKey(),
-  userId: varchar({ length: 255 }).notNull(),
+  id: uuid().primaryKey().defaultRandom(),
+  userId: varchar("user_id", { length: 255 }).notNull(),
   title: varchar({ length: 255 }).notNull(),
-  status: varchar({ length: 50 }).notNull().default("todo"),
-});
-
-// 2. Auto-generate Zod schemas
-export const insertTaskSchema = createInsertSchema(tasks);
-export const selectTaskSchema = createSelectSchema(tasks);
-
-// 3. Customize validation (optional)
-export const createTaskInputSchema = createInsertSchema(tasks, {
-  title: (schema) => schema.min(1).max(255),
-  status: (schema) => schema.regex(/^(todo|in-progress|completed)$/),
-}).omit({
-  id: true,
-  userId: true,
+  description: text(),
+  status: taskStatusEnum().default("todo").notNull(),
+  dueDate: timestamp("due_date"),
+  completedAt: timestamp("completed_at"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 ```
 
-### Benefits
-
-- ✅ **Single source of truth** - Schema changes automatically update validation
-- ✅ **Type-safe** - TypeScript + runtime validation from same definition
-- ✅ **Less code** - No manual Zod schema duplication
-- ✅ **Customizable** - Refine validation rules per field
-
-### Usage
+## Client
 
 ```typescript
-import { createTaskInputSchema } from "@workspace/database";
+// src/client.ts
+import { neon } from "@neondatabase/serverless";
+import { drizzle } from "drizzle-orm/neon-http";
+import * as schema from "./schema";
+import { env } from "./keys";
 
-// Validate user input
-const validated = createTaskInputSchema.parse(userInput);
-
-// Insert validated data
-await db.insert(tasks).values({
-  ...validated,
-  userId: userId,
-});
+const sql = neon(env.DATABASE_URL);
+export const db = drizzle({ client: sql, schema });
 ```
 
-## Commands
+Uses Neon's HTTP adapter for serverless-friendly connections. No persistent connection pool -- each query is a standalone HTTP request.
+
+## Database Commands
 
 ```bash
-pnpm db:push      # Push schema to DB
-pnpm db:generate  # Generate migrations
-pnpm db:studio    # Open Studio GUI (https://local.drizzle.studio)
+# Generate migration from schema changes
+bun db:generate
+
+# Apply migrations to database
+bun db:migrate
+
+# Push schema directly (development)
+bun db:push
+
+# Pull schema from database
+bun db:pull
+
+# Open Drizzle Studio
+bun db:studio
+
+# Seed database with test data
+bun db:seed
+
+# Check schema status
+bun db:check
 ```
 
-[Drizzle docs](https://orm.drizzle.team) · [Neon docs](https://neon.tech/docs)
+## Seeding
+
+The seed file creates a demo user with preferences and 40+ sample tasks:
+
+```bash
+bun db:seed
+```
+
+Seeds include tasks across all statuses (todo, in-progress, completed, cancelled) with realistic titles and descriptions for development.
+
+## Environment Variables
+
+```bash
+DATABASE_URL=postgresql://user:password@host/database?sslmode=require
+```
+
+Validated via t3-env. Must be a valid PostgreSQL connection string.
+
+## Dependencies
+
+```json
+{
+  "drizzle-orm": "catalog:schemas",
+  "drizzle-zod": "catalog:schemas",
+  "@neondatabase/serverless": "^0.10.4",
+  "zod": "catalog:schemas"
+}
+```
+
+## Related
+
+- [Repository Package](/packages/repository) - Uses the database client and schema
+- [Type System](/architecture/type-system) - How types are inferred from the schema
+- [Studio Application](/apps/studio) - Drizzle Studio for browsing data

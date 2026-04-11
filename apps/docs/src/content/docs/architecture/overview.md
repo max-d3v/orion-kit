@@ -1,303 +1,416 @@
 ---
-title: Architecture Overview
+title: Monorepo Overview
+description: Turborepo structure, environment validation, linting, precommit hooks, export patterns, and import conventions
 ---
 
 :::tip[TL;DR]
-Orion Kit is a monorepo with 5 apps sharing packages. Database schema drives everything with end-to-end type safety. Built for production with authentication, payments, analytics, and monitoring.
+Turborepo monorepo with Bun as the package manager. t3-env for environment validation, Ultracite (Biome) for linting and formatting, Lefthook for git hooks, and strict export/import patterns across all packages.
 :::
 
-## Tech Stack
-
-| Layer             | Technology            | Purpose                                 |
-| ----------------- | --------------------- | --------------------------------------- |
-| **Frontend**      | Next.js 15 App Router | React 19, SSR, RSC                      |
-| **Auth**          | Custom JWT            | User management                         |
-| **Database**      | Neon + Drizzle ORM    | Serverless Postgres + type-safe queries |
-| **Payments**      | Stripe                | Subscriptions + checkout                |
-| **Email**         | Resend                | Transactional emails                    |
-| **Validation**    | Zod                   | Runtime validation                      |
-| **Data Fetching** | TanStack Query        | Server state + caching                  |
-| **Forms**         | React Hook Form       | Form management                         |
-| **UI**            | shadcn/ui + Tailwind  | Components + styling                    |
-| **Analytics**     | PostHog + Axiom       | Events + logging                        |
-| **Jobs**          | Trigger.dev           | Background tasks                        |
-| **Monorepo**      | Turborepo + pnpm      | Build + packages                        |
-
-## Data Flow
-
-**Creating a task:**
+## Monorepo Structure
 
 ```
-User fills form
-  ↓
-Zod validates (client)
-  ↓
-Submit to API
-  ↓
-Zod validates (server)
-  ↓
-Drizzle inserts
-  ↓
-TanStack Query updates cache
-  ↓
-UI updates
+orion-kit/
+├── apps/
+│   ├── app/          # Dashboard (Next.js, port 3001)
+│   ├── api/          # oRPC server (Next.js, port 3002)
+│   ├── web/          # Landing page (Next.js, port 3000)
+│   ├── studio/       # Drizzle Studio (port 3003)
+│   └── docs/         # Documentation (Astro, port 3004)
+├── packages/
+│   ├── rpc/          # oRPC routers + middleware
+│   ├── core/         # Use cases + authorization
+│   ├── repository/   # Data access layer
+│   ├── data-layer/   # TanStack Query + hydration
+│   ├── auth/         # Clerk abstraction
+│   ├── database/     # Drizzle schema + Neon client
+│   ├── types/        # Shared types + Zod schemas
+│   ├── analytics/    # PostHog + Vercel Analytics
+│   ├── observability/# Axiom logging
+│   ├── payment/      # Stripe integration
+│   ├── email/        # Resend + React Email
+│   ├── jobs/         # Trigger.dev tasks
+│   ├── ui/           # shadcn/ui components
+│   └── typescript-config/ # Shared tsconfig presets
+├── e2e/              # Playwright E2E tests
+├── turbo.json        # Turborepo task pipelines
+├── biome.jsonc       # Linting + formatting (Ultracite)
+├── lefthook.yml      # Git hooks
+├── package.json      # Root workspace config
+└── tsconfig.json     # Root TypeScript config
 ```
 
-**Fetching tasks:**
+## Turborepo
 
-```
-Component calls useTasks()
-  ↓
-TanStack Query checks cache
-  ↓
-If stale, fetch from API
-  ↓
-JWT auth verification
-  ↓
-Drizzle queries Neon
-  ↓
-Cache result
-  ↓
-Render
-```
+Build orchestration is handled by Turborepo. The `turbo.json` defines task pipelines:
 
-## Type Flow
-
-```
-Drizzle Schema (source of truth)
-    ↓
-TypeScript Types + Zod Schemas (auto-generated with Drizzle-Zod)
-    ↓
-@workspace/database exports entities + schemas
-    ↓
-@workspace/types re-exports + composes API responses
-    ↓
-API + Frontend import ONLY from @workspace/types
-```
-
-**Example:**
-
-```typescript
-// 1. Define in Drizzle
-export const tasks = pgTable("tasks", { id: integer(), title: varchar() });
-
-// 2. Auto-generated with Drizzle Zod
-export type Task = typeof tasks.$inferSelect;
-export const insertTaskSchema = createInsertSchema(tasks);
-
-// 3. Use everywhere
-const validated = insertTaskSchema.parse(body); // API
-const form = useForm({ resolver: zodResolver(insertTaskSchema) }); // Frontend
-```
-
-See [Type System](/architecture/type-system) and [Type Flow](/architecture/type-flow) for details.
-
-## API Architecture
-
-The API (`apps/api`) is a Next.js 15 App Router application that provides a RESTful interface for all frontend applications. It follows a consistent pattern with JWT authentication, Zod validation, and structured error handling.
-
-### API Endpoints
-
-| Endpoint           | Method    | Auth | Purpose                 |
-| ------------------ | --------- | ---- | ----------------------- |
-| `/auth/login`      | POST      | ❌   | User authentication     |
-| `/auth/register`   | POST      | ❌   | User registration       |
-| `/auth/logout`     | POST      | ❌   | User logout             |
-| `/auth/me`         | GET       | ✅   | Get current user        |
-| `/account/profile` | PUT       | ✅   | Update user profile     |
-| `/account/delete`  | DELETE    | ✅   | Delete user account     |
-| `/tasks`           | GET       | ✅   | List user tasks         |
-| `/tasks`           | POST      | ✅   | Create new task         |
-| `/tasks/[id]`      | PUT/PATCH | ✅   | Update task             |
-| `/tasks/[id]`      | DELETE    | ✅   | Delete task             |
-| `/preferences`     | GET       | ✅   | Get user preferences    |
-| `/preferences`     | PUT       | ✅   | Update preferences      |
-| `/subscription`    | GET       | ✅   | Get subscription status |
-| `/subscription`    | DELETE    | ✅   | Cancel subscription     |
-| `/checkout`        | POST      | ✅   | Create Stripe checkout  |
-| `/billing-portal`  | POST      | ✅   | Create billing portal   |
-| `/webhooks/stripe` | POST      | ❌   | Stripe webhook handler  |
-| `/health`          | GET       | ❌   | Health check            |
-
-### Authentication Flow
-
-```typescript
-// 1. Login/Register returns JWT token
-const response = await fetch("/api/auth/login", {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({ email, password }),
-});
-
-const { token, user } = await response.json();
-
-// 2. Store token in localStorage
-localStorage.setItem("auth-token", token);
-
-// 3. Include token in subsequent requests
-const tasks = await fetch("/api/tasks", {
-  headers: {
-    Authorization: `Bearer ${token}`,
-    "Content-Type": "application/json",
-  },
-});
-```
-
-### Request/Response Pattern
-
-All API endpoints follow a consistent structure:
-
-**Success Response:**
-
-```typescript
+```json
 {
-  success: true,
-  data: T,           // Response data
-  message?: string,  // Optional success message
-  total?: number     // For list endpoints
-}
-```
-
-**Error Response:**
-
-```typescript
-{
-  success: false,
-  error: string,     // Error message
-  details?: any      // Validation errors or additional info
-}
-```
-
-### Validation & Security
-
-1. **Zod Validation** - All input validated with Zod schemas
-2. **JWT Authentication** - Protected routes require valid JWT
-3. **CORS Protection** - Configured for specific origins
-4. **Rate Limiting** - Built into middleware
-5. **Input Sanitization** - All user input validated and sanitized
-
-### Error Handling
-
-```typescript
-// API route error handling pattern
-export async function POST(req: NextRequest) {
-  try {
-    const user = await getCurrentUser(req);
-    if (!user) {
-      return NextResponse.json(
-        { success: false, error: "Unauthorized" },
-        { status: 401 }
-      );
-    }
-
-    const body = await req.json();
-    const validated = schema.parse(body);
-
-    // Business logic...
-
-    return NextResponse.json({ success: true, data: result });
-  } catch (error) {
-    if (error instanceof ZodError) {
-      return NextResponse.json(
-        { success: false, error: "Validation failed", details: error.errors },
-        { status: 400 }
-      );
-    }
-
-    console.error("API Error:", error);
-    return NextResponse.json(
-      { success: false, error: "Internal server error" },
-      { status: 500 }
-    );
+  "tasks": {
+    "build": {
+      "dependsOn": ["^build"],
+      "inputs": [".env*"],
+      "outputs": [".next/**", "dist/**"]
+    },
+    "typecheck": {
+      "dependsOn": ["^typecheck"]
+    },
+    "dev": {
+      "cache": false,
+      "persistent": true
+    },
+    "lint": {}
   }
 }
 ```
 
-### Middleware & CORS
+- **`build`** - Builds all apps and packages, respecting dependency order (`^build` means "build dependencies first"). Outputs are cached.
+- **`typecheck`** - Type-checks all packages in dependency order.
+- **`dev`** - Runs all dev servers concurrently. Not cached, persistent (stays running).
+- **`lint`** - Runs linting across the monorepo.
 
-The API uses Next.js middleware for:
+### Catalog Dependencies
 
-- **CORS handling** - Configured for specific origins
-- **Authentication** - JWT verification for protected routes
-- **Request logging** - All requests logged to Axiom
-- **Rate limiting** - Built-in protection against abuse
+The root `package.json` uses Bun's catalog feature for shared dependency versions:
 
-### Database Integration
-
-- **Drizzle ORM** - Type-safe database queries
-- **Connection pooling** - Optimized for serverless
-- **Transactions** - Multi-step operations wrapped in transactions
-- **Migrations** - Version-controlled schema changes
-
-### TanStack Query Integration
-
-The frontend uses TanStack Query for all API communication, providing caching, background updates, and optimistic updates.
-
-**Query Keys Pattern:**
-
-```typescript
-export const tasksKeys = {
-  all: ["tasks"] as const,
-  lists: () => [...tasksKeys.all, "list"] as const,
-  list: (filters?: Record<string, unknown>) =>
-    [...tasksKeys.lists(), filters] as const,
-  details: () => [...tasksKeys.all, "detail"] as const,
-  detail: (id: number) => [...tasksKeys.details(), id] as const,
-};
-```
-
-**Query Hooks:**
-
-```typescript
-// Fetch data with caching
-export function useTasks() {
-  return useQuery<TasksListResponse>({
-    queryKey: tasksKeys.lists(),
-    queryFn: getTasks,
-  });
-}
-
-// Mutations with optimistic updates
-export function useCreateTask() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: createTask,
-    onSuccess: (response) => {
-      // Optimistic update
-      queryClient.setQueryData<TasksListResponse>(tasksKeys.lists(), (old) => {
-        if (!old) return old;
-        return {
-          ...old,
-          data: [response.data, ...old.data],
-          total: old.total + 1,
-        };
-      });
+```json
+{
+  "catalogs": {
+    "schemas": {
+      "drizzle-zod": "^0.8.3",
+      "drizzle-kit": "^0.31.10",
+      "drizzle-orm": "^0.45.2",
+      "zod": "^4.3.6"
     },
-    onError: (error) => {
-      showErrorToast(error, "Failed to create task");
+    "web": {
+      "next": "^16.1.0",
+      "react": "^19.2.4",
+      "react-dom": "^19.2.4"
     },
-  });
+    "data-layer": {
+      "@orpc/tanstack-query": "^1.13.13",
+      "@tanstack/react-query": "^5.96.2"
+    }
+  }
 }
 ```
 
-**Key Features:**
+Packages reference these with `"catalog:schemas"`, `"catalog:web"`, etc. This ensures all packages use identical versions of shared dependencies.
 
-- **Automatic Caching** - Responses cached by query key
-- **Background Refetching** - Data stays fresh automatically
-- **Optimistic Updates** - UI updates immediately, rolls back on error
-- **Error Handling** - Centralized error management with toast notifications
-- **Loading States** - Built-in loading, error, and success states
-- **Cache Invalidation** - Smart cache updates after mutations
+## Environment Validation (t3-env)
 
-## Key Principles
+Every package that uses environment variables validates them at import time with `@t3-oss/env-nextjs` and Zod schemas. Each package has a `keys.ts` file:
 
-1. **Database schema = source of truth** - Everything derives from it
-2. **Validate twice** - Client (UX) + server (security)
-3. **Type-safe everywhere** - @workspace/types ensures API/frontend alignment
-4. **Cache by default** - TanStack Query handles it
-5. **Monorepo** - Share code, isolate apps
-6. **Consistent API** - All endpoints follow same patterns
-7. **Security first** - Authentication, validation, and CORS
+```typescript
+// packages/auth/keys.ts
+import { createEnv } from "@t3-oss/env-nextjs";
+import { z } from "zod";
 
-[Deployment Guide](/guide/deployment) · [Package Docs](/packages)
+export const env = createEnv({
+  server: {
+    CLERK_SECRET_KEY: z.string().min(1),
+    CLERK_WEBHOOK_SECRET: z.string().min(1).optional(),
+  },
+  client: {
+    NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: z.string().min(1),
+    NEXT_PUBLIC_CLERK_SIGN_IN_URL: z.string().default("/login"),
+    NEXT_PUBLIC_CLERK_SIGN_UP_URL: z.string().default("/signup"),
+  },
+  runtimeEnv: {
+    CLERK_SECRET_KEY: process.env.CLERK_SECRET_KEY,
+    CLERK_WEBHOOK_SECRET: process.env.CLERK_WEBHOOK_SECRET,
+    NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY:
+      process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY,
+    NEXT_PUBLIC_CLERK_SIGN_IN_URL: process.env.NEXT_PUBLIC_CLERK_SIGN_IN_URL,
+    NEXT_PUBLIC_CLERK_SIGN_UP_URL: process.env.NEXT_PUBLIC_CLERK_SIGN_UP_URL,
+  },
+});
+```
+
+Packages with environment validation:
+
+| Package | Key Variables |
+| ------- | ------------ |
+| **auth** | `CLERK_SECRET_KEY`, `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` |
+| **database** | `DATABASE_URL` (PostgreSQL connection string) |
+| **analytics** | `NEXT_PUBLIC_POSTHOG_KEY` (phc_ prefix), `NEXT_PUBLIC_POSTHOG_HOST`, optional `NEXT_PUBLIC_GA_MEASUREMENT_ID` |
+| **observability** | `NEXT_PUBLIC_AXIOM_TOKEN` (xaat_ prefix), `NEXT_PUBLIC_AXIOM_DATASET` |
+| **payment** | `STRIPE_SECRET_KEY` (sk_ prefix), `STRIPE_WEBHOOK_SECRET` (whsec_ prefix), `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` (pk_ prefix), plan price IDs |
+| **email** | `RESEND_API_KEY` (re_ prefix), `FROM_EMAIL` |
+| **jobs** | `TRIGGER_PROJECT` |
+
+## Linting and Formatting (Ultracite)
+
+Ultracite is a zero-config preset built on top of Biome. It handles both linting and formatting in a single pass.
+
+```bash
+# Check for issues
+bun x ultracite check
+
+# Auto-fix issues
+bun x ultracite fix
+```
+
+The root `biome.jsonc` extends Ultracite's presets:
+
+```jsonc
+{
+  "$schema": "https://biomejs.dev/schemas/2.0.6/schema.json",
+  "extends": [
+    "ultracite/core",
+    "ultracite/react",
+    "ultracite/next",
+    "ultracite/biome"
+  ],
+  "linter": {
+    "rules": {
+      "performance": {
+        "noBarrelFile": "off"
+      }
+    }
+  },
+  "formatter": {
+    "lineWidth": 80
+  },
+  "css": {
+    "linter": {
+      "rules": {
+        "correctness": {
+          "noUnknownAtRule": "off"
+        }
+      }
+    }
+  }
+}
+```
+
+Key rules enforced:
+- Arrow functions for callbacks
+- `for...of` over `.forEach()`
+- `const` by default, never `var`
+- Optional chaining and nullish coalescing
+- No `console.log` in production code
+- Semantic HTML and ARIA attributes
+- Explicit Suspense boundaries (no implicit loading states)
+
+## Git Hooks (Lefthook)
+
+Lefthook manages pre-commit and pre-push hooks. The `lefthook.yml` in the root configures what runs before commits are created:
+
+```yaml
+# lefthook.yml
+pre-commit:
+  commands:
+    check:
+      glob: "*.{js,ts,jsx,tsx,json,css}"
+      run: bunx ultracite check {staged_files}
+pre-push:
+  commands:
+    typecheck:
+      run: bun turbo typecheck
+```
+
+Install hooks after cloning:
+
+```bash
+bun run prepare  # runs "lefthook install"
+```
+
+## TypeScript Configuration
+
+The `@workspace/typescript-config` package provides shared presets:
+
+| Preset | Use Case | Key Settings |
+| ------ | -------- | ------------ |
+| `base.json` | Non-React packages | ES2022, strict mode, strict null checks, bundler module resolution |
+| `nextjs.json` | Next.js apps | Extends base + Next.js plugin, JSX preserve, allowJs |
+| `react-library.json` | React packages | Extends base + react-jsx transform |
+
+All presets enable:
+- `strictNullChecks` - No implicit null/undefined
+- `noUncheckedIndexedAccess` - Array/object access returns `T | undefined`
+- `isolatedModules` - Each file is a standalone module
+- `declaration` + `declarationMap` - Emits `.d.ts` files for package consumers
+
+## Export Patterns
+
+Packages use **explicit path-based exports** in their `package.json`. No barrel files (index.ts re-exporting everything). Each export path maps to a specific file:
+
+```json
+// @workspace/repository
+{
+  "exports": {
+    "./entities/*": "./src/entities/*.ts"
+  }
+}
+
+// @workspace/core
+{
+  "exports": {
+    "./use-cases/*": "./src/use-cases/*.ts"
+  }
+}
+
+// @workspace/auth
+{
+  "exports": {
+    ".": "./src/index.ts",
+    "./client": "./src/client.ts",
+    "./server": "./src/server.ts",
+    "./proxy": "./src/proxy.ts",
+    "./components": "./src/components/index.ts",
+    "./provider": "./src/provider.tsx"
+  }
+}
+
+// @workspace/data-layer
+{
+  "exports": {
+    "./client": "./src/query-client.ts",
+    "./hydration": "./src/hydration.tsx",
+    "./orpc-tanstack-util": "./src/orpc-tanstack-util.ts"
+  }
+}
+```
+
+### Pattern Summary
+
+| Package | Export Style | Example Import |
+| ------- | ----------- | -------------- |
+| **rpc** | Mixed (root + path) | `@workspace/rpc`, `@workspace/rpc/orpc/tanstack` |
+| **core** | Wildcard path | `@workspace/core/use-cases/tasks` |
+| **repository** | Wildcard path | `@workspace/repository/entities/tasks` |
+| **data-layer** | Named paths | `@workspace/data-layer/hydration` |
+| **auth** | Named paths | `@workspace/auth/server`, `@workspace/auth/client` |
+| **database** | Named paths | `@workspace/database/client`, `@workspace/database/schema` |
+| **types** | Wildcard path | `@workspace/types/use-cases/tasks` |
+| **ui** | Wildcard path | `@workspace/ui/components/button` |
+| **analytics** | Named paths | `@workspace/analytics/server`, `@workspace/analytics/provider` |
+
+## Import Conventions
+
+### Layer boundaries
+
+Packages only import from their dependencies, never upward:
+
+```
+rpc -> core -> repository -> database
+                          -> types
+       core -> payment
+rpc -> auth
+rpc -> types
+data-layer -> rpc
+```
+
+### In apps
+
+```typescript
+// Server components - prefetch data
+import { getQueryClient, HydrateClient } from "@workspace/data-layer/hydration";
+import { orpc } from "@workspace/data-layer/orpc-tanstack-util";
+
+// Client components - consume data
+import { orpc } from "@workspace/data-layer/orpc-tanstack-util";
+// use orpc.tasks.getUserTasksWithCount.queryOptions() with useSuspenseQuery
+
+// UI components
+import { Button } from "@workspace/ui/components/button";
+
+// Auth
+import { auth } from "@workspace/auth/server";
+import { AuthProvider } from "@workspace/auth/provider";
+
+// Types (for type annotations only)
+import type { TaskRawObject } from "@workspace/types/repository/tasks";
+```
+
+### In packages
+
+```typescript
+// Core imports from repository
+import { tasksRepository } from "@workspace/repository/entities/tasks";
+
+// RPC imports from core
+import { getUserTasksWithCount } from "@workspace/core/use-cases/tasks";
+
+// Repository imports from database
+import { db } from "@workspace/database/client";
+import { tasks } from "@workspace/database/schema";
+```
+
+### What to avoid
+
+```typescript
+// Never import database directly from apps
+import { db } from "@workspace/database/client"; // wrong
+
+// Never import repository from apps
+import { tasksRepository } from "@workspace/repository/entities/tasks"; // wrong
+
+// Never import core from apps
+import { createTask } from "@workspace/core/use-cases/tasks"; // wrong
+
+// Apps talk to the backend exclusively through oRPC
+import { orpc } from "@workspace/data-layer/orpc-tanstack-util"; // correct
+```
+
+## Source File Conventions
+
+### Package source layout
+
+```
+packages/some-package/
+├── src/
+│   ├── index.ts          # Main export (if applicable)
+│   ├── keys.ts           # t3-env validation (if uses env vars)
+│   └── [domain]/         # Domain-specific files
+│       └── some-file.ts
+├── package.json          # Exports field maps to src/
+└── tsconfig.json         # Extends shared preset
+```
+
+### Server-only enforcement
+
+Packages that must only run on the server use the `"server-only"` import:
+
+```typescript
+// packages/auth/src/server.ts
+import "server-only";
+export * from "@clerk/nextjs/server";
+```
+
+This causes a build error if the module is accidentally imported in a client component.
+
+## Scripts Reference
+
+```bash
+# Development
+bun dev                    # Start all apps
+bun dev --filter app       # Start single app
+
+# Building
+bun build                  # Build all
+bun typecheck              # Type-check all
+
+# Database
+bun db:generate            # Generate migrations
+bun db:migrate             # Apply migrations
+bun db:push                # Push schema (dev)
+bun db:studio              # Open Drizzle Studio
+bun db:seed                # Seed database
+
+# Code Quality
+bun x ultracite check      # Check lint + format
+bun x ultracite fix        # Fix lint + format
+
+# Testing
+bun test                   # Unit tests (Vitest)
+bun test:e2e               # E2E tests (Playwright)
+bun test:coverage          # Coverage report
+```
+
+## Related
+
+- [Clean Architecture](/architecture/clean-architecture) - How the layered package design works
+- [Type System](/architecture/type-system) - How types flow through the layers
+- [Applications](/apps) - How each app is built and structured

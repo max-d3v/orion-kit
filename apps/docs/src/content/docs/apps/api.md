@@ -1,467 +1,206 @@
 ---
-title: API Application
-description: Backend REST API with authentication, database, and payments
+title: API (oRPC Server)
+description: Next.js app serving oRPC procedures with Clerk authentication
 ---
 
-The API application (`apps/api`) is the backend server that handles all business logic, database operations, and external service integrations. Built with Next.js 15 App Router for serverless deployment.
+The API application (`apps/api`) serves the oRPC procedures defined in `@workspace/rpc`. It handles authentication via Clerk middleware, routes all RPC calls through a single catch-all handler, and processes Stripe webhooks.
+
+**Framework:** Next.js (App Router)
+**Port:** 3002
+**Auth:** Clerk middleware
+**API Protocol:** oRPC (via `@orpc/server/fetch`)
+**Database:** Neon PostgreSQL (via `@workspace/database`)
+
+## Technology
+
+- **Next.js** with App Router for serverless deployment
+- **oRPC** with `RPCHandler` for type-safe procedure handling
+- **Clerk** for session verification on every RPC call
+- **Drizzle ORM** for database operations (through the package layers)
+- **Axiom** for request logging and observability
 
 ## Why Next.js for the API?
 
-While you can replace this with any TypeScript framework, we chose Next.js because:
+The API is a thin routing layer. Next.js provides:
+- Serverless deployment on Vercel with automatic scaling
+- File-based routing for the RPC catch-all and webhook endpoints
+- Built-in middleware for Clerk auth
+- Same deployment story as the other apps
 
-### 🚀 **Serverless-First**
-
-- **Automatic scaling** - Handle traffic spikes without configuration
-- **Edge deployment** - Deploy to Vercel, AWS, or any serverless platform
-- **Zero cold starts** - Optimized for serverless performance
-- **Built-in optimizations** - Automatic code splitting and bundling
-
-### 🔧 **Developer Experience**
-
-- **TypeScript native** - Full type safety out of the box
-- **File-based routing** - API routes match file structure
-- **Built-in middleware** - Request/response handling
-- **Hot reload** - Instant development feedback
-
-### 🏗️ **Production Ready**
-
-- **Automatic HTTPS** - SSL certificates handled automatically
-- **Built-in monitoring** - Error tracking and performance metrics
-- **Easy deployment** - One command to deploy to production
-- **Environment management** - Secure environment variable handling
-
-## Architecture
-
-**Framework**: Next.js 15 App Router (Serverless)  
-**Port**: `3002` (development)  
-**Database**: Neon PostgreSQL with Drizzle ORM  
-**Authentication**: Custom JWT-based authentication  
-**Deployment**: Vercel (or any serverless platform)
-
-## Alternative Backend Frameworks
-
-While we provide a complete Next.js API, you can replace it with any TypeScript framework:
-
-### 🚀 **High-Performance Options**
-
-- **Fastify** - High-performance alternative to Express
-- **Hono** - Lightweight, edge-first framework
-- **Bun** - Ultra-fast JavaScript runtime with built-in HTTP server
-
-### 🏗️ **Enterprise Frameworks**
-
-- **NestJS** - Enterprise-grade framework with decorators
-- **Express** - Most popular Node.js framework
-- **Koa** - Modern Express alternative
-
-### 🔗 **Type-Safe APIs**
-
-- **tRPC** - End-to-end typesafe APIs
-- **GraphQL** - Query language with strong typing
-- **gRPC** - High-performance RPC framework
-
-### 🌐 **Edge-First**
-
-- **Cloudflare Workers** - Edge computing platform
-- **Deno Deploy** - Deno's serverless platform
-- **Vercel Edge Functions** - Edge runtime for Vercel
-
-All maintain the same TypeScript types and monorepo structure!
+The actual business logic lives in `@workspace/core`. The database access lives in `@workspace/repository`. This app just wires them together via oRPC.
 
 ## Structure
 
 ```
 apps/api/
 ├── app/
-│   ├── auth/
-│   │   ├── login/route.ts         # User login endpoint
-│   │   ├── logout/route.ts        # User logout endpoint
-│   │   ├── me/route.ts            # Get current user
-│   │   └── register/route.ts      # User registration endpoint
-│   ├── account/
-│   │   ├── delete/route.ts        # Delete user account
-│   │   └── profile/route.ts       # User profile management
-│   ├── billing-portal/route.ts    # Stripe Customer Portal
-│   ├── checkout/route.ts          # Stripe Checkout Sessions
-│   ├── health/route.ts            # Health check endpoint
-│   ├── preferences/route.ts       # User preferences CRUD
-│   ├── subscription/route.ts      # Subscription management
-│   ├── tasks/[id]/route.ts        # Task CRUD operations
-│   ├── tasks/route.ts             # Task list operations
-│   └── webhooks/stripe/route.ts   # Stripe webhook handler
-├── lib/
-│   └── validation.ts              # Zod error formatting
-├── middleware.ts                  # Request middleware
-└── package.json                   # Dependencies and scripts
+│   ├── health/route.ts              # GET /health - status check
+│   ├── rpc/[[...rest]]/route.ts     # ALL /rpc/* - oRPC handler
+│   └── webhooks/stripe/route.ts     # POST /webhooks/stripe
+├── next.config.mjs                  # CORS headers for app origin
+├── proxy.ts                         # Clerk middleware for /rpc/*
+└── package.json
 ```
 
-## API Endpoints
+This is deliberately minimal. Three route files. No business logic in the API app itself.
 
-### **Authentication**
+## oRPC Handler
 
-```http
-POST /auth/register  # Create new user account
-POST /auth/login     # Sign in with email/password
-GET  /auth/me        # Get current user info
-POST /auth/logout    # Sign out (clear cookie)
-```
-
-### **Account Management**
-
-```http
-GET    /account/profile  # Get user profile
-PATCH  /account/profile  # Update user profile
-DELETE /account/delete   # Delete user account
-```
-
-**Example Registration:**
+The single catch-all route handles every RPC procedure:
 
 ```typescript
-// POST /auth/register
-const response = await fetch("/api/auth/register", {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({
-    name: "John Doe",
-    email: "john@example.com",
-    password: "securepassword123",
-  }),
-});
-```
+// app/rpc/[[...rest]]/route.ts
+import { RPCHandler } from "@orpc/server/fetch";
+import { router } from "@workspace/rpc";
 
-**Example Login:**
+const handler = new RPCHandler(router);
 
-```typescript
-// POST /auth/login
-const response = await fetch("/api/auth/login", {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({
-    email: "john@example.com",
-    password: "securepassword123",
-  }),
-});
-
-// Returns: { success: true, token: "...", user: {...} }
-```
-
-### **Health Check**
-
-```http
-GET /health
-```
-
-Returns `200 OK` for health monitoring.
-
-### **Tasks**
-
-```http
-GET    /tasks           # List user's tasks
-POST   /tasks           # Create new task
-PATCH  /tasks/[id]      # Update task
-DELETE /tasks/[id]      # Delete task
-```
-
-**Example Request:**
-
-```typescript
-// GET /tasks (uses httpOnly cookie for auth)
-const response = await fetch("/api/tasks");
-
-// POST /tasks
-const response = await fetch("/api/tasks", {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({
-    title: "Complete project",
-    description: "Finish the Orion Kit documentation",
-    status: "todo",
-  }),
-});
-```
-
-### **User Preferences**
-
-```http
-GET    /preferences     # Get user preferences
-PATCH  /preferences     # Update user preferences
-```
-
-**Example Response:**
-
-```json
-{
-  "success": true,
-  "data": {
-    "plan": "pro",
-    "defaultStatus": "todo",
-    "emailNotifications": true,
-    "taskReminders": false,
-    "weeklyDigest": true,
-    "stripeCustomerId": "cus_1234567890",
-    "stripeSubscriptionId": "sub_1234567890",
-    "stripeSubscriptionStatus": "active"
-  }
+async function handleRequest(request: Request) {
+  const { response } = await handler.handle(request, {
+    prefix: "/rpc",
+    context: { headers: request.headers },
+  });
+  return response ?? new Response("Not found", { status: 404 });
 }
+
+export const GET = handleRequest;
+export const POST = handleRequest;
 ```
 
-### **Billing & Payments**
+The `RPCHandler` from oRPC:
+1. Parses the URL path to determine which procedure to call
+2. Deserializes the request body as input
+3. Runs the procedure (including middleware chain)
+4. Serializes the return value as the response
 
-```http
-POST   /checkout        # Create Stripe Checkout Session
-POST   /billing-portal  # Create Stripe Customer Portal Session
-GET    /subscription    # Get subscription details
-DELETE /subscription    # Cancel subscription
-```
-
-**Example Checkout:**
-
-```typescript
-// POST /checkout
-const response = await fetch("/api/checkout", {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({
-    priceId: "price_1234567890",
-  }),
-});
-
-// Returns: { success: true, data: { url: "https://checkout.stripe.com/..." } }
-```
-
-### **Webhooks**
-
-```http
-POST   /webhooks/stripe # Stripe webhook handler
-```
-
-Handles Stripe events:
-
-- `checkout.session.completed` - New subscription
-- `customer.subscription.updated` - Plan changes
-- `customer.subscription.deleted` - Cancellation
-- `invoice.payment_succeeded` - Successful payment
-- `invoice.payment_failed` - Failed payment
+All procedure definitions, authentication, input validation, and business logic are in the shared packages -- not in this route file.
 
 ## Authentication
 
-All protected endpoints require authentication via JWT tokens stored in httpOnly cookies:
+Clerk middleware in `proxy.ts` protects the `/rpc/*` routes:
 
 ```typescript
-import { getCurrentUser } from "@workspace/auth/server";
+// proxy.ts
+import { authMiddleware } from "@workspace/auth/proxy";
 
-export async function GET(req: NextRequest) {
-  const user = await getCurrentUser(req);
+export default authMiddleware;
 
-  if (!user) {
-    return NextResponse.json(
-      { success: false, error: "Unauthorized" },
-      { status: 401 }
-    );
-  }
-
-  // Authenticated logic here - user.id is available
-}
+export const config = {
+  matcher: ["/rpc/:path*"],
+};
 ```
 
-### Authentication Flow
+This ensures Clerk's session is available when the oRPC auth middleware calls `auth()` in the RPC layer. The auth flow:
 
-1. **Login/Register** - User submits credentials
-2. **JWT Creation** - Server creates signed JWT token
-3. **Cookie Storage** - Token stored in httpOnly cookie
-4. **Automatic Verification** - Middleware verifies token on protected routes
-5. **User Context** - `getCurrentUser()` extracts user info from token
+1. Request hits `/rpc/tasks.create`
+2. Clerk middleware validates the session cookie
+3. oRPC `authenticatedProcedure` runs `authMiddleware`
+4. `authMiddleware` calls `auth()` from `@workspace/auth/server` to get `userId`
+5. `userId` is injected into the procedure context
+6. The procedure handler passes `userId` to the core use case
 
-## Database Operations
+## CORS Configuration
 
-Uses Drizzle ORM with type-safe queries:
+The API app configures CORS headers to allow requests from the dashboard app:
 
-```typescript
-import { db, tasks, userPreferences } from "@workspace/database";
-import { eq } from "drizzle-orm";
-
-// Get user's tasks
-const userTasks = await db.select().from(tasks).where(eq(tasks.userId, userId));
-
-// Update user preferences
-await db
-  .update(userPreferences)
-  .set({ plan: "pro" })
-  .where(eq(userPreferences.userId, userId));
+```javascript
+// next.config.mjs
+const nextConfig = {
+  async headers() {
+    return [
+      {
+        source: "/rpc/:path*",
+        headers: [
+          { key: "Access-Control-Allow-Origin", value: "http://localhost:3001" },
+          { key: "Access-Control-Allow-Methods", value: "GET,POST,OPTIONS" },
+          { key: "Access-Control-Allow-Headers", value: "Content-Type,Authorization" },
+          { key: "Access-Control-Allow-Credentials", value: "true" },
+        ],
+      },
+    ];
+  },
+};
 ```
 
-## Validation
+## Stripe Webhook
 
-All requests are validated with Zod schemas:
+The only non-RPC route handles Stripe webhooks:
 
 ```typescript
-import { createTaskInputSchema } from "@workspace/types";
-import { validationErrorResponse } from "@/lib/validation";
+// app/webhooks/stripe/route.ts
+import { handleWebhookEvent, verifyWebhookSignature } from "@workspace/payment/webhooks";
 
 export async function POST(request: Request) {
-  try {
-    const body = await request.json();
-    const validated = createTaskInputSchema.parse(body);
+  const body = await request.text();
+  const signature = request.headers.get("stripe-signature");
 
-    // Process validated data
-  } catch (error) {
-    if (error instanceof ZodError) {
-      return validationErrorResponse(error.errors);
-    }
-    throw error;
-  }
+  const event = await verifyWebhookSignature(body, signature);
+  await handleWebhookEvent(event);
+
+  return new Response("OK", { status: 200 });
 }
 ```
 
-## Error Handling
+Webhook events handled:
+- `checkout.session.completed` - New subscription created
+- `customer.subscription.updated` - Plan changed
+- `customer.subscription.deleted` - Subscription cancelled
+- `invoice.payment_succeeded` - Payment processed
+- `invoice.payment_failed` - Payment failed
 
-Consistent error responses:
+## Health Check
 
 ```typescript
-// Validation error
-{
-  "success": false,
-  "error": "Validation failed",
-  "details": [
-    "Title is required - title",
-    "Status must be one of: todo, in-progress, completed - status"
-  ]
-}
-
-// Authentication error
-{
-  "success": false,
-  "error": "Unauthorized"
-}
-
-// Server error
-{
-  "success": false,
-  "error": "Internal server error"
+// app/health/route.ts
+export async function GET() {
+  return new Response("OK", { status: 200 });
 }
 ```
+
+## Data Layer
+
+The API app has no direct data layer of its own. All data access goes through the package layers:
+
+```
+Request -> oRPC Handler -> RPC Procedure -> Core Use Case -> Repository -> Database
+```
+
+The API app's only job is to:
+1. Receive HTTP requests
+2. Route them to oRPC procedures
+3. Return the response
 
 ## Environment Variables
 
+The API app needs server-side environment variables for all integrated services:
+
 ```bash
-# apps/api/.env.local
 DATABASE_URL=postgresql://...
-AUTH_JWT_SECRET=your-super-secret-key-min-32-chars
-NEXT_PUBLIC_APP_URL=http://localhost:3001
-NEXT_PUBLIC_API_URL=http://localhost:3002
+CLERK_SECRET_KEY=sk_test_...
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_...
 STRIPE_SECRET_KEY=sk_test_...
 STRIPE_WEBHOOK_SECRET=whsec_...
-NEXT_PUBLIC_AXIOM_TOKEN=xaat-...
+NEXT_PUBLIC_APP_URL=http://localhost:3001
+NEXT_PUBLIC_API_URL=http://localhost:3002
+NEXT_PUBLIC_AXIOM_TOKEN=xaat_...
 NEXT_PUBLIC_AXIOM_DATASET=orion-kit
 ```
 
 ## Development
 
-### **Start Development Server**
-
 ```bash
-cd apps/api
-pnpm dev
-```
+# Start the API server
+bun dev --filter api
 
-Server runs on `http://localhost:3002`
-
-### **API Testing**
-
-```bash
-# Health check
+# Test health check
 curl http://localhost:3002/health
 
-# Register user
-curl -X POST http://localhost:3002/auth/register \
-  -H "Content-Type: application/json" \
-  -d '{"name":"Test User","email":"test@example.com","password":"password123"}'
-
-# Login (sets httpOnly cookie)
-curl -X POST http://localhost:3002/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{"email":"test@example.com","password":"password123"}' \
-  -c cookies.txt
-
-# Get tasks (uses cookie for auth)
-curl -b cookies.txt http://localhost:3002/tasks
-```
-
-### **Database Studio**
-
-```bash
-# Open Drizzle Studio
-pnpm db:studio
-```
-
-### **Environment Variables**
-
-Set production environment variables in Vercel dashboard:
-
-- `AUTH_JWT_SECRET` - JWT signing secret (32+ characters)
-- `DATABASE_URL` - Production database URL
-- `NEXT_PUBLIC_APP_URL` - Production app URL
-- `NEXT_PUBLIC_API_URL` - Production API URL
-- `STRIPE_SECRET_KEY` - Stripe live key
-- `STRIPE_WEBHOOK_SECRET` - Stripe webhook secret
-- `NEXT_PUBLIC_AXIOM_TOKEN` - Axiom logging token
-- `NEXT_PUBLIC_AXIOM_DATASET` - Axiom dataset name
-
-### **Webhook Configuration**
-
-Configure Stripe webhook endpoint:
-
-```
-https://api.orion-kit.dev/webhooks/stripe
-```
-
-Events to listen for:
-
-- `checkout.session.completed`
-- `customer.subscription.updated`
-- `customer.subscription.deleted`
-- `invoice.payment_succeeded`
-- `invoice.payment_failed`
-
-## Monitoring
-
-### **Health Checks**
-
-Monitor API health:
-
-```bash
-# Basic health check
-curl https://api.orion-kit.dev/health
-
-# Should return: OK
-```
-
-### **Logging**
-
-Logs are sent to Axiom for monitoring:
-
-```typescript
-import { logger } from "@workspace/observability";
-
-logger.info("Task created", { userId, taskId });
-logger.error("Payment failed", { userId, error: error.message });
-```
-
-### **Analytics**
-
-Track API usage with PostHog:
-
-```typescript
-import { track } from "@workspace/analytics";
-
-track("task_created", { userId, taskId });
-track("subscription_upgraded", { userId, plan: "pro" });
+# Test Stripe webhooks locally
+stripe listen --forward-to localhost:3002/webhooks/stripe
 ```
 
 ## Related
 
-- [Database Package](/packages/database)
-- [Auth Package](/packages/auth)
-- [Payment Package](/packages/payment)
-- [Types Package](/packages/types)
-- [Observability Package](/packages/observability)
+- [App (Dashboard)](/apps/app) - The frontend that consumes these procedures
+- [RPC Package](/packages/rpc) - Procedure definitions and auth middleware
+- [Clean Architecture](/architecture/clean-architecture) - How the layers connect

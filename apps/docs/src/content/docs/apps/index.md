@@ -1,216 +1,150 @@
 ---
-title: Applications Overview
-description: Orion Kit applications and their purposes
+title: Applications
+description: Overview of all apps in the monorepo, their technologies, data layers, and structure
 ---
 
-Orion Kit is organized as a monorepo with multiple applications, each serving a specific purpose in the SaaS ecosystem.
+:::tip[TL;DR]
+Five apps, each with a clear purpose. The dashboard app uses Next.js with oRPC + TanStack Query for data. The API app serves oRPC procedures with Clerk auth. Web is a static landing page. Studio runs Drizzle Studio. Docs uses Astro Starlight.
+:::
 
-## Applications
+## Apps at a Glance
 
-| Application                | Purpose          | Port | Description                                      |
-| -------------------------- | ---------------- | ---- | ------------------------------------------------ |
-| **[API](/apps/api)**       | Backend API      | 3002 | REST API with authentication, database, payments |
-| **[App](/apps/app)**       | Main Application | 3001 | User dashboard, tasks, billing, settings         |
-| **[Web](/apps/web)**       | Landing Page     | 3000 | Marketing site, documentation links              |
-| **[Docs](/apps/docs)**     | Documentation    | 3004 | This documentation site                          |
-| **[Studio](/apps/studio)** | Database Studio  | 3003 | Drizzle Studio for database management           |
+| App | Purpose | Technology | Port | Data Layer |
+| --- | ------- | ---------- | ---- | ---------- |
+| [**app**](/apps/app) | User dashboard | Next.js + TanStack Query | 3001 | Server prefetch + client hydration via oRPC |
+| [**api**](/apps/api) | oRPC server | Next.js + oRPC handler | 3002 | Serves RPC procedures with Clerk auth |
+| [**web**](/apps/web) | Marketing site | Next.js (static) | 3000 | None (static content) |
+| [**studio**](/apps/studio) | Database browser | Drizzle Studio | 3003 | Direct database connection |
+| [**docs**](/apps/docs) | Documentation | Astro + Starlight | 3004 | None (static content) |
 
 ## Architecture
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                        ORION KIT APPS                          │
-├─────────────────────────────────────────────────────────────────┤
-│                                                                 │
-│  ┌─────────────┐    ┌─────────────┐    ┌─────────────┐         │
-│  │     WEB     │    │     APP     │    │     API     │         │
-│  │  (Port 3000)│    │  (Port 3001)│    │  (Port 3002)│         │
-│  │             │    │             │    │             │         │
-│  │ • Landing   │    │ • Dashboard │    │ • Auth      │         │
-│  │ • Marketing │    │ • Tasks     │    │ • Tasks     │         │
-│  │ • Features  │    │ • Billing   │    │ • Billing   │         │
-│  │ • Pricing   │    │ • Settings  │    │ • Webhooks  │         │
-│  └─────────────┘    └─────────────┘    └─────────────┘         │
-│         │                   │                   │              │
-│         └───────────────────┼───────────────────┘              │
-│                             │                                  │
-│  ┌─────────────────────────────────────────────────────────────┐│
-│  │                    SHARED PACKAGES                         ││
-│  │                                                             ││
-│  │  @workspace/auth    @workspace/database  @workspace/email  ││
-│  │  @workspace/types   @workspace/ui       @workspace/payment ││
-│  │  @workspace/analytics @workspace/observability @workspace/jobs││
-│  └─────────────────────────────────────────────────────────────┘│
-│                             │                                  │
-│  ┌─────────────────────────────────────────────────────────────┐│
-│  │                    EXTERNAL SERVICES                       ││
-│  │                                                             ││
-│  │  🗄️ Neon DB    💳 Stripe    📧 Resend    📊 PostHog       ││
-│  │  📈 Axiom      ⚡ Trigger   🎨 Vercel    🧪 Playwright    ││
-│  └─────────────────────────────────────────────────────────────┘│
-│                                                                 │
-└─────────────────────────────────────────────────────────────────┘
-
-Data Flow:
-User → Web/App → API → Database
-     ↓
-   Auth (JWT) → Protected Routes → TanStack Query → UI Updates
-     ↓
-   Email (Resend) → Welcome Emails → Database Tracking
-     ↓
-   Payments (Stripe) → Webhooks → Subscription Updates
+│                         APPLICATIONS                            │
+├──────────┬──────────┬──────────┬──────────┬─────────────────────┤
+│   web    │   app    │   api    │  studio  │       docs          │
+│  :3000   │  :3001   │  :3002   │  :3003   │      :3004          │
+│          │          │          │          │                     │
+│ Landing  │Dashboard │  oRPC    │ Drizzle  │  Astro              │
+│ page     │ + Tasks  │  Server  │ Studio   │  Starlight          │
+│          │          │          │          │                     │
+│ Static   │ oRPC     │ Clerk    │ Direct   │  Static             │
+│ content  │ client   │ auth     │ DB conn  │  HTML               │
+└──────────┴────┬─────┴────┬─────┴──────────┴─────────────────────┘
+                │          │
+                │  oRPC    │
+                └────┬─────┘
+                     │
+        ┌────────────▼────────────────────┐
+        │        SHARED PACKAGES          │
+        │                                 │
+        │  rpc    core    repository      │
+        │  data-layer  auth  database     │
+        │  types  ui    payment  email    │
+        │  analytics  observability  jobs │
+        └────────────┬────────────────────┘
+                     │
+        ┌────────────▼────────────────────┐
+        │       EXTERNAL SERVICES         │
+        │                                 │
+        │  Clerk     Neon     PostHog     │
+        │  Stripe    Axiom    Resend      │
+        │  Trigger.dev       Vercel       │
+        └─────────────────────────────────┘
 ```
 
-## Development Workflow
+## Data Flow
 
-### 1. **Start All Services**
+The dashboard app (`apps/app`) communicates with the API app (`apps/api`) exclusively through oRPC. The flow is:
 
-```bash
-# Start all applications
-pnpm dev
+```
+Server Component (page.tsx)
+  └─> getQueryClient().prefetchQuery(orpc.tasks...queryOptions())
+      └─> oRPC server client (runs on the server, no HTTP)
+          └─> RPC procedure -> Core use case -> Repository -> Database
 
-# Or start individually
-pnpm --filter web dev      # Landing page
-pnpm --filter app dev      # Main app
-pnpm --filter api dev      # API server
-pnpm --filter docs dev     # Documentation
+  └─> <HydrateClient>
+        └─> Client Component (tasks-content.tsx)
+            └─> useSuspenseQuery(orpc.tasks...queryOptions())
+                └─> Data already in cache from server prefetch
+                └─> Subsequent fetches go through oRPC browser client
+                    └─> HTTP POST /rpc -> API app -> same flow
 ```
 
-### 2. **Database Management**
+## The No-Loading-Boundary Rule
 
-```bash
-# Open Drizzle Studio
-pnpm db:studio
+:::caution[Architecture Rule]
+Every page renders in a static shell first, then triggers data fetches. Never use Next.js `loading.tsx` files. A loading boundary assumes the page has blockers, which means the user sees nothing until data arrives. Instead, use explicit `<Suspense>` boundaries around specific data-dependent sections.
+:::
 
-# Run migrations
-pnpm db:migrate
+The correct pattern:
 
-# Generate types
-pnpm db:generate
+```typescript
+// app/dashboard/tasks/page.tsx (Server Component)
+export default async function TasksPage() {
+  const queryClient = getQueryClient();
+
+  // Prefetch data on the server (non-blocking)
+  void queryClient.prefetchQuery(
+    orpc.tasks.getUserTasksWithCount.queryOptions()
+  );
+
+  // Return the shell immediately with hydrated data
+  return (
+    <HydrateClient>
+      <Suspense fallback={<TasksSkeleton />}>
+        <TasksContent />
+      </Suspense>
+    </HydrateClient>
+  );
+}
 ```
 
-### 3. **Build & Deploy**
+What this achieves:
+- The page shell renders instantly (layout, sidebar, header)
+- Data is prefetched on the server and serialized into the HTML
+- The client component picks up the prefetched data without a loading state
+- If the prefetch is slow, only the specific `<Suspense>` boundary shows a skeleton
+- The rest of the page remains interactive
 
-```bash
-# Build all applications
-pnpm build
+What to avoid:
 
-# Deploy to Vercel
-vercel --prod
+```typescript
+// app/dashboard/tasks/loading.tsx
+// DO NOT CREATE THIS FILE
+// It blocks the entire page until data loads
+export default function Loading() {
+  return <FullPageSpinner />;
+}
 ```
-
-## Application Details
-
-Each application has its own:
-
-- **Package.json** - Dependencies and scripts
-- **Next.js config** - Framework configuration
-- **TypeScript config** - Type checking
-- **Environment variables** - Service configuration
-- **Deployment config** - Vercel/production setup
-
-## Shared Resources
-
-All applications share:
-
-- **Packages** - `@workspace/*` packages for common functionality
-- **Types** - Shared TypeScript definitions
-- **Database** - Same Drizzle schema and migrations
-- **Authentication** - Custom JWT integration across apps
-- **Styling** - Tailwind CSS and shadcn/ui components
 
 ## Port Configuration
 
-| App        | Development                              | Production           |
-| ---------- | ---------------------------------------- | -------------------- |
-| **Web**    | `localhost:3000`                         | `orion-kit.dev`      |
-| **App**    | `localhost:3001`                         | `app.orion-kit.dev`  |
-| **API**    | `localhost:3002`                         | `api.orion-kit.dev`  |
-| **Docs**   | `localhost:3004`                         | `docs.orion-kit.dev` |
-| **Studio** | `https://local.drizzle.studio?port=3003` | Local only           |
+| App | Development | Production |
+| --- | ----------- | ---------- |
+| **web** | `localhost:3000` | `orion-kit-web.vercel.app` |
+| **app** | `localhost:3001` | `orion-kit-app.vercel.app` |
+| **api** | `localhost:3002` | `orion-kit-api.vercel.app` |
+| **studio** | `local.drizzle.studio?port=3003` | Local only |
+| **docs** | `localhost:3004` | `orion-kit-docs.vercel.app` |
 
-## Environment Variables
-
-Each application has its own `.env.local`:
+## Development
 
 ```bash
-# apps/web/.env.local - Landing page
-NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_...
+# Start all apps
+bun dev
 
-# apps/app/.env.local - Main app
-NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_...
-NEXT_PUBLIC_API_URL=http://localhost:3002
-NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_...
-
-# apps/api/.env.local - API server
-CLERK_SECRET_KEY=sk_test_...
-DATABASE_URL=postgresql://...
-STRIPE_SECRET_KEY=sk_test_...
-```
-
-## Development Tips
-
-### **Cross-App Communication**
-
-```typescript
-// apps/app calls apps/api
-const response = await fetch("http://localhost:3002/api/tasks");
-
-// Use environment variables for URLs
-const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3002";
-```
-
-### **Shared Components**
-
-Import UI components from `@workspace/ui`:
-
-```typescript
-import { Button } from "@workspace/ui/components/button";
-import { Card } from "@workspace/ui/components/card";
-```
-
-### **Type Safety**
-
-Import types from `@workspace/types`:
-
-```typescript
-import type { Task, CreateTaskInput } from "@workspace/types";
-```
-
-## Troubleshooting
-
-### **Port Conflicts**
-
-If ports are already in use:
-
-```bash
-# Kill processes on specific ports
-lsof -ti:3000 | xargs kill -9
-lsof -ti:3001 | xargs kill -9
-lsof -ti:3002 | xargs kill -9
-```
-
-### **Environment Variables**
-
-Ensure all required env vars are set:
-
-```bash
-# Check if env vars are loaded
-console.log(process.env.NEXT_PUBLIC_API_URL);
-```
-
-### **Database Connection**
-
-Verify database connection:
-
-```bash
-# Test connection
-pnpm db:studio
+# Start individual apps
+bun dev --filter app
+bun dev --filter api
+bun dev --filter web
+bun dev --filter docs
+bun db:studio
 ```
 
 ## Related
 
-- [Architecture Overview](/architecture/overview)
-- [Packages Overview](/packages)
-- [Deployment Guide](/guide/deployment)
-- [Environment Variables](/guide/environment-variables)
+- [App (Dashboard)](/apps/app) - Dashboard architecture and data patterns
+- [API (oRPC Server)](/apps/api) - oRPC handler and Clerk middleware
+- [Clean Architecture](/architecture/clean-architecture) - Package layer design

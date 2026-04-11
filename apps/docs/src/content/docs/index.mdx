@@ -1,18 +1,18 @@
 ---
 title: Orion Kit
-description: A modern, production-ready SaaS starter kit with Next.js, TypeScript, Drizzle ORM, and more.
+description: A production-ready SaaS starter kit built on clean architecture with end-to-end type safety.
 template: splash
 hero:
-  tagline: Modern, type-safe SaaS starter kit. Built with Next.js 15, TypeScript, Drizzle ORM, Custom JWT Auth, and TanStack Query.
+  tagline: Production-ready SaaS monorepo. Clean architecture with oRPC, Clerk, Drizzle ORM, and TanStack Query. End-to-end type safety from database to UI.
   image:
     file: ../../assets/undraw_outer-space_qey5.svg
   actions:
     - text: Get Started
-      link: /getting-started/
+      link: /introduction/
       icon: right-arrow
       variant: primary
-    - text: Introduction
-      link: /introduction/
+    - text: Architecture
+      link: /architecture/overview/
       icon: open-book
     - text: Use this template
       link: https://github.com/Mumma6/orion-kit
@@ -22,7 +22,7 @@ hero:
 
 import { Card, CardGrid } from "@astrojs/starlight/components";
 
-## 🚀 Running Apps
+## Running Apps
 
 {import.meta.env.PROD ? (
 
@@ -32,25 +32,25 @@ import { Card, CardGrid } from "@astrojs/starlight/components";
   </p>
   <ul>
     <li>
-      🌐 <strong>Landing</strong> →{" "}
+      <strong>Landing</strong> →{" "}
       <a href="https://orion-kit-web.vercel.app">
         https://orion-kit-web.vercel.app
       </a>
     </li>
     <li>
-      📊 <strong>Dashboard</strong> →{" "}
+      <strong>Dashboard</strong> →{" "}
       <a href="https://orion-kit-app.vercel.app">
         https://orion-kit-app.vercel.app
       </a>
     </li>
     <li>
-      🔌 <strong>API</strong> →{" "}
+      <strong>API</strong> →{" "}
       <a href="https://orion-kit-api.vercel.app/health">
         https://orion-kit-api.vercel.app/health
       </a>
     </li>
     <li>
-      📚 <strong>Docs</strong> →{" "}
+      <strong>Docs</strong> →{" "}
       <a href="https://orion-kit-docs.vercel.app">
         https://orion-kit-docs.vercel.app
       </a>
@@ -64,25 +64,25 @@ import { Card, CardGrid } from "@astrojs/starlight/components";
   </p>
   <ul>
     <li>
-      🌐 <strong>Landing</strong> →{" "}
+      <strong>Landing</strong> →{" "}
       <a href="http://localhost:3000">http://localhost:3000</a>
     </li>
     <li>
-      📊 <strong>Dashboard</strong> →{" "}
+      <strong>Dashboard</strong> →{" "}
       <a href="http://localhost:3001">http://localhost:3001</a>
     </li>
     <li>
-      🔌 <strong>API</strong> →{" "}
+      <strong>API</strong> →{" "}
       <a href="http://localhost:3002/health">http://localhost:3002/health</a>
     </li>
     <li>
-      🎨 <strong>Studio</strong> →{" "}
+      <strong>Studio</strong> →{" "}
       <a href="https://local.drizzle.studio?port=3003">
         https://local.drizzle.studio?port=3003
       </a>
     </li>
     <li>
-      📚 <strong>Docs</strong> →{" "}
+      <strong>Docs</strong> →{" "}
       <a href="http://localhost:3004">http://localhost:3004</a>
     </li>
   </ul>
@@ -94,64 +94,57 @@ import { Card, CardGrid } from "@astrojs/starlight/components";
 ## Quick Links
 
 <CardGrid>
-  <Card title="Getting Started" icon="rocket">
-    Get up and running in minutes. [Get started →](/getting-started/)
-  </Card>
   <Card title="Introduction" icon="open-book">
-    Learn about Orion Kit and its features. [Read more →](/introduction/)
+    What Orion Kit is and what you get. [Read more](/introduction/)
   </Card>
   <Card title="Architecture" icon="puzzle">
-    Understand the system design. [Learn more →](/architecture/overview/)
+    Monorepo structure and clean architecture layers. [Learn more](/architecture/overview/)
   </Card>
-  <Card title="Complete Guide" icon="document">
-    Detailed guides and best practices. [View guides →](/guide/)
+  <Card title="Core Packages" icon="setting">
+    RPC, Repository, Use Cases, Auth, and Data Layer. [View packages](/packages/)
+  </Card>
+  <Card title="Applications" icon="rocket">
+    How each app is built, fetches data, and is structured. [View apps](/apps/)
   </Card>
 </CardGrid>
 
 ## What's Included
 
 <CardGrid stagger>
-  <Card title="🔐 Authentication" icon="lock">
-    Custom JWT authentication with protected routes, middleware, and
-    localStorage token storage for cross-origin compatibility.
+  <Card title="Clean Architecture" icon="puzzle">
+    Layered package design: RPC (API) -> Core (Use Cases + Authorization) -> Repository (Data Access) -> Database. Each layer has a single responsibility.
   </Card>
-  <Card title="🗄️ Database" icon="setting">
-    Type-safe Drizzle ORM with Neon Postgres, automatic migrations, and Studio
-    GUI.
+  <Card title="oRPC + TanStack Query" icon="rocket">
+    End-to-end type-safe RPC with automatic cache management. Server-side prefetching with client hydration. No manual API clients or query keys.
   </Card>
-  <Card title="✅ Validation" icon="approve-check">
-    Zod schemas on frontend and backend with automatic type inference from
-    Drizzle.
+  <Card title="Clerk Authentication" icon="lock">
+    Managed authentication abstracted into a workspace package. Server/client utilities, middleware proxy, and themed sign-in/sign-up components.
   </Card>
-  <Card title="🎨 UI Components" icon="star">
-    Shadcn/ui components with Radix UI primitives and Tailwind CSS styling.
+  <Card title="Drizzle ORM + Neon" icon="setting">
+    Type-safe database with serverless PostgreSQL. Automatic Zod schema generation via drizzle-zod. Migrations, seeding, and Studio GUI.
   </Card>
-  <Card title="📊 Analytics & Logging" icon="laptop">
-    PostHog for product analytics, Axiom for structured logging, and Vercel
-    Analytics.
+  <Card title="Stripe Payments" icon="star">
+    Subscriptions, checkout sessions, billing portal, and webhook handling. Pricing configuration with plan management utilities.
   </Card>
-  <Card title="🚀 Data Fetching" icon="rocket">
-    TanStack Query with automatic caching, optimistic updates, and loading
-    states.
+  <Card title="Turborepo Monorepo" icon="seti:config">
+    Optimized builds with task pipelines, workspace dependencies, and shared TypeScript configurations. Bun package manager with catalog dependencies.
   </Card>
-  <Card title="📝 Forms" icon="document">
-    React Hook Form with Zod resolvers for type-safe, performant form handling.
+  <Card title="PostHog Analytics" icon="laptop">
+    Client and server-side event tracking. Vercel Analytics for performance monitoring. Optional Google Analytics integration.
   </Card>
-  <Card title="⚡ Background Jobs" icon="sun">
-    Trigger.dev for scheduled tasks, async processing, and reliable job
-    execution.
+  <Card title="Axiom Observability" icon="magnifier">
+    Structured logging with server and client transports. Web Vitals monitoring. Next.js route handler instrumentation.
   </Card>
-  <Card title="🧪 Testing" icon="magnifier">
-    Vitest for fast unit testing with comprehensive test suite and coverage
-    reports.
+  <Card title="shadcn/ui + Tailwind v4" icon="star">
+    27 Radix UI components with OKLch color system, dark mode, and sidebar theming. Tailwind CSS v4 with PostCSS.
   </Card>
-  <Card title="📦 Shared Types" icon="puzzle">
-    Centralized TypeScript types package for consistency across entire monorepo.
+  <Card title="Resend Email" icon="document">
+    React Email templates with Tailwind styling. Transactional email delivery with type-safe send functions.
   </Card>
-  <Card title="🏗️ Monorepo" icon="seti:config">
-    Turborepo for optimized builds with pnpm workspaces and shared packages.
+  <Card title="Trigger.dev Jobs" icon="sun">
+    Background task execution with retry configuration. Scheduled tasks and one-time jobs with the Trigger.dev SDK.
   </Card>
-  <Card title="📚 Documentation" icon="open-book">
-    Astro Starlight docs site with search, guides, and comprehensive examples.
+  <Card title="Vitest + Playwright" icon="magnifier">
+    Unit testing with Vitest and comprehensive E2E testing with Playwright. Coverage reports and UI mode.
   </Card>
 </CardGrid>
