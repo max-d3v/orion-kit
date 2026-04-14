@@ -10,6 +10,7 @@
     "./use-cases/*": "./src/use-cases/*.ts"
   },
   "dependencies": {
+    "@workspace/auth": "workspace:*",
     "@workspace/payment": "workspace:*",
     "@workspace/repository": "workspace:*",
     "@workspace/types": "workspace:*",

@@ -23,6 +23,7 @@
   },
   "dependencies": {
     "@neondatabase/serverless": "^0.10.4",
+    "@opentelemetry/api": "catalog:otel",
     "drizzle-orm": "catalog:schemas",
     "drizzle-zod": "catalog:schemas",
     "zod": "catalog:schemas"

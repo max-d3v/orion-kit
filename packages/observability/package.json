@@ -5,7 +5,9 @@
   "type": "module",
   "exports": {
     "./server": "./src/server.ts",
-    "./client": "./src/client.ts"
+    "./client": "./src/client.ts",
+    "./otel": "./src/otel.ts",
+    "./tracing": "./src/tracing.ts"
   },
   "scripts": {
     "lint": "eslint . --max-warnings 0",
@@ -16,6 +18,12 @@
     "@axiomhq/logging": "^0.1.5",
     "@axiomhq/nextjs": "^0.1.5",
     "@axiomhq/react": "^0.1.5",
+    "@opentelemetry/api": "catalog:otel",
+    "@opentelemetry/exporter-trace-otlp-http": "catalog:otel",
+    "@opentelemetry/resources": "catalog:otel",
+    "@opentelemetry/sdk-node": "catalog:otel",
+    "@opentelemetry/sdk-trace-node": "catalog:otel",
+    "@opentelemetry/semantic-conventions": "catalog:otel",
     "next": "catalog:web",
     "react": "catalog:web",
     "zod": "catalog:schemas"
