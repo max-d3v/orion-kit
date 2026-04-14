@@ -1,32 +1,13 @@
 "use client";
 
-import { useClerk, useUser } from "@workspace/auth/client";
-import { useMutation } from "@tanstack/react-query";
-import type { ApiResponse } from "@workspace/types/billing";
-import type { AuthUser } from "@workspace/types/use-cases/account";
+import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
+import { useClerk } from "@workspace/auth/client";
+import { orpc } from "@workspace/data-layer/orpc-tanstack-util";
+import type { AuthUser } from "@workspace/types/use-cases/users";
 
-export function useAuth(): {
-  data: ApiResponse<AuthUser> | undefined;
-  isPending: boolean;
-} {
-  const { user, isLoaded } = useUser();
-
-  const authUser: AuthUser | null = user
-    ? {
-        id: user.id,
-        email: user.primaryEmailAddress?.emailAddress ?? "",
-        name: user.fullName,
-        image: user.imageUrl ?? null,
-        emailVerified:
-          user.primaryEmailAddress?.verification?.status === "verified",
-      }
-    : null;
-
-  const data: ApiResponse<AuthUser> | undefined = authUser
-    ? { success: true, data: authUser, message: "" }
-    : undefined;
-
-  return { data, isPending: !isLoaded };
+export function useAuth(): { data: AuthUser; isPending: false } {
+  const { data } = useSuspenseQuery(orpc.users.getUser.queryOptions());
+  return { data, isPending: false };
 }
 
 export function useLogout() {
