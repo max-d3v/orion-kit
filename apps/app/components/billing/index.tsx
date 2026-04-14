@@ -1,50 +1,71 @@
 "use client";
 
+import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
+import { orpc } from "@workspace/data-layer/orpc-tanstack-util";
 import { PricingCard } from "@workspace/payment/client";
 import { PLANS } from "@workspace/types/billing";
 import { CreditCard } from "lucide-react";
 import { useState } from "react";
-import {
-  useBillingPortal,
-  useCheckout,
-  useSubscription,
-} from "@/hooks/use-billing";
-import { BillingError } from "./billing-error";
-import { BillingLoading } from "./billing-loading";
+import { showErrorToast } from "@/lib/errors";
 import { CurrentPlanCard } from "./current-plan-card";
 import { WebhookStatus } from "./webhook-status";
 
 export function BillingContent() {
-  const {
-    data: subscriptionData,
-    isLoading,
-    error,
-    refetch,
-  } = useSubscription();
-  const checkout = useCheckout();
-  const billingPortal = useBillingPortal();
+  const { data: subscriptionData } = useSuspenseQuery(
+    orpc.billing.getSubscription.queryOptions()
+  );
+
+  const checkout = useMutation(
+    orpc.billing.createCheckoutSession.mutationOptions()
+  );
+  const billingPortal = useMutation(
+    orpc.billing.createBillingPortalSession.mutationOptions()
+  );
+
   const [selectedPriceId, setSelectedPriceId] = useState<string | null>(null);
   const [showWebhookWarning, setShowWebhookWarning] = useState(true);
 
   const handleUpgrade = async (priceId: string) => {
     setSelectedPriceId(priceId);
-    await checkout.mutateAsync(priceId);
+    try {
+      const result = await checkout.mutateAsync({ priceId });
+      window.location.href = result.url;
+    } catch (error) {
+      showErrorToast(error as Error, "Failed to start checkout");
+    }
   };
 
   const handleManageBilling = async () => {
-    await billingPortal.mutateAsync();
+    try {
+      const result = await billingPortal.mutateAsync({});
+      window.location.href = result.url;
+    } catch (error) {
+      const err = error as Error & { code?: string };
+      const errorCode = err?.code;
+      const errorMessage = err?.message || "Failed to open billing portal";
+
+      if (errorCode === "NO_PREFERENCES") {
+        showErrorToast(new Error(errorMessage), "Account Setup Required");
+      } else if (errorCode === "NO_STRIPE_CUSTOMER") {
+        showErrorToast(
+          new Error("Please subscribe to a plan first to manage your billing."),
+          "No Active Subscription"
+        );
+      } else if (errorCode === "PORTAL_NOT_ACTIVATED") {
+        showErrorToast(
+          new Error(
+            "Billing portal is not available yet. Please contact support."
+          ),
+          "Portal Not Available"
+        );
+      } else {
+        showErrorToast(err, "Failed to open billing portal");
+      }
+    }
   };
 
-  if (isLoading) {
-    return <BillingLoading />;
-  }
-
-  if (error) {
-    return <BillingError error={error} onRetry={refetch} />;
-  }
-
-  const currentPlan = subscriptionData?.data.plan ?? "free";
-  const subscription = subscriptionData?.data.subscription;
+  const currentPlan = subscriptionData.plan ?? "free";
+  const subscription = subscriptionData.subscription;
 
   return (
     <div className="flex flex-1 flex-col gap-6 p-6">
