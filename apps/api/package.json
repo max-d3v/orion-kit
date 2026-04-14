@@ -13,7 +13,11 @@
   },
   "dependencies": {
     "@axiomhq/nextjs": "^0.1.5",
+    "@opentelemetry/api-logs": "^0.214.0",
+    "@opentelemetry/instrumentation": "^0.214.0",
+    "@opentelemetry/sdk-logs": "^0.214.0",
     "@orpc/server": "^1.13.13",
+    "@vercel/otel": "^2.1.2",
     "@workspace/auth": "workspace:*",
     "@workspace/database": "workspace:*",
     "@workspace/observability": "workspace:*",

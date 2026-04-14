@@ -1,5 +1,12 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  serverExternalPackages: [
+    "@opentelemetry/sdk-node",
+    "@opentelemetry/exporter-trace-otlp-http",
+    "@opentelemetry/resources",
+    "@opentelemetry/sdk-trace-node",
+    "@opentelemetry/semantic-conventions",
+  ],
   async headers() {
     const allowedOrigin =
       process.env.NODE_ENV === "production"
