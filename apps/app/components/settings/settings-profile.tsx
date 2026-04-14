@@ -1,6 +1,6 @@
 "use client";
 
-import type { AuthUser } from "@workspace/types/use-cases/account";
+import type { AuthUser } from "@workspace/types/use-cases/users";
 import { Badge } from "@workspace/ui/components/badge";
 import { Button } from "@workspace/ui/components/button";
 import {

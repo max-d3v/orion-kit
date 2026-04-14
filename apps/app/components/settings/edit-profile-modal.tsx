@@ -1,8 +1,12 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import type { AuthUser, UpdateProfileInput } from "@workspace/types/use-cases/account";
-import { updateProfileInputSchema } from "@workspace/types/use-cases/account";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import type {
+  AuthUser,
+  UpdateProfileInput,
+} from "@workspace/types/use-cases/users";
+import { updateProfileInputSchema } from "@workspace/types/use-cases/users";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -33,7 +37,10 @@ import { Input } from "@workspace/ui/components/input";
 import { Trash2 } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { useDeleteAccount, useUpdateProfile } from "@/hooks/use-profile";
+import {
+  deleteAccount as deleteAccountMutation,
+  updateProfile as updateProfileMutation,
+} from "./mutations";
 
 interface EditProfileModalProps {
   onOpenChange: (open: boolean) => void;
@@ -46,10 +53,11 @@ export function EditProfileModal({
   onOpenChange,
   user,
 }: EditProfileModalProps) {
+  const queryClient = useQueryClient();
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
-  const updateProfile = useUpdateProfile();
-  const deleteAccount = useDeleteAccount();
+  const updateProfile = useMutation(updateProfileMutation(queryClient));
+  const deleteAccount = useMutation(deleteAccountMutation(queryClient));
 
   const isDemoAccount = user.email === "demo@orion-kit.dev";
 
@@ -64,16 +72,16 @@ export function EditProfileModal({
     try {
       await updateProfile.mutateAsync(data);
       onOpenChange(false);
-    } catch (error) {
-      // Error is handled by the hook
+    } catch {
+      // Error is handled by the mutation
     }
   };
 
   const handleDeleteAccount = async () => {
     try {
-      await deleteAccount.mutateAsync();
-    } catch (error) {
-      // Error is handled by the hook
+      await deleteAccount.mutateAsync({});
+    } catch {
+      // Error is handled by the mutation
     }
   };
 
@@ -107,7 +115,7 @@ export function EditProfileModal({
                     </FormControl>
                     {isDemoAccount && (
                       <p className="text-muted-foreground text-xs">
-                        You can't edit the demo account name
+                        You can&apos;t edit the demo account name
                       </p>
                     )}
                     <FormMessage />
@@ -119,7 +127,7 @@ export function EditProfileModal({
                 {isDemoAccount ? (
                   <div className="flex items-center gap-2 text-muted-foreground text-sm">
                     <Trash2 className="h-4 w-4" />
-                    <span>You can't delete the demo account</span>
+                    <span>You can&apos;t delete the demo account</span>
                   </div>
                 ) : (
                   <Button
