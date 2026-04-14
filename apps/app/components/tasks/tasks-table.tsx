@@ -31,7 +31,6 @@ import {
   Edit2,
   MoreVertical,
   Plus,
-  Trash2,
   XCircle,
 } from "lucide-react";
 import {

@@ -1,6 +1,9 @@
 "use client";
 
-import type { PricingCardProps, SubscriptionBadgeProps } from "@workspace/types/payments/pricing";
+import type {
+  PricingCardProps,
+  SubscriptionBadgeProps,
+} from "@workspace/types/payments/pricing";
 
 export function PricingCard({
   plan,
@@ -67,15 +70,14 @@ export function PricingCard({
 
       {current ? (
         <button
-          type="button"
           className="w-full cursor-not-allowed rounded-md bg-muted px-4 py-2 font-medium text-muted-foreground text-sm"
           disabled
+          type="button"
         >
           Current Plan
         </button>
       ) : (
         <button
-          type="button"
           className={`mt-4 w-full rounded-md px-4 py-2 font-medium text-sm transition-colors ${
             plan.popular
               ? "bg-primary text-primary-foreground hover:bg-primary/90"
@@ -83,6 +85,7 @@ export function PricingCard({
           } disabled:cursor-not-allowed disabled:opacity-50`}
           disabled={loading || !plan.priceId}
           onClick={handleClick}
+          type="button"
         >
           {loading ? "Loading..." : userPlan}
         </button>

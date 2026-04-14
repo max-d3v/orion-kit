@@ -1,24 +1,27 @@
 "use client";
 
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { orpc } from "@workspace/data-layer/orpc-tanstack-util";
 import { BarChart3, CheckCircle2, Circle, Clock, XCircle } from "lucide-react";
 import { useMemo } from "react";
-import { useTasks } from "@/hooks/use-tasks";
-import { AnalyticsError } from "./analytics-error";
 import { AnalyticsInsights } from "./analytics-insights";
-import { AnalyticsLoading } from "./analytics-loading";
 import { AnalyticsRecentActivity } from "./analytics-recent-activity";
 import { AnalyticsStats } from "./analytics-stats";
 import { AnalyticsStatusBreakdown } from "./analytics-status-breakdown";
 
 export function AnalyticsContent() {
-  const { data: tasksData, isLoading, refetch } = useTasks();
+  const { data: tasksData } = useSuspenseQuery(
+    orpc.tasks.getUserTasksWithCount.queryOptions()
+  );
+
+  const tasks = tasksData.tasks ?? [];
+  const totalTasks = tasks.length;
 
   const analytics = useMemo(() => {
-    if (!tasksData?.data) {
+    if (totalTasks === 0) {
       return null;
     }
 
-    const tasks = tasksData.data;
     const now = new Date();
     const last7Days = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
     const last30Days = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
@@ -36,30 +39,32 @@ export function AnalyticsContent() {
     ).length;
 
     const completionRate =
-      tasks.length > 0
-        ? Math.round((tasksData.completed / tasks.length) * 100)
+      totalTasks > 0
+        ? Math.round((tasksData.taskCounts.completed / totalTasks) * 100)
         : 0;
 
     const statusBreakdown = [
       {
         status: "To Do",
-        count: tasksData.todo,
-        percentage: Math.round((tasksData.todo / tasks.length) * 100) || 0,
+        count: tasksData.taskCounts.todo,
+        percentage:
+          Math.round((tasksData.taskCounts.todo / totalTasks) * 100) || 0,
         color: "text-muted-foreground",
         icon: Circle,
       },
       {
         status: "In Progress",
-        count: tasksData.inProgress,
+        count: tasksData.taskCounts.inProgress,
         percentage:
-          Math.round((tasksData.inProgress / tasks.length) * 100) || 0,
+          Math.round((tasksData.taskCounts.inProgress / totalTasks) * 100) || 0,
         color: "text-blue-500",
         icon: Clock,
       },
       {
         status: "Completed",
-        count: tasksData.completed,
-        percentage: Math.round((tasksData.completed / tasks.length) * 100) || 0,
+        count: tasksData.taskCounts.completed,
+        percentage:
+          Math.round((tasksData.taskCounts.completed / totalTasks) * 100) || 0,
         color: "text-green-500",
         icon: CheckCircle2,
       },
@@ -69,7 +74,7 @@ export function AnalyticsContent() {
         percentage:
           Math.round(
             (tasks.filter((t) => t.status === "cancelled").length /
-              tasks.length) *
+              totalTasks) *
               100
           ) || 0,
         color: "text-red-500",
@@ -97,20 +102,7 @@ export function AnalyticsContent() {
       statusBreakdown,
       recentActivity,
     };
-  }, [tasksData]);
-
-  if (isLoading) {
-    return <AnalyticsLoading />;
-  }
-
-  if (!tasksData) {
-    return (
-      <AnalyticsError
-        error={new Error("No data available")}
-        onRetry={refetch}
-      />
-    );
-  }
+  }, [tasks, tasksData.taskCounts, totalTasks]);
 
   if (!analytics) {
     return (
@@ -139,7 +131,7 @@ export function AnalyticsContent() {
         completionRate={analytics.completionRate}
         tasksThisMonth={analytics.tasksThisMonth}
         tasksThisWeek={analytics.tasksThisWeek}
-        total={tasksData.total}
+        total={totalTasks}
       />
 
       <div className="grid gap-6 lg:grid-cols-2">
@@ -151,7 +143,7 @@ export function AnalyticsContent() {
       <AnalyticsInsights
         completedThisWeek={analytics.completedThisWeek}
         completionRate={analytics.completionRate}
-        inProgress={tasksData.inProgress}
+        inProgress={tasksData.taskCounts.inProgress}
       />
     </div>
   );

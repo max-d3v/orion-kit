@@ -2,9 +2,9 @@ import {
   SidebarInset,
   SidebarProvider,
 } from "@workspace/ui/components/sidebar";
+import { Suspense } from "react";
 import { AppSidebar } from "@/components/dashboard/app-sidebar";
 import { DashboardHeader } from "@/components/dashboard/dashboard-header";
-import { Suspense } from "react";
 
 export function DashboardLayoutClient({
   children,

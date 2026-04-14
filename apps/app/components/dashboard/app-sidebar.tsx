@@ -17,10 +17,11 @@ import {
   ListTodo,
   Settings,
 } from "lucide-react";
-import { usePathname } from "next/navigation";
 import type * as React from "react";
 import { NavMain } from "@/components/dashboard/nav-main";
 import { NavUser } from "@/components/dashboard/nav-user";
+import { Suspense } from "react";
+import { Avatar, AvatarFallback } from "@workspace/ui/components/avatar";
 
 const navItems = [
   {
@@ -51,12 +52,7 @@ const navItems = [
 ];
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const pathname = usePathname();
 
-  const navItemsWithActive = navItems.map((item) => ({
-    ...item,
-    isActive: pathname === item.url,
-  }));
 
   return (
     <Sidebar variant="inset" {...props}>
@@ -76,10 +72,27 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={navItemsWithActive} />
+        <NavMain items={navItems} />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser />
+        <Suspense
+          fallback={
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton size="lg">
+                  <Avatar className="h-8 w-8 rounded-lg">
+                    <AvatarFallback className="rounded-lg">...</AvatarFallback>
+                  </Avatar>
+                  <div className="grid flex-1 text-left text-sm leading-tight">
+                    <span className="truncate font-medium">Loading...</span>
+                  </div>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          }
+        >
+          <NavUser />
+        </Suspense>
       </SidebarFooter>
     </Sidebar>
   );

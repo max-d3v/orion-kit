@@ -8,6 +8,7 @@ import {
   SidebarMenuItem,
 } from "@workspace/ui/components/sidebar";
 import type { LucideIcon } from "lucide-react";
+import { usePathname } from "next/navigation";
 
 export function NavMain({
   items,
@@ -16,14 +17,20 @@ export function NavMain({
     title: string;
     url: string;
     icon: LucideIcon;
-    isActive?: boolean;
   }[];
 }) {
+  const pathname = usePathname();
+
+  const navItemsWithActive = items.map((item) => ({
+    ...item,
+    isActive: pathname === item.url,
+  }));
+
   return (
     <SidebarGroup>
       <SidebarGroupLabel>Navigation</SidebarGroupLabel>
       <SidebarMenu>
-        {items.map((item) => (
+        {navItemsWithActive.map((item) => (
           <SidebarMenuItem key={item.title}>
             <SidebarMenuButton
               asChild

@@ -11,7 +11,7 @@ export type TasksListResponse = {
 export type Task = TaskRawObject;
 
 export type CreateTaskResponse = TaskRawObject;
-export type DeleteTaskResponse = { deleted: boolean }
+export type DeleteTaskResponse = { deleted: boolean };
 
 export const getUserTasksInputSchema = z.object({
   userId: z.string().uuid(),

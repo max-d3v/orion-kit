@@ -6,13 +6,12 @@ import {
   CardTitle,
 } from "@workspace/ui/components/card";
 
-
-
-export function DashboardStats({tasks}: {tasks: Task[]}) {
-
+export function DashboardStats({ tasks }: { tasks: Task[] }) {
   const total = tasks.length;
   const completed = tasks.filter((task) => task.status === "completed").length;
-  const inProgress = tasks.filter((task) => task.status === "in-progress").length;
+  const inProgress = tasks.filter(
+    (task) => task.status === "in-progress"
+  ).length;
   const todo = tasks.filter((task) => task.status === "todo").length;
   return (
     <div className="grid gap-4 md:grid-cols-4">

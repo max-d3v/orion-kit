@@ -1,33 +1,27 @@
-import {
-  createInsertSchema,
-  createUpdateSchema,
-} from "@workspace/database/drizzle-zod";
 import { users } from "@workspace/database/schema";
 import { z } from "zod";
-import { listBaseParamsSchema } from "./base";
-
-export const userSearchables = ["name", "email"];
-
-export const createUserInputSchema = createInsertSchema(users);
-export const updateUserInputSchema = createUpdateSchema(users).extend({
-  id: z.string().uuid(),
-});
-export const getUserInputSchema = z.object({
-  id: z.string(),
-});
-export const getUserByEmailInputSchema = z.object({
-  email: z.string().email(),
-});
-export const listUsersParamsSchema = listBaseParamsSchema;
-export const deleteUserParamsSchema = z.object({
-  id: z.string(),
-});
 
 export type UserRawObject = typeof users.$inferSelect;
 
-export type CreateUserParams = z.infer<typeof createUserInputSchema>;
-export type UpdateUserParams = z.infer<typeof updateUserInputSchema>;
-export type GetUserParams = z.infer<typeof getUserInputSchema>;
-export type GetUserByEmailParams = z.infer<typeof getUserByEmailInputSchema>;
-export type ListUsersParams = z.infer<typeof listUsersParamsSchema>;
-export type DeleteUserParams = z.infer<typeof deleteUserParamsSchema>;
+export const createUserParamsSchema = z.object({
+  clerkId: z.string(),
+  email: z.string().email(),
+  name: z.string().nullable().optional(),
+  image: z.string().nullable().optional(),
+  emailVerified: z.boolean().optional(),
+});
+
+export const updateUserParamsSchema = z.object({
+  clerkId: z.string(),
+  name: z.string().nullable().optional(),
+  image: z.string().nullable().optional(),
+  emailVerified: z.boolean().optional(),
+});
+
+export const getUserByClerkIdParamsSchema = z.object({
+  clerkId: z.string(),
+});
+
+export type CreateUserParams = z.infer<typeof createUserParamsSchema>;
+export type UpdateUserParams = z.infer<typeof updateUserParamsSchema>;
+export type GetUserByClerkIdParams = z.infer<typeof getUserByClerkIdParamsSchema>;

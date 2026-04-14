@@ -1,24 +1,32 @@
 "use client";
 
+import {
+  useMutation,
+  useQueryClient,
+  useSuspenseQuery,
+} from "@tanstack/react-query";
+import { orpc } from "@workspace/data-layer/orpc-tanstack-util";
 import type { UpdatePreferencesInput } from "@workspace/types/use-cases/preferences";
-import { Skeleton } from "@workspace/ui/components/skeleton";
 import { Settings } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useAuth } from "@/hooks/use-auth";
-import { usePreferences, useUpdatePreferences } from "@/hooks/use-settings";
 import { EditProfileModal } from "./edit-profile-modal";
+import { updatePreferences as updatePreferencesMutation } from "./mutations";
 import { SettingsNotifications } from "./settings-notifications";
 import { SettingsProfile } from "./settings-profile";
 import { SettingsTaskPreferences } from "./settings-task-preferences";
 
 export function SettingsContent() {
-  const { data: authData, isPending } = useAuth();
-  const user = authData?.data || null;
+  const queryClient = useQueryClient();
+  const { data: user } = useAuth();
   const [isEditProfileModalOpen, setIsEditProfileModalOpen] = useState(false);
 
-  const { data: preferences, isLoading } = usePreferences();
-  const updatePreferences = useUpdatePreferences();
+  const { data: preferences } = useSuspenseQuery(
+    orpc.preferences.get.queryOptions()
+  );
+
+  const updatePreferences = useMutation(updatePreferencesMutation(queryClient));
 
   const form = useForm<UpdatePreferencesInput>({
     defaultValues: {
@@ -30,16 +38,16 @@ export function SettingsContent() {
   });
 
   useEffect(() => {
-    if (preferences?.data) {
+    if (preferences) {
       form.reset({
-        defaultTaskStatus: preferences.data.defaultTaskStatus || "todo",
-        emailNotifications: preferences.data.emailNotifications || "enabled",
-        taskReminders: preferences.data.taskReminders || "enabled",
-        weeklyDigest: preferences.data.weeklyDigest || "disabled",
-        theme: preferences.data.theme || "system",
-        language: preferences.data.language || "en",
-        timezone: preferences.data.timezone || undefined,
-        pushNotifications: preferences.data.pushNotifications || "disabled",
+        defaultTaskStatus: preferences.defaultTaskStatus || "todo",
+        emailNotifications: preferences.emailNotifications || "enabled",
+        taskReminders: preferences.taskReminders || "enabled",
+        weeklyDigest: preferences.weeklyDigest || "disabled",
+        theme: preferences.theme || "system",
+        language: preferences.language || "en",
+        timezone: preferences.timezone || undefined,
+        pushNotifications: preferences.pushNotifications || "disabled",
       });
     }
   }, [preferences, form]);
@@ -67,25 +75,6 @@ export function SettingsContent() {
   const onSubmit = async (data: UpdatePreferencesInput) => {
     await updatePreferences.mutateAsync(data);
   };
-
-  if (isLoading || isPending) {
-    return (
-      <div className="flex flex-1 flex-col gap-6 p-6">
-        <div className="flex items-center gap-4">
-          <Skeleton className="h-16 w-16 rounded-2xl" />
-          <div className="space-y-2">
-            <Skeleton className="h-8 w-32" />
-            <Skeleton className="h-4 w-64" />
-          </div>
-        </div>
-        <div className="grid gap-6 lg:grid-cols-2">
-          {[...Array(3)].map((_, i) => (
-            <Skeleton className="h-64" key={i} />
-          ))}
-        </div>
-      </div>
-    );
-  }
 
   const currentDefaultStatus = form.watch("defaultTaskStatus");
   const currentEmailNotifications = form.watch("emailNotifications");
@@ -127,13 +116,11 @@ export function SettingsContent() {
         />
       </div>
 
-      {user && (
-        <EditProfileModal
-          onOpenChange={setIsEditProfileModalOpen}
-          open={isEditProfileModalOpen}
-          user={user}
-        />
-      )}
+      <EditProfileModal
+        onOpenChange={setIsEditProfileModalOpen}
+        open={isEditProfileModalOpen}
+        user={user}
+      />
     </div>
   );
 }

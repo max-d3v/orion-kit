@@ -1,19 +1,19 @@
 "use client";
 
-import type { Task } from "@workspace/types/use-cases/tasks";
-import { orpc } from "@workspace/data-layer/orpc-tanstack-util";
 import {
   useMutation,
   useQueryClient,
   useSuspenseQuery,
 } from "@tanstack/react-query";
+import { orpc } from "@workspace/data-layer/orpc-tanstack-util";
+import type { Task } from "@workspace/types/use-cases/tasks";
 import { useEffect, useMemo, useState } from "react";
+import { updateTask as updateTaskMutation } from "@/components/tasks/mutations";
 import type { StatusFilter } from "@/components/tasks/task-status-config";
 import { TasksFilters } from "@/components/tasks/tasks-filters";
 import { TasksStats } from "@/components/tasks/tasks-stats";
 import { TasksTable } from "@/components/tasks/tasks-table";
 import { useTasksContext } from "./context";
-import { updateTask as updateTaskMutation } from "@/components/tasks/mutations";
 
 export function TasksContent() {
   const queryClient = useQueryClient();
@@ -30,7 +30,9 @@ export function TasksContent() {
     orpc.tasks.getUserTasksWithCount.queryOptions()
   );
 
-  const { mutateAsync: updateTask } = useMutation(updateTaskMutation(queryClient));
+  const { mutateAsync: updateTask } = useMutation(
+    updateTaskMutation(queryClient)
+  );
 
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");

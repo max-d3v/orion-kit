@@ -1,5 +1,5 @@
-import { Rocket } from "lucide-react";
 import { auth } from "@workspace/auth/server";
+import { Rocket } from "lucide-react";
 
 export async function DashboardWelcome() {
   const { sessionClaims } = await auth();

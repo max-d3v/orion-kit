@@ -1,13 +1,14 @@
 import { getQueryClient, HydrateClient } from "@workspace/data-layer/hydration";
 import { orpc } from "@workspace/data-layer/orpc-tanstack-util";
+import { Skeleton } from "boneyard-js/react";
 import { Suspense } from "react";
+import { TasksProvider } from "@/components/tasks/context";
 import { CreateTaskDialog } from "@/components/tasks/create-task-dialog";
 import { EditTaskSheet } from "@/components/tasks/edit-task-sheet";
 import { TasksContent } from "@/components/tasks/tasks-content";
 import { TasksLoading } from "@/components/tasks/tasks-loading";
 import { TasksPagination } from "@/components/tasks/tasks-pagination";
 import { TasksPerPage } from "@/components/tasks/tasks-per-page";
-import { TasksProvider } from "@/components/tasks/context";
 
 const TASKS_REFETCH_INTERVAL = 10_000;
 
@@ -17,7 +18,7 @@ export default async function TasksPage() {
   void queryClient.prefetchQuery(
     orpc.tasks.getUserTasksWithCount.queryOptions({
       refetchInterval: TASKS_REFETCH_INTERVAL,
-    }),
+    })
   );
 
   return (
@@ -33,7 +34,13 @@ export default async function TasksPage() {
           <CreateTaskDialog />
         </div>
 
-        <Suspense fallback={<TasksLoading />}>
+        <Suspense
+          fallback={
+            <Skeleton fallback={<TasksLoading />} loading={true} name="tasks">
+              <TasksContent />
+            </Skeleton>
+          }
+        >
           <HydrateClient client={queryClient}>
             <TasksContent />
           </HydrateClient>

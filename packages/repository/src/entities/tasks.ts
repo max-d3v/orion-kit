@@ -84,7 +84,7 @@ export const find = async (userId: string): Promise<TaskRawObject[]> => {
     .from(tasks)
     .where(eq(tasks.userId, userId))
     .orderBy(desc(tasks.createdAt))
-    .limit(1)
+    .limit(1);
 
   return result;
 };
@@ -139,4 +139,11 @@ export const deleteOne = async (
   }
 
   return task;
+};
+
+export const deleteAllByUserId = async (params: {
+  userId: string;
+}): Promise<void> => {
+  const { userId } = params;
+  await db.delete(tasks).where(eq(tasks.userId, userId));
 };

@@ -35,21 +35,21 @@ export type StripeSubscription = {
   readonly plan: "free" | "pro" | "enterprise";
   readonly priceId: string;
   readonly status: Stripe.Subscription.Status;
-}
+};
 
 export type CheckoutSession = {
   readonly sessionId: string;
   readonly url: string;
-}
+};
 
 export type SubscriptionData = {
   readonly plan: string;
   readonly subscription: StripeSubscription | null;
-}
+};
 
 export type PortalSession = {
   readonly url: string;
-}
+};
 
 export type SubscriptionStatus =
   | "active"
@@ -59,4 +59,3 @@ export type SubscriptionStatus =
   | "past_due"
   | "trialing"
   | "unpaid";
-

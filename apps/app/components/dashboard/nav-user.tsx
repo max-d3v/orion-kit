@@ -20,48 +20,23 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@workspace/ui/components/sidebar";
-import {
-  BadgeCheck,
-  ChevronsUpDown,
-  LogOut,
-  Settings as SettingsIcon,
-} from "lucide-react";
-import { useAuth, useLogout } from "@/hooks/use-auth";
+import { ChevronsUpDown, LogOut, Settings as SettingsIcon } from "lucide-react";
+import { useLogout } from "@/hooks/use-auth";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { orpc } from "@workspace/data-layer/orpc-tanstack-util";
 
 export function NavUser() {
   const { isMobile } = useSidebar();
-  const { data: authData, isPending } = useAuth();
-  const user = authData?.data || null;
+  const { data: user } = useSuspenseQuery(orpc.users.getUser.queryOptions());
   const logoutMutation = useLogout();
 
   const handleSignOut = () => {
     logoutMutation.mutate();
   };
 
-  if (isPending) {
-    return (
-      <SidebarMenu>
-        <SidebarMenuItem>
-          <SidebarMenuButton size="lg">
-            <Avatar className="h-8 w-8 rounded-lg">
-              <AvatarFallback className="rounded-lg">...</AvatarFallback>
-            </Avatar>
-            <div className="grid flex-1 text-left text-sm leading-tight">
-              <span className="truncate font-medium">Loading...</span>
-            </div>
-          </SidebarMenuButton>
-        </SidebarMenuItem>
-      </SidebarMenu>
-    );
-  }
-
-  if (!user) {
-    return null;
-  }
-
-  const userName = user.name || "User";
-  const userEmail = user.email || "";
-  const userAvatar = user.image || "";
+  const userName = user?.name || "User";
+  const userEmail = user?.email || "";
+  const userAvatar = user?.image || "";
   const userInitials = userName
     .split(" ")
     .map((n) => n[0])

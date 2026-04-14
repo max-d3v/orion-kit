@@ -1,19 +1,19 @@
 "use client";
 
-import { createContext, useContext, useState } from "react";
 import type { Task } from "@workspace/types/use-cases/tasks";
+import { createContext, useContext, useState } from "react";
 
 interface TasksContextValue {
-  isCreateDialogOpen: boolean;
-  setCreateDialogOpen: (open: boolean) => void;
-  selectedTask: Task | null;
-  setSelectedTask: (task: Task | null) => void;
   currentPage: number;
-  setCurrentPage: (page: number) => void;
-  totalPages: number;
-  setTotalPages: (pages: number) => void;
+  isCreateDialogOpen: boolean;
   itemsPerPage: number;
+  selectedTask: Task | null;
+  setCreateDialogOpen: (open: boolean) => void;
+  setCurrentPage: (page: number) => void;
   setItemsPerPage: (n: number) => void;
+  setSelectedTask: (task: Task | null) => void;
+  setTotalPages: (pages: number) => void;
+  totalPages: number;
 }
 
 const TasksContext = createContext<TasksContextValue | null>(null);

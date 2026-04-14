@@ -10,7 +10,6 @@ export interface PricingPlan {
   readonly priceId?: string;
 }
 
-
 export interface PricingCardProps {
   readonly current?: boolean;
   readonly loading?: boolean;

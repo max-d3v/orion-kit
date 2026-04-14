@@ -66,6 +66,7 @@ export const tasks = pgTable("tasks", {
 
 export const users = pgTable("users", {
   id: uuid().default(sql`gen_random_uuid()`).primaryKey(),
+  clerkId: varchar("clerk_id", { length: 255 }).unique(),
   name: varchar("name", { length: 255 }),
   email: varchar("email", { length: 255 }).notNull().unique(),
   emailVerified: boolean("email_verified").default(false),

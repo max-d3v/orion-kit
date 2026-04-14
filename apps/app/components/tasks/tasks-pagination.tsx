@@ -12,7 +12,11 @@ import {
 import { useTasksContext } from "./context";
 
 export function TasksPagination() {
-  const { currentPage, totalPages, setCurrentPage: onPageChange } = useTasksContext();
+  const {
+    currentPage,
+    totalPages,
+    setCurrentPage: onPageChange,
+  } = useTasksContext();
 
   if (totalPages <= 1) {
     return null;

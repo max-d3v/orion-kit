@@ -6,6 +6,6 @@ export const env = createEnv({
     TRIGGER_PROJECT: z.string(),
   },
   runtimeEnv: {
-    TRIGGER_PROJECT: process.env.TRIGGER_PROJECT
-  }
+    TRIGGER_PROJECT: process.env.TRIGGER_PROJECT,
+  },
 });

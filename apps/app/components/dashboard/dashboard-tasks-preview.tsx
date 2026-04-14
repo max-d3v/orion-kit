@@ -1,3 +1,4 @@
+import type { TaskRawObject } from "@workspace/types/repository/tasks";
 import {
   Card,
   CardContent,
@@ -6,8 +7,6 @@ import {
   CardTitle,
 } from "@workspace/ui/components/card";
 import { CheckCircle2, Circle, Clock } from "lucide-react";
-import { TaskRawObject } from "@workspace/types/repository/tasks";
-
 
 const getStatusIcon = (status: TaskRawObject["status"]) => {
   switch (status) {
@@ -35,10 +34,11 @@ const getStatusText = (status: TaskRawObject["status"]): string => {
   }
 };
 
-export function DashboardTasksPreview({tasks}: {tasks: TaskRawObject[]}) {
+export function DashboardTasksPreview({ tasks }: { tasks: TaskRawObject[] }) {
   const recentTasks = tasks
     .sort(
-      (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      (a, b) =>
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
     )
     .slice(0, 5);
 

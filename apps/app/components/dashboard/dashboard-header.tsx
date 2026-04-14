@@ -10,8 +10,8 @@ import {
 import { Separator } from "@workspace/ui/components/separator";
 import { SidebarTrigger } from "@workspace/ui/components/sidebar";
 import { usePathname } from "next/navigation";
-import { ModeToggle } from "@/components/mode-toggle";
 import { useMemo } from "react";
+import { ModeToggle } from "@/components/mode-toggle";
 
 export function DashboardHeader() {
   const pathname = usePathname();
