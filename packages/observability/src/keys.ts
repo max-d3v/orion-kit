@@ -3,12 +3,16 @@ import { z } from "zod";
 
 export const env = createEnv({
   client: {
-    NEXT_PUBLIC_SENTRY_DSN: z.string().url(),
+    NEXT_PUBLIC_SENTRY_DSN: z.string().url().includes("sentry.io"),
   },
   server: {
-    SENTRY_AUTH_TOKEN: z.string().optional(),
-    SENTRY_ORG: z.string().optional(),
-    SENTRY_PROJECT: z.string().optional(),
+    SENTRY_AUTH_TOKEN: z.string().startsWith("sntrys_").optional(),
+    SENTRY_ORG: z
+      .string()
+      .optional(),
+    SENTRY_PROJECT: z
+      .string()
+      .optional(),
   },
   runtimeEnv: {
     NEXT_PUBLIC_SENTRY_DSN: process.env.NEXT_PUBLIC_SENTRY_DSN,
