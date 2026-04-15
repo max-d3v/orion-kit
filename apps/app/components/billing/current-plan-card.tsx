@@ -1,7 +1,7 @@
 "use client";
 
-import type { StripeSubscription } from "@workspace/types/billing";
-import { getPlanById } from "@workspace/types/billing";
+import type { StripeSubscription } from "@workspace/types/payments/billing";
+import { getPlanById } from "@workspace/payment/config";
 import { Badge } from "@workspace/ui/components/badge";
 import { Button } from "@workspace/ui/components/button";
 import {

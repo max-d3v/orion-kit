@@ -3,7 +3,7 @@
 import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
 import { orpc } from "@workspace/data-layer/orpc-tanstack-util";
 import { PricingCard } from "@workspace/payment/client";
-import { PLANS } from "@workspace/types/billing";
+import { PLANS } from "@workspace/payment/config";
 import { CreditCard } from "lucide-react";
 import { useState } from "react";
 import { showErrorToast } from "@/lib/errors";

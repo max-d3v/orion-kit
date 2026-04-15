@@ -19,12 +19,15 @@ import { Label } from "@workspace/ui/components/label";
 import { Textarea } from "@workspace/ui/components/textarea";
 import { Loader2, Plus } from "lucide-react";
 import { useForm } from "react-hook-form";
-import { useCreateTask } from "@/hooks/use-tasks";
 import { useTasksContext } from "./context";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { createTask } from "./mutations";
 
-export function CreateTaskDialog() {
+export function CreateTaskDialog() {  
+  const queryClient = useQueryClient();
+
   const { isCreateDialogOpen, setCreateDialogOpen } = useTasksContext();
-  const createTask = useCreateTask();
+  const createTaskMutation = useMutation(createTask(queryClient));
 
   const form = useForm({
     resolver: zodResolver(createTaskInputSchema),
@@ -35,7 +38,7 @@ export function CreateTaskDialog() {
   });
 
   const handleSubmit = async (data: CreateTaskInput) => {
-    await createTask.mutateAsync(data);
+    await createTaskMutation.mutateAsync(data);
     form.reset();
     setCreateDialogOpen(false);
   };
@@ -82,11 +85,11 @@ export function CreateTaskDialog() {
         </div>
         <DialogFooter>
           <Button
-            disabled={createTask.isPending || form.formState.isSubmitting}
+            disabled={createTaskMutation.isPending || form.formState.isSubmitting}
             onClick={form.handleSubmit(handleSubmit)}
             type="button"
           >
-            {createTask.isPending ? (
+            {createTaskMutation.isPending ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 Creating...

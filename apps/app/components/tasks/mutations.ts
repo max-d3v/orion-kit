@@ -25,3 +25,13 @@ export function deleteTask(queryClient: QueryClient) {
     },
   });
 }
+
+export function createTask(queryClient: QueryClient) {
+  return orpc.tasks.create.mutationOptions({
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: orpc.tasks.getUserTasksWithCount.key(),
+      });
+    },
+  });
+}
