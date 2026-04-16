@@ -1,4 +1,4 @@
-# Orion Kit
+# Orion Kit 😊
 
 **Production-ready SaaS monorepo** with clean architecture, end-to-end type safety, and everything a modern project needs.
 
