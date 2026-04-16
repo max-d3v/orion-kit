@@ -4,7 +4,7 @@
 
 [Docs](https://orion-kit-docs.vercel.app/) | [Architecture](https://orion-kit-docs.vercel.app/architecture/overview) | [Packages](https://orion-kit-docs.vercel.app/packages)
 
-> If this saves you time, please star the repo.
+> If this saves you time, please star the repo. 😊
 
 ## What's Included
 
