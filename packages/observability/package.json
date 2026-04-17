@@ -16,9 +16,11 @@
   },
   "dependencies": {
     "@kubiks/otel-drizzle": "^2.1.0",
+    "@opentelemetry/exporter-trace-otlp-http": "^0.215.0",
     "@orpc/otel": "^1.13.14",
     "@sentry/nextjs": "^9.0.0",
     "@t3-oss/env-nextjs": "^0.13.11",
+    "@workspace/database": "workspace:*",
     "next": "catalog:web",
     "react": "catalog:web",
     "zod": "catalog:schemas"
