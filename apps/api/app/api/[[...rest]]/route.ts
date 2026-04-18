@@ -1,6 +1,5 @@
 import { onError } from "@orpc/server";
 import { RPCHandler } from "@orpc/server/fetch";
-import { wasZodErrorLogged } from "@workspace/rpc/middleware/zod-error";
 import { router } from "@workspace/rpc/router";
 
 const handler = new RPCHandler(router, {
@@ -9,10 +8,7 @@ const handler = new RPCHandler(router, {
       // Zod validation errors are already printed in a readable block by
       // `zodErrorLoggerMiddleware`; skip the raw dump here to avoid duplicate
       // server logs.
-      if (wasZodErrorLogged(error)) {
-        return;
-      }
-      console.error(error);
+      console.error(JSON.stringify(error, null, 2));
     }),
   ],
 });

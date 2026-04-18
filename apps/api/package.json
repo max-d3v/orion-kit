@@ -16,6 +16,7 @@
     "@sentry/nextjs": "^9.0.0",
     "@types/react": "^19.2.14",
     "@workspace/auth": "workspace:*",
+    "@workspace/core": "workspace:*",
     "@workspace/database": "workspace:*",
     "@workspace/observability": "workspace:*",
     "@workspace/payment": "workspace:*",

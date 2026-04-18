@@ -26,7 +26,7 @@
     "db:studio": "pnpm --filter studio dev",
     "db:check": "pnpm --filter @workspace/database db:check",
     "db:seed": "pnpm --filter @workspace/database db:seed",
-    "stripe:listen-dev": "stripe listen --forward-to localhost:3002/rpc/webhook.stripe",
+    "stripe:listen-dev": "stripe listen --forward-to localhost:3002/webhooks/stripe",
     "typecheck": "turbo typecheck",
     "prepare": "lefthook install",
     "check": "ultracite check",
