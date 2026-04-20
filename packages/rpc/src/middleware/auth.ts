@@ -21,6 +21,5 @@ export const authMiddleware = os
       },
     });
 
-
     return result;
   });

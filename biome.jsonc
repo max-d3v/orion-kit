@@ -31,6 +31,7 @@
   "files": {
     "includes": [
       "**/*",
+      "!.agents",
       "!packages/design-system/components/ui",
       "!packages/design-system/lib",
       "!packages/design-system/hooks",

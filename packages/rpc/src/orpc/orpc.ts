@@ -1,8 +1,7 @@
 import { createORPCClient } from "@orpc/client";
 import { RPCLink } from "@orpc/client/fetch";
-import type { router } from "../router";
 import type { RouterClient } from "@orpc/server";
-
+import type { router } from "../router";
 
 declare global {
   var $client: RouterClient<typeof router> | undefined;
