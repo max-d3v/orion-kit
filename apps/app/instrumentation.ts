@@ -1,9 +1,16 @@
 import { captureRequestError } from "@sentry/nextjs";
 import { registerOTel } from "@vercel/otel";
-import { config } from "@workspace/observability/app/otel-config";
+import {
+  config,
+  isObservabilityEnabled,
+} from "@workspace/observability/app/otel-config";
 
 export async function register() {
   await import("@workspace/rpc/orpc/orpc.server");
+
+  if (!isObservabilityEnabled) {
+    return;
+  }
 
   registerOTel(config);
 
@@ -16,4 +23,6 @@ export async function register() {
   }
 }
 
+// Safe to export unconditionally — `captureRequestError` is a no-op
+// when Sentry hasn't been initialized.
 export const onRequestError = captureRequestError;

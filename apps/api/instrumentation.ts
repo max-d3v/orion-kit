@@ -1,6 +1,11 @@
 import { captureRequestError } from "@sentry/nextjs";
+import { isSentryEnabled } from "@workspace/observability/keys";
 
 export async function register() {
+  if (!isSentryEnabled) {
+    return;
+  }
+
   if (process.env.NEXT_RUNTIME === "nodejs") {
     await import("@workspace/observability/api/sentry.server.config");
   }
@@ -10,4 +15,6 @@ export async function register() {
   }
 }
 
+// Safe to export unconditionally — `captureRequestError` is a no-op
+// when Sentry hasn't been initialized.
 export const onRequestError = captureRequestError;

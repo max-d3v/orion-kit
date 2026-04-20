@@ -1,13 +1,13 @@
 import type Stripe from "stripe";
 import { getPlanByPriceId } from "./config";
-import { stripe } from "./server";
+import { getStripe } from "./server";
 
 export function verifyWebhookSignature(
   payload: string,
   signature: string,
   secret: string
 ): Stripe.Event {
-  return stripe.webhooks.constructEvent(payload, signature, secret);
+  return getStripe().webhooks.constructEvent(payload, signature, secret);
 }
 
 export interface WebhookDatabaseAdapter {
@@ -42,7 +42,7 @@ export async function handleCheckoutCompleted(
     throw new Error("No subscription ID in session");
   }
 
-  const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+  const subscription = await getStripe().subscriptions.retrieve(subscriptionId);
   const priceId = subscription.items.data[0]?.price.id;
   const plan = priceId ? getPlanByPriceId(priceId) : null;
 

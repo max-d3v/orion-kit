@@ -1,8 +1,14 @@
 import type { TriggerConfig } from "@trigger.dev/sdk/v3";
 import "dotenv/config";
 
+// `trigger.config.ts` is loaded by the Trigger.dev CLI, not by app code.
+// We keep a clear error here so running the CLI without the env fails fast,
+// but the rest of the codebase can import from `@workspace/jobs` without crashing.
 if (!process.env.TRIGGER_PROJECT) {
-  throw new Error("TRIGGER_PROJECT is not set");
+  throw new Error(
+    "TRIGGER_PROJECT is not set. Configure it in packages/jobs/.env before running the Trigger.dev CLI. " +
+      "If you aren't using background jobs, you can ignore this file — it's only loaded by `bun run jobs`."
+  );
 }
 
 export const config: TriggerConfig = {

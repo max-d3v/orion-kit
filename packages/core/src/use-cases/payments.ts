@@ -52,6 +52,12 @@ export const handleStripeWebhook = async (params: {
 }): Promise<{ received: true }> => {
   const { payload, signature } = params;
 
+  if (!env.STRIPE_WEBHOOK_SECRET) {
+    throw new Error(
+      "STRIPE_WEBHOOK_SECRET is not set — cannot verify Stripe webhooks."
+    );
+  }
+
   const event = verifyWebhookSignature(
     payload,
     signature,
