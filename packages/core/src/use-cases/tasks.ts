@@ -1,5 +1,11 @@
-import * as tasksRepository from "@workspace/repository/entities/tasks";
-import * as userPreferencesRepository from "@workspace/repository/entities/user-preferences";
+import {
+  create,
+  deleteOne,
+  get,
+  list,
+  updateOne,
+} from "@workspace/repository/entities/tasks";
+import { getOrCreate } from "@workspace/repository/entities/user-preferences";
 import type { TaskRawObject } from "@workspace/types/repository/tasks";
 import type { GetUserTasksInput } from "@workspace/types/use-cases/tasks";
 import { assertTaskOwnership } from "../authorization/tasks";
@@ -12,12 +18,12 @@ const countTasksByStatus = (tasks: TaskRawObject[]) => ({
 
 export const getUserTasks = async (params: GetUserTasksInput) => {
   const { userId } = params;
-  return await tasksRepository.list({ userId });
+  return await list({ userId });
 };
 
 export const getUserTasksWithCount = async (params: GetUserTasksInput) => {
   const { userId } = params;
-  const tasks = await tasksRepository.list({ userId });
+  const tasks = await list({ userId });
   const taskCounts = countTasksByStatus(tasks);
   return { tasks, taskCounts };
 };
@@ -29,11 +35,11 @@ export const createTask = async (params: {
 }) => {
   const { userId, title, description } = params;
 
-  const preferences = await userPreferencesRepository.getOrCreate({ userId });
+  const preferences = await getOrCreate({ userId });
   const defaultStatus =
     (preferences.defaultTaskStatus as TaskRawObject["status"]) ?? "todo";
 
-  return tasksRepository.create({
+  return create({
     userId,
     title,
     description: description ?? null,
@@ -54,10 +60,10 @@ export const updateTask = async (params: {
 }) => {
   const { userId, taskId, data } = params;
 
-  const task = await tasksRepository.get({ id: taskId });
+  const task = await get({ id: taskId });
   assertTaskOwnership(task, userId);
 
-  return tasksRepository.updateOne({ id: taskId, ...data });
+  return updateOne({ id: taskId, ...data });
 };
 
 export const deleteTask = async (params: {
@@ -66,8 +72,8 @@ export const deleteTask = async (params: {
 }) => {
   const { userId, taskId } = params;
 
-  const task = await tasksRepository.get({ id: taskId });
+  const task = await get({ id: taskId });
   assertTaskOwnership(task, userId);
 
-  return tasksRepository.deleteOne({ id: taskId });
+  return deleteOne({ id: taskId });
 };
