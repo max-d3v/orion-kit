@@ -1,7 +1,8 @@
+import "@workspace/rpc/orpc/orpc.server";
+
 import "@workspace/ui/globals.css";
 import { Toaster } from "@workspace/ui/components/sonner";
 import { Providers } from "@/app/providers";
-import "@workspace/rpc/orpc/orpc.server";
 
 export const metadata = {
   title: "Cracked Kit",

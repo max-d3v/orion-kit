@@ -2,15 +2,11 @@
   "name": "studio",
   "version": "0.0.1",
   "scripts": {
-    "dev": "drizzle-kit studio --port 3003",
-    "clean": "git clean -xdf .cache .turbo dist node_modules",
-    "typecheck": "tsc --noEmit --emitDeclarationOnly false"
+    "dev": "cd ../../packages/database && bun db:studio --port 3003",
+    "clean": "git clean -xdf .cache .turbo dist node_modules"
   },
-  "dependencies": {
-    "drizzle-orm": "1.0.0-beta.20"
-  },
+  "dependencies": {  },
   "devDependencies": {
-    "drizzle-kit": "1.0.0-beta.20",
     "dotenv": "^16.4.7",
     "@workspace/typescript-config": "workspace:*",
     "typescript": "^5.9.2"

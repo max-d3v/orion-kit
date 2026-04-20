@@ -1,7 +1,7 @@
 import { getQueryClient, HydrateClient } from "@workspace/data-layer/hydration";
-import { orpcServer } from "@workspace/data-layer/orpc.tanstack.server";
-import { Skeleton } from "boneyard-js/react";
+import { orpc } from "@workspace/data-layer/orpc.tanstack";
 import { Suspense } from "react";
+import { Skeleton } from "@/components/boneyard-skeleton";
 import { TasksProvider } from "@/components/tasks/context";
 import { CreateTaskDialog } from "@/components/tasks/create-task-dialog";
 import { EditTaskSheet } from "@/components/tasks/edit-task-sheet";
@@ -16,7 +16,7 @@ export default async function TasksPage() {
   const queryClient = getQueryClient();
 
   void queryClient.prefetchQuery(
-    orpcServer.tasks.getUserTasksWithCount.queryOptions({
+    orpc.tasks.getUserTasksWithCount.queryOptions({
       refetchInterval: TASKS_REFETCH_INTERVAL,
     })
   );

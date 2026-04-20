@@ -5,8 +5,7 @@
   "exports": {
     "./client": "./src/query-client.ts",
     "./hydration": "./src/hydration.tsx",
-    "./orpc.tanstack.client": "./src/orpc.tanstack.client.ts",
-    "./orpc.tanstack.server": "./src/orpc.tanstack.server.ts"
+    "./orpc.tanstack": "./src/orpc.tanstack.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit --emitDeclarationOnly false"

@@ -10,14 +10,14 @@ export const POST = async (request: Request): Promise<NextResponse> => {
     const result = await handleAuthWebhook(input);
 
     return NextResponse.json({ received: true, result }, { status: 200 });
-  } catch (error) { 
+  } catch (error) {
     const isClientError =
       error instanceof ZodError || error instanceof SyntaxError;
     const status = isClientError ? 400 : 500;
     const message =
       error instanceof Error ? error.message : "Unknown webhook error";
 
-    console.error("Auth webhook error:", message);
+    console.error("Auth webhook error:", error);
     return NextResponse.json({ error: message }, { status });
   }
 };

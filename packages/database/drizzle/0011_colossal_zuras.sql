@@ -1,1 +1,0 @@
-ALTER TABLE "users" ADD COLUMN "welcome_mail_sent" boolean DEFAULT false;

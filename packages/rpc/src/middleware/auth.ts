@@ -5,8 +5,12 @@ import { HttpError } from "@workspace/types/errors/http";
 // This needs clerk middleware from wherever its called.
 export const authMiddleware = os
   .$context<{ userId?: string }>()
-  .middleware(async ({ context, next }) => {
+  .middleware(async ({ next }) => {
+    console.log("authMiddleware");
     const { sessionClaims, userId } = await auth();
+
+    console.log("authMiddleware", { sessionClaims, userId });
+
 
     if (!userId) {
       throw new HttpError(401, "Unauthorized");
@@ -20,6 +24,7 @@ export const authMiddleware = os
         },
       },
     });
+
 
     return result;
   });

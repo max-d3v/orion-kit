@@ -23,7 +23,6 @@
   },
   "dependencies": {
     "@neondatabase/serverless": "^0.10.4",
-    "@workspace/observability": "workspace:*",
     "drizzle-orm": "catalog:schemas",
     "drizzle-zod": "catalog:schemas",
     "postgres": "^3.4.9",

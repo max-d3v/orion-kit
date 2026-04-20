@@ -1,8 +1,8 @@
 import { handleWebhook } from "@workspace/auth/webhook";
 import {
-  create,
   deleteOne,
   updateOne,
+  upsertByClerkId,
 } from "@workspace/repository/entities/users";
 import type { UserJSON, WebhookEvent } from "@workspace/types/auth";
 
@@ -24,7 +24,7 @@ const getFullName = (userData: UserJSON): string | null => {
 };
 
 const createUserFromWebhook = async (userData: UserJSON) => {
-  return await create({
+  return await upsertByClerkId({
     clerkId: userData.id,
     email: getPrimaryEmail(userData),
     name: getFullName(userData),

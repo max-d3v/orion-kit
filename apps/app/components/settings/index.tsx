@@ -5,7 +5,7 @@ import {
   useQueryClient,
   useSuspenseQuery,
 } from "@tanstack/react-query";
-import { orpcClient } from "@workspace/data-layer/orpc.tanstack.client";
+import { orpc } from "@workspace/data-layer/orpc.tanstack";
 import type { UpdatePreferencesInput } from "@workspace/types/use-cases/preferences";
 import { Settings } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -23,7 +23,7 @@ export function SettingsContent() {
   const [isEditProfileModalOpen, setIsEditProfileModalOpen] = useState(false);
 
   const { data: preferences } = useSuspenseQuery(
-    orpcClient.preferences.get.queryOptions()
+    orpc.preferences.get.queryOptions()
   );
 
   const updatePreferences = useMutation(updatePreferencesMutation(queryClient));

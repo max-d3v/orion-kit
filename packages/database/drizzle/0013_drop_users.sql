@@ -1,1 +1,0 @@
-ALTER TABLE "users" ADD COLUMN "clerk_id" varchar(255) UNIQUE;

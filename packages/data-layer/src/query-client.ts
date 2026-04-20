@@ -4,10 +4,6 @@ import {
 } from "@tanstack/react-query";
 import { serializer } from "./lib/serializer";
 
-// Using rpc lets me do this, making state managment much simpler.
-// Automatic invalidation, refetch and all without needing keys or specifying inputs to the query client
-// Shout out orpc!
-
 export function createQueryClient() {
   return new QueryClient({
     defaultOptions: {
