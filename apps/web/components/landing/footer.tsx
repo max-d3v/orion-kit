@@ -1,8 +1,17 @@
+import { env } from "@/keys";
+
+const docsUrl = env.NEXT_PUBLIC_DOCS_URL;
+const repoUrl = "https://github.com/Mumma6/orion-kit";
+
 export function Footer() {
   const links = [
-    { label: "Docs", href: "#" },
-    { label: "GitHub", href: "#" },
-    { label: "License", href: "#" },
+    { label: "Docs", href: docsUrl ?? repoUrl, external: true },
+    { label: "GitHub", href: repoUrl, external: true },
+    {
+      label: "License",
+      href: `${repoUrl}/blob/main/LICENSE`,
+      external: true,
+    },
   ];
 
   return (
@@ -18,6 +27,8 @@ export function Footer() {
                 className="transition-colors hover:text-foreground"
                 href={link.href}
                 key={link.label}
+                rel={link.external ? "noopener" : undefined}
+                target={link.external ? "_blank" : undefined}
               >
                 {link.label}
               </a>

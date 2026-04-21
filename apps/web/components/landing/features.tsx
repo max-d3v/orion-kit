@@ -1,11 +1,12 @@
 import { Card } from "@workspace/ui/components/card";
 import {
-  BookOpen,
-  Layers,
+  Activity,
+  Layers3,
+  Lock,
   type LucideIcon,
-  Mail,
+  Rocket,
   Shield,
-  Sparkles,
+  Zap,
 } from "lucide-react";
 
 interface Feature {
@@ -16,34 +17,40 @@ interface Feature {
 
 const features: Feature[] = [
   {
+    icon: Layers3,
+    title: "Clean Architecture",
+    description:
+      "Layered monorepo where each package owns one responsibility — apps, data-layer, rpc, core, repository, database. Refactor with confidence.",
+  },
+  {
     icon: Shield,
-    title: "Type-Safe Everything",
+    title: "Type-Safe End-to-End",
     description:
-      "End-to-end type safety with TypeScript, Drizzle ORM, Zod validation, and shared types across the monorepo.",
+      "oRPC gives you automatic type inference from database schema to UI. Drizzle, Zod, and shared types keep contracts enforced across every layer.",
   },
   {
-    icon: Sparkles,
-    title: "Production Ready",
+    icon: Lock,
+    title: "Auth that just works",
     description:
-      "Custom JWT authentication, background jobs with Trigger.dev, analytics with PostHog, and logging with Axiom.",
+      "Clerk authentication abstracted into @workspace/auth with server, client, and middleware helpers. Protected procedures out of the box.",
   },
   {
-    icon: Mail,
-    title: "Email System",
+    icon: Rocket,
+    title: "Production Services",
     description:
-      "Resend integration with React Email templates, automatic welcome emails, and database tracking for email delivery.",
+      "Stripe subscriptions, Resend emails with React Email, Trigger.dev background jobs, and PostHog product analytics — all pre-wired.",
   },
   {
-    icon: Layers,
-    title: "Modern Stack",
+    icon: Activity,
+    title: "Traces Out of the Box",
     description:
-      "Next.js 15, React 19, TanStack Query for data fetching, React Hook Form with Zod resolvers, and Shadcn/UI components.",
+      "Sentry + OpenTelemetry wired into both apps. Every oRPC procedure and Drizzle query emits spans — full browser → API → DB traces with zero extra code.",
   },
   {
-    icon: BookOpen,
-    title: "Developer Experience",
+    icon: Zap,
+    title: "Fast Developer Experience",
     description:
-      "Turborepo monorepo, Vitest testing, Drizzle Studio, Astro docs, strict TypeScript, and comprehensive examples.",
+      "Turborepo with Bun, Ultracite for lint & format, Lefthook git hooks, Vitest + Playwright for testing, t3-env for typed env vars, and Drizzle Studio on tap.",
   },
 ];
 
@@ -51,7 +58,17 @@ export function Features() {
   return (
     <section className="relative bg-muted/30 py-24">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
-        <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+        <div className="mb-12 text-center">
+          <h2 className="mb-4 font-bold text-3xl tracking-tight sm:text-4xl">
+            Everything you need — nothing you don&apos;t
+          </h2>
+          <p className="mx-auto max-w-2xl text-lg text-muted-foreground leading-relaxed">
+            A production SaaS foundation without the lock-in. Every piece is
+            swap-able and every layer is inspectable.
+          </p>
+        </div>
+
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {features.map((feature) => (
             <Card className="p-8" key={feature.title}>
               <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-lg bg-muted">
