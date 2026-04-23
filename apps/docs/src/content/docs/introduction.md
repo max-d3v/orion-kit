@@ -15,7 +15,7 @@ A production-ready SaaS monorepo built on clean architecture principles. Uses oR
 - **Drizzle ORM** - Type-safe database with Neon PostgreSQL and auto-generated Zod schemas
 - **Stripe Payments** - Subscriptions, checkout, billing portal, and webhooks
 - **Resend Email** - React Email templates with transactional delivery
-- **PostHog + Axiom** - Product analytics and structured logging
+- **PostHog + Sentry** - Product analytics, error tracking, and OTel tracing
 - **Trigger.dev** - Background jobs and scheduled tasks
 - **Vitest + Playwright** - Unit and E2E testing
 
@@ -64,7 +64,7 @@ Each layer depends only on the layer below it. Business rules live in the Core p
 | Package | Purpose | Service |
 | ------- | ------- | ------- |
 | **@workspace/analytics** | Product analytics | PostHog + Vercel Analytics |
-| **@workspace/observability** | Logging + monitoring | Axiom |
+| **@workspace/observability** | Errors + tracing + replay | Sentry + OpenTelemetry |
 | **@workspace/payment** | Billing + subscriptions | Stripe |
 | **@workspace/email** | Transactional email | Resend |
 | **@workspace/jobs** | Background tasks | Trigger.dev |
@@ -78,7 +78,7 @@ Each layer depends only on the layer below it. Business rules live in the Core p
 | **Neon** | Serverless PostgreSQL database | @workspace/database |
 | **PostHog** | Product analytics and event tracking | @workspace/analytics |
 | **Stripe** | Payment processing and subscriptions | @workspace/payment |
-| **Axiom** | Structured logging and monitoring | @workspace/observability |
+| **Sentry** | Error tracking, session replay, OTel tracing | @workspace/observability |
 | **Resend** | Transactional email delivery | @workspace/email |
 | **Trigger.dev** | Background job execution | @workspace/jobs |
 | **Vercel** | Hosting and deployment | All apps |

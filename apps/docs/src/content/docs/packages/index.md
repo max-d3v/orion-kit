@@ -44,7 +44,7 @@ Service integrations and shared utilities. These are consumed by apps and some c
 | ------- | ------- | ------- |
 | [**@workspace/ui**](/packages/ui) | Component library | shadcn/ui + Radix UI + Tailwind v4 |
 | [**@workspace/analytics**](/packages/analytics) | Product analytics | PostHog + Vercel Analytics |
-| [**@workspace/observability**](/packages/observability) | Logging + monitoring | Axiom |
+| [**@workspace/observability**](/packages/observability) | Errors + tracing + replay | Sentry + OpenTelemetry |
 | [**@workspace/payment**](/packages/payment) | Billing + subscriptions | Stripe |
 | [**@workspace/email**](/packages/email) | Transactional email | Resend + React Email |
 | [**@workspace/jobs**](/packages/jobs) | Background tasks | Trigger.dev |

@@ -13,7 +13,7 @@ Deploy Orion Kit's three Next.js apps (`web`, `app`, `api`) to Vercel.
 
 1. **GitHub repository** with your Orion Kit code
 2. **Vercel account** (free plan is fine)
-3. **Production API keys**: Neon, Stripe, Resend, Axiom, PostHog
+3. **Production API keys**: Neon, Stripe, Resend, Sentry, PostHog
 
 ## Step-by-Step Deployment
 
@@ -37,10 +37,10 @@ Deploy Orion Kit's three Next.js apps (`web`, `app`, `api`) to Vercel.
 - Get live API keys
 - Setup webhook AFTER deploying API
 
-**4. Axiom & PostHog**
+**4. Sentry & PostHog**
 
-- Create production dataset/project
-- Copy API tokens
+- Create production Sentry project → copy DSN, create an auth token (for source map upload)
+- Create PostHog project → copy API key
 
 ---
 
@@ -64,8 +64,10 @@ STRIPE_PRICE_ID_ENTERPRISE=price_...
 RESEND_API_KEY=re_...
 FROM_EMAIL=hello@yourdomain.com
 NEXT_PUBLIC_APP_URL=https://placeholder.vercel.app  # Update after app deploy
-AXIOM_TOKEN=xaat-...
-AXIOM_DATASET=orion-production
+NEXT_PUBLIC_SENTRY_DSN=https://...sentry.io/...
+SENTRY_AUTH_TOKEN=sntrys_...
+SENTRY_ORG=your-org
+SENTRY_PROJECT=your-project
 ```
 
 **3. Deploy & Setup Webhook**
@@ -140,7 +142,7 @@ NEXT_PUBLIC_POSTHOG_HOST=https://us.i.posthog.com
 
 **3. Check services:**
 
-- **Axiom**: Should see API logs
+- **Sentry**: Errors + oRPC/Drizzle traces should appear
 - **PostHog**: Should see page views and events
 - **Resend**: Welcome emails sent on registration
 
@@ -206,7 +208,7 @@ API only accepts requests from your app domain for security.
 - [ ] All environment variables set with **production** keys
 - [ ] Tested signup flow (create account → redirect to dashboard)
 - [ ] Tested billing flow (upgrade to Pro → payment → subscription active)
-- [ ] Logs appearing in Axiom
+- [ ] Errors + traces appearing in Sentry
 - [ ] Analytics appearing in PostHog
 - [ ] CORS working (API only accepts requests from app domain)
 - [ ] Welcome emails sent on registration

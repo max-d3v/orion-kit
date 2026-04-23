@@ -49,7 +49,7 @@ Five apps, each with a clear purpose. The dashboard app uses Next.js with oRPC +
         │       EXTERNAL SERVICES         │
         │                                 │
         │  Clerk     Neon     PostHog     │
-        │  Stripe    Axiom    Resend      │
+        │  Stripe    Sentry   Resend      │
         │  Trigger.dev       Vercel       │
         └─────────────────────────────────┘
 ```

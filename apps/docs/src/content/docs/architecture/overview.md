@@ -26,7 +26,7 @@ orion-kit/
 │   ├── database/     # Drizzle schema + Neon client
 │   ├── types/        # Shared types + Zod schemas
 │   ├── analytics/    # PostHog + Vercel Analytics
-│   ├── observability/# Axiom logging
+│   ├── observability/# Sentry + OTel (errors, traces, replay)
 │   ├── payment/      # Stripe integration
 │   ├── email/        # Resend + React Email
 │   ├── jobs/         # Trigger.dev tasks
@@ -134,7 +134,7 @@ Packages with environment validation:
 | **auth** | `CLERK_SECRET_KEY`, `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` |
 | **database** | `DATABASE_URL` (PostgreSQL connection string) |
 | **analytics** | `NEXT_PUBLIC_POSTHOG_KEY` (phc_ prefix), `NEXT_PUBLIC_POSTHOG_HOST`, optional `NEXT_PUBLIC_GA_MEASUREMENT_ID` |
-| **observability** | `NEXT_PUBLIC_AXIOM_TOKEN` (xaat_ prefix), `NEXT_PUBLIC_AXIOM_DATASET` |
+| **observability** | `NEXT_PUBLIC_SENTRY_DSN`, `SENTRY_AUTH_TOKEN` (sntrys_ prefix), `SENTRY_ORG`, `SENTRY_PROJECT`, optional `SENTRY_TRACE_EXPORTER_URL`, `SENTRY_TRACE_EXPORTER_SECRET_KEY` |
 | **payment** | `STRIPE_SECRET_KEY` (sk_ prefix), `STRIPE_WEBHOOK_SECRET` (whsec_ prefix), `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` (pk_ prefix), plan price IDs |
 | **email** | `RESEND_API_KEY` (re_ prefix), `FROM_EMAIL` |
 | **jobs** | `TRIGGER_PROJECT` |
@@ -285,7 +285,8 @@ Packages use **explicit path-based exports** in their `package.json`. No barrel 
 | **database** | Named paths | `@workspace/database/client`, `@workspace/database/schema` |
 | **types** | Wildcard path | `@workspace/types/use-cases/tasks` |
 | **ui** | Wildcard path | `@workspace/ui/components/button` |
-| **analytics** | Named paths | `@workspace/analytics/server`, `@workspace/analytics/provider` |
+| **analytics** | Named paths | `@workspace/analytics/server`, `@workspace/analytics/provider`, `@workspace/analytics/events` |
+| **observability** | Named + wildcard | `@workspace/observability/server`, `@workspace/observability/app/otel-config` |
 
 ## Import Conventions
 

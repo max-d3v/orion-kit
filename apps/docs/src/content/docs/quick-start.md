@@ -15,7 +15,7 @@ Clone → Install → Start → Done! Visit localhost:3001 to see your app. Add 
   - [Stripe](https://stripe.com) - Payments
   - [Resend](https://resend.com) - Email service
   - [PostHog](https://posthog.com) - Analytics
-  - [Axiom](https://axiom.co) - Logging
+  - [Sentry](https://sentry.io) - Error tracking + OTel tracing
   - [Trigger.dev](https://trigger.dev) - Background jobs
 - [Stripe CLI](https://stripe.com/docs/stripe-cli) - For local webhook testing
 
@@ -34,7 +34,7 @@ pnpm install
 # - Stripe (payments)
 # - Resend (email)
 # - PostHog (analytics)
-# - Axiom (logging)
+# - Sentry (errors + tracing)
 # - Trigger.dev (jobs)
 
 # 3. Create env files
@@ -89,9 +89,11 @@ STRIPE_WEBHOOK_SECRET=whsec_...
 RESEND_API_KEY=re_...
 FROM_EMAIL=onboarding@resend.dev
 
-# Axiom
-AXIOM_TOKEN=xaat-...
-AXIOM_DATASET=orion
+# Sentry (optional — observability no-ops when unset)
+NEXT_PUBLIC_SENTRY_DSN=https://...sentry.io/...
+SENTRY_AUTH_TOKEN=sntrys_...
+SENTRY_ORG=your-org
+SENTRY_PROJECT=your-project
 
 # Trigger.dev
 TRIGGER_SECRET_KEY=tr_dev_...

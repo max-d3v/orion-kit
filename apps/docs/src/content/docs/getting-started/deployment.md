@@ -16,7 +16,7 @@ Deploy your Orion Kit application to production in **15 minutes**.
 ### Step 1: Setup Production Services
 
 :::tip[TL;DR]
-You need: Neon (database), Stripe (payments), Resend (email), PostHog (analytics), Axiom (logging)
+You need: Neon (database), Stripe (payments), Resend (email), PostHog (analytics), Sentry (errors + tracing)
 :::
 
 **Neon Database:**
@@ -35,7 +35,7 @@ You need: Neon (database), Stripe (payments), Resend (email), PostHog (analytics
 
 - [Resend](https://resend.com) → Copy API key
 - [PostHog](https://posthog.com) → Copy project key
-- [Axiom](https://axiom.co) → Copy API token
+- [Sentry](https://sentry.io) → Copy DSN + create auth token
 
 ### Step 2: Deploy API
 
@@ -53,8 +53,10 @@ STRIPE_PRICE_ID_ENTERPRISE=price_...
 RESEND_API_KEY=re_...
 FROM_EMAIL=hello@yourdomain.com
 NEXT_PUBLIC_APP_URL=https://placeholder.vercel.app
-AXIOM_TOKEN=xaat-...
-AXIOM_DATASET=your-app-production
+NEXT_PUBLIC_SENTRY_DSN=https://...sentry.io/...
+SENTRY_AUTH_TOKEN=sntrys_...
+SENTRY_ORG=your-org
+SENTRY_PROJECT=your-project
 ```
 
 5. **Deploy** → Copy URL (e.g., `https://your-api-abc123.vercel.app`)
@@ -136,7 +138,7 @@ NEXT_PUBLIC_POSTHOG_HOST=https://us.i.posthog.com
 - [ ] All environment variables set with **production** keys
 - [ ] Tested signup flow
 - [ ] Tested billing flow
-- [ ] Logs appearing in Axiom
+- [ ] Errors + traces appearing in Sentry
 - [ ] Analytics appearing in PostHog
 
 **Estimated time:** ~15 minutes for first deployment

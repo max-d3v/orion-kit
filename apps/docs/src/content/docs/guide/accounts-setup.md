@@ -3,7 +3,7 @@ title: Cloud Accounts Setup
 ---
 
 :::tip[TL;DR]
-You need 5 services: Neon (database), Stripe (payments), Resend (email), PostHog (analytics), Axiom (logging). All have generous free tiers!
+You need 5 services: Neon (database), Stripe (payments), Resend (email), PostHog (analytics), Sentry (errors + tracing). All have generous free tiers!
 :::
 
 Orion Kit uses cloud services for database, payments, and monitoring. Authentication is handled by our custom JWT system (no external dependencies!).
@@ -13,7 +13,7 @@ Orion Kit uses cloud services for database, payments, and monitoring. Authentica
 | **Neon**    | Postgres database     | API + Database schema | 0.5GB        | 2 min      |
 | **Stripe**  | Subscription payments | Billing page          | No fees      | 5 min      |
 | **Resend**  | Transactional emails  | Welcome emails        | 3k emails    | 2 min      |
-| **Axiom**   | Structured logging    | API error tracking    | 500MB/month  | 2 min      |
+| **Sentry**  | Errors + OTel tracing | All apps + API        | 5k errors/mo | 3 min      |
 | **PostHog** | Product analytics     | User behavior         | 1M events/mo | 2 min      |
 | **Vercel**  | Hosting               | Production deploy     | Unlimited    | 1 min      |
 
@@ -112,25 +112,27 @@ Transactional emails with beautiful React Email templates.
 
 ---
 
-## 📈 Axiom (2 minutes)
+## 🛰️ Sentry (3 minutes)
 
-Serverless logging platform for structured logs, errors, and performance metrics.
+Error tracking, session replay, and OpenTelemetry tracing (oRPC procedures + Drizzle queries).
 
 ### Quick Setup
 
-1. **Create Account:** [axiom.co](https://axiom.co) → Sign up
-2. **Create Dataset:** Dashboard → Datasets → Create Dataset → Name: `orion-logs`
-3. **Get API Token:** Settings → API Tokens → Create Token → Ingest Only → Copy token
+1. **Create Account:** [sentry.io](https://sentry.io) → Sign up → Create a Next.js project
+2. **Copy DSN:** Project Settings → Client Keys (DSN) → Copy DSN
+3. **Create Auth Token:** Settings → Auth Tokens → Create → scope: `project:releases`, `org:read` → Copy
 4. **Add to .env:**
    ```bash
-   # apps/api/.env.local
-   AXIOM_TOKEN=xaat-...
-   AXIOM_DATASET=orion-logs
+   # apps/app/.env.local and apps/api/.env.local
+   NEXT_PUBLIC_SENTRY_DSN=https://...sentry.io/...
+   SENTRY_AUTH_TOKEN=sntrys_...
+   SENTRY_ORG=your-org
+   SENTRY_PROJECT=your-project
    ```
-5. **Test:** Make API request → Visit axiom.co → Check logs
+5. **Test:** Trigger an error → Visit sentry.io → Check Issues
 
-:::tip[Free Tier]
-500MB/month free! Great for development and monitoring.
+:::tip[Fully Optional]
+The observability package no-ops cleanly when `NEXT_PUBLIC_SENTRY_DSN` is unset — you can skip this entirely in development.
 :::
 
 ---

@@ -133,7 +133,7 @@ Update `apps/api/app/auth/login/route.ts`:
 ```typescript
 import { rateLimit, RATE_LIMITS } from "@workspace/rate-limiting";
 
-export const POST = withAxiom(async (req: NextRequest) => {
+export const POST = async (req: NextRequest) => {
   const { email, password } = await req.json();
 
   // Rate limit by email (not just IP)
@@ -153,7 +153,7 @@ export const POST = withAxiom(async (req: NextRequest) => {
   }
 
   // ... existing login logic ...
-});
+};
 ```
 
 ## Caching with Upstash

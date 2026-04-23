@@ -10,7 +10,7 @@ Quick reference for all required environment variables.
 | ------------ | -------------------------------------------------------------------------------------------------------- |
 | **web**      | PostHog (optional)                                                                                       |
 | **app**      | `NEXT_PUBLIC_API_URL`, Stripe pub key (optional), PostHog (optional)                                     |
-| **api**      | `AUTH_JWT_SECRET`, `DATABASE_URL`, App URLs, Stripe keys (optional), Resend (optional), Axiom (optional) |
+| **api**      | `AUTH_JWT_SECRET`, `DATABASE_URL`, App URLs, Stripe keys (optional), Resend (optional), Sentry (optional) |
 | **database** | `DATABASE_URL`                                                                                           |
 | **studio**   | `DATABASE_URL`                                                                                           |
 
@@ -32,8 +32,10 @@ NEXT_PUBLIC_STRIPE_PRICE_ID_PRO=price_...  # Optional
 NEXT_PUBLIC_STRIPE_PRICE_ID_ENTERPRISE=price_...  # Optional
 NEXT_PUBLIC_POSTHOG_KEY=phc_...  # Optional
 NEXT_PUBLIC_POSTHOG_HOST=https://us.i.posthog.com  # Optional
-NEXT_PUBLIC_AXIOM_TOKEN=xaat-...  # Optional
-NEXT_PUBLIC_AXIOM_DATASET=orion-kit  # Optional
+NEXT_PUBLIC_SENTRY_DSN=https://...sentry.io/...  # Optional
+SENTRY_AUTH_TOKEN=sntrys_...  # Optional (CI only)
+SENTRY_ORG=your-org  # Optional
+SENTRY_PROJECT=your-project  # Optional
 ```
 
 ### apps/api/.env.local
@@ -47,8 +49,10 @@ STRIPE_SECRET_KEY=sk_test_...  # Optional
 STRIPE_WEBHOOK_SECRET=whsec_...  # Optional
 RESEND_API_KEY=re_...  # Optional
 FROM_EMAIL=onboarding@resend.dev  # Optional
-NEXT_PUBLIC_AXIOM_TOKEN=xaat-...  # Optional
-NEXT_PUBLIC_AXIOM_DATASET=orion-kit  # Optional
+NEXT_PUBLIC_SENTRY_DSN=https://...sentry.io/...  # Optional
+SENTRY_AUTH_TOKEN=sntrys_...  # Optional (CI only)
+SENTRY_ORG=your-org  # Optional
+SENTRY_PROJECT=your-project  # Optional
 ```
 
 ### packages/database/.env + apps/studio/.env.local
@@ -67,7 +71,8 @@ DATABASE_URL=postgresql://...
 | Stripe webhook | `whsec_*`                            | `stripe listen` output                                        |
 | Stripe prices  | `price_*`                            | Stripe Dashboard → Products → Pricing                         |
 | Resend API     | `re_*`                               | [Resend](https://resend.com/api-keys) → API Keys              |
-| Axiom          | `xaat_*`                             | [Axiom](https://axiom.co/settings/api-tokens) → API Tokens    |
+| Sentry DSN     | `https://...sentry.io/...`           | [Sentry](https://sentry.io) → Project → Client Keys (DSN)     |
+| Sentry auth    | `sntrys_*`                           | [Sentry](https://sentry.io) → Settings → Auth Tokens          |
 | PostHog        | `phc_*`                              | [PostHog](https://posthog.com/settings/project) → API Keys    |
 
 ⚠️ **Important:**

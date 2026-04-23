@@ -17,7 +17,7 @@ The API application (`apps/api`) serves the oRPC procedures defined in `@workspa
 - **oRPC** with `RPCHandler` for type-safe procedure handling
 - **Clerk** for session verification on every RPC call
 - **Drizzle ORM** for database operations (through the package layers)
-- **Axiom** for request logging and observability
+- **Sentry + OpenTelemetry** for errors, traces, and replay (via `@workspace/observability`)
 
 ## Why Next.js for the API?
 
@@ -182,8 +182,10 @@ STRIPE_SECRET_KEY=sk_test_...
 STRIPE_WEBHOOK_SECRET=whsec_...
 NEXT_PUBLIC_APP_URL=http://localhost:3001
 NEXT_PUBLIC_API_URL=http://localhost:3002
-NEXT_PUBLIC_AXIOM_TOKEN=xaat_...
-NEXT_PUBLIC_AXIOM_DATASET=orion-kit
+NEXT_PUBLIC_SENTRY_DSN=https://...sentry.io/...
+SENTRY_AUTH_TOKEN=sntrys_...
+SENTRY_ORG=your-org
+SENTRY_PROJECT=your-project
 ```
 
 ## Development

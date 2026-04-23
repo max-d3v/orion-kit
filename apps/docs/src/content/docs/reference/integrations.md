@@ -138,7 +138,7 @@ Every integration adds ongoing costs:
 | **Stripe**  | 0.3% fee  | 0.3% fee   | $0 + fees    |
 | **Resend**  | 3k emails | $20/mo     | $0-20        |
 | **PostHog** | 1M events | $20/mo     | $0-20        |
-| **Axiom**   | 1GB logs  | $25/mo     | $0-25        |
+| **Sentry**  | 5k errors | $26/mo     | $0-26        |
 | **Trigger** | 100k runs | $29/mo     | $0-29        |
 
 **Total base cost: ~$118/month** for full production setup.
