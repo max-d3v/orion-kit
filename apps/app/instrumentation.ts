@@ -8,12 +8,8 @@ import {
 export async function register() {
   await import("@workspace/rpc/orpc/orpc.server");
 
-  if (!isObservabilityEnabled) {
-    return;
-  }
-
   registerOTel(config);
-
+  
   if (process.env.NEXT_RUNTIME === "nodejs") {
     await import("@workspace/observability/app/sentry.server.config");
   }
