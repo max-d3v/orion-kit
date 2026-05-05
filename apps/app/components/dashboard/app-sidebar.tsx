@@ -1,5 +1,7 @@
 "use client";
 
+//mport { NavUser } from "@/components/dashboard/nav-user";
+import { UserButton } from "@workspace/ui/components/auth/user/user-button";
 import { Avatar, AvatarFallback } from "@workspace/ui/components/avatar";
 import { OrionLogo } from "@workspace/ui/components/orion-logo";
 import {
@@ -21,7 +23,6 @@ import {
 import type * as React from "react";
 import { Suspense } from "react";
 import { NavMain } from "@/components/dashboard/nav-main";
-import { NavUser } from "@/components/dashboard/nav-user";
 
 const navItems = [
   {
@@ -89,7 +90,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             </SidebarMenu>
           }
         >
-          <NavUser />
+          <UserButton />
         </Suspense>
       </SidebarFooter>
     </Sidebar>

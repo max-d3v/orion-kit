@@ -1,3 +1,5 @@
+"use client"
+
 import { useAuth } from "@better-auth-ui/react";
 
 export interface ShowProps {
