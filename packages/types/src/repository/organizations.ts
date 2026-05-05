@@ -1,11 +1,11 @@
-// import type { tenants } from "@workspace/database/schema";
+// import type { organization } from "@workspace/database/schema";
 // import type { ListBaseParams } from "./base";
 
-// export type TenantRawObject = typeof tenants.$inferSelect;
+// export type OrganizationRawObject = typeof organization.$inferSelect;
 
-// export type CreateTenantParams = typeof tenants.$inferInsert;
+// export type CreateOrganizationParams = typeof organization.$inferInsert;
 
-// export type UpdateTenantParams = Partial<typeof tenants.$inferInsert> & {
+// export type UpdateOrganizationParams = Partial<typeof organization.$inferInsert> & {
 //   id: string;
 // };
 
@@ -20,11 +20,11 @@
 //   invitations: boolean;
 // };
 
-// export type GetTenantParams = {
+// export type GetOrganizationParams = {
 //   id: string;
 // };
 
-// export type DeleteTenantParams = {
+// export type DeleteOrganizationParams = {
 //   id: string;
 // };
 
@@ -32,7 +32,7 @@
 //   search?: string;
 // };
 
-// export type ListTenantsParams = ListBaseParams &
+// export type ListOrganizationsParams = ListBaseParams &
 //   WhereParams & {
 //     include?: JoinableParams;
 //   };

@@ -1,17 +1,17 @@
 // import type { SQL, SQLWrapper } from "@workspace/database/client";
 // import { and, db, desc, eq, ilike, or } from "@workspace/database/client";
-// import { tenants } from "@workspace/database/schema";
+// import { organization } from "@workspace/database/schema";
 // import { HttpError } from "@workspace/types/errors/http";
 // import type {
-//   CreateTenantParams,
-//   DeleteTenantParams,
-//   GetTenantParams,
+//   CreateOrganizationParams,
+//   DeleteOrganizationParams,
+//   GetOrganizationParams,
 //   JoinableParams,
-//   ListTenantsParams,
-//   TenantRawObject,
-//   UpdateTenantParams,
+//   ListOrganizationsParams,
+//   OrganizationRawObject,
+//   UpdateOrganizationParams,
 //   WhereClauseParams,
-// } from "@workspace/types/repository/tenants";
+// } from "@workspace/types/repository/organizations";
 
 // const DEFAULT_PAGE_SIZE = 20;
 // const DEFAULT_PAGE_NUM = 1;
@@ -21,8 +21,8 @@
 //     return undefined;
 //   }
 //   return or(
-//     ilike(tenants.name, `%${search}%`),
-//     ilike(tenants.slug, `%${search}%`)
+//     ilike(organization.name, `%${search}%`),
+//     ilike(organization.slug, `%${search}%`)
 //   );
 // };
 
@@ -31,10 +31,10 @@
 
 //   const whereClause: SQLWrapper[] = [];
 //   if (id) {
-//     whereClause.push(eq(tenants.id, id));
+//     whereClause.push(eq(organization.id, id));
 //   }
 //   if (slug) {
-//     whereClause.push(eq(tenants.slug, slug));
+//     whereClause.push(eq(organization.slug, slug));
 //   }
 
 //   return and(...whereClause);
@@ -72,7 +72,7 @@
 //   return joinClause;
 // };
 
-// export const list = async (params: ListTenantsParams) => {
+// export const list = async (params: ListOrganizationsParams) => {
 //   const {
 //     search,
 //     pageNum = DEFAULT_PAGE_NUM,
@@ -83,9 +83,9 @@
 
 //   const offset = (pageNum - 1) * pageSize;
 
-//   const data = await db.query.tenants.findMany({
+//   const data = await db.query.organization.findMany({
 //     where: buildWhereClause({ search, ...rest }),
-//     orderBy: desc(tenants.createdAt),
+//     orderBy: desc(organization.createdAt),
 //     limit: pageSize,
 //     offset,
 //     with: buildJoinClause(include),
@@ -95,64 +95,67 @@
 // };
 
 // export const get = async (
-//   params: GetTenantParams
-// ): Promise<TenantRawObject> => {
+//   params: GetOrganizationParams
+// ): Promise<OrganizationRawObject> => {
 //   const { id } = params;
 
-//   const tenant = await db.query.tenants.findFirst({
-//     where: eq(tenants.id, id),
+//   const found = await db.query.organization.findFirst({
+//     where: eq(organization.id, id),
 //   });
 
-//   if (!tenant) {
-//     throw new HttpError(404, "Tenant not found");
+//   if (!found) {
+//     throw new HttpError(404, "Organization not found");
 //   }
 
-//   return tenant;
+//   return found;
 // };
 
 // export const create = async (
-//   params: CreateTenantParams
-// ): Promise<TenantRawObject> => {
-//   const result = await db.insert(tenants).values(params).returning();
+//   params: CreateOrganizationParams
+// ): Promise<OrganizationRawObject> => {
+//   const result = await db.insert(organization).values(params).returning();
 
-//   const tenant = result[0];
-//   if (!tenant) {
-//     throw new HttpError(500, "Failed to create tenant");
+//   const created = result[0];
+//   if (!created) {
+//     throw new HttpError(500, "Failed to create organization");
 //   }
 
-//   return tenant;
+//   return created;
 // };
 
 // export const updateOne = async (
-//   params: UpdateTenantParams
-// ): Promise<TenantRawObject> => {
+//   params: UpdateOrganizationParams
+// ): Promise<OrganizationRawObject> => {
 //   const { id, ...data } = params;
 
 //   const result = await db
-//     .update(tenants)
+//     .update(organization)
 //     .set({ ...data, updatedAt: new Date() })
-//     .where(eq(tenants.id, id))
+//     .where(eq(organization.id, id))
 //     .returning();
 
-//   const tenant = result[0];
-//   if (!tenant) {
-//     throw new HttpError(404, "Tenant not found");
+//   const updated = result[0];
+//   if (!updated) {
+//     throw new HttpError(404, "Organization not found");
 //   }
 
-//   return tenant;
+//   return updated;
 // };
 
 // export const deleteOne = async (
-//   params: DeleteTenantParams
-// ): Promise<TenantRawObject> => {
+//   params: DeleteOrganizationParams
+// ): Promise<OrganizationRawObject> => {
 //   const { id } = params;
 
-//   const result = await db.delete(tenants).where(eq(tenants.id, id)).returning();
+//   const result = await db
+//     .delete(organization)
+//     .where(eq(organization.id, id))
+//     .returning();
 
-//   const tenant = result[0];
-//   if (!tenant) {
-//     throw new HttpError(404, "Tenant not found");
+//   const deleted = result[0];
+//   if (!deleted) {
+//     throw new HttpError(404, "Organization not found");
 //   }
 
-//   return tenant;
+//   return deleted;
 // };

@@ -1,39 +1,39 @@
 // import type { SQL, SQLWrapper } from "@workspace/database/client";
 // import { and, db, desc, eq } from "@workspace/database/client";
-// import { tenantMembers } from "@workspace/database/schema";
+// import { member } from "@workspace/database/schema";
 // import { HttpError } from "@workspace/types/errors/http";
 // import type {
-//   CreateTenantMemberParams,
-//   DeleteTenantMemberParams,
-//   FindTenantMembersParams,
-//   GetTenantMemberParams,
+//   CreateOrganizationMemberParams,
+//   DeleteOrganizationMemberParams,
+//   FindOrganizationMembersParams,
+//   GetOrganizationMemberParams,
 //   JoinableParams,
-//   ListTenantMembersParams,
-//   TenantMemberRawObject,
-//   UpdateTenantMemberParams,
+//   ListOrganizationMembersParams,
+//   OrganizationMemberRawObject,
+//   UpdateOrganizationMemberParams,
 //   WhereClauseParams,
-// } from "@workspace/types/repository/tenant-members";
+// } from "@workspace/types/repository/organization-members";
 
 // const DEFAULT_PAGE_SIZE = 20;
 // const DEFAULT_PAGE_NUM = 1;
 
 // const buildSearchClause = (_search?: string) => {
-//   // No searchable text fields on tenant_members
+//   // No searchable text fields on organization members
 //   return undefined;
 // };
 
 // const buildWhere = (whereables: WhereClauseParams) => {
-//   const { id, userId, tenantId } = whereables;
+//   const { id, userId, organizationId } = whereables;
 
 //   const whereClause: SQLWrapper[] = [];
 //   if (id) {
-//     whereClause.push(eq(tenantMembers.id, id));
+//     whereClause.push(eq(member.id, id));
 //   }
 //   if (userId) {
-//     whereClause.push(eq(tenantMembers.userId, userId));
+//     whereClause.push(eq(member.userId, userId));
 //   }
-//   if (tenantId) {
-//     whereClause.push(eq(tenantMembers.tenantId, tenantId));
+//   if (organizationId) {
+//     whereClause.push(eq(member.organizationId, organizationId));
 //   }
 
 //   return and(...whereClause);
@@ -61,14 +61,14 @@
 //   if (include?.user) {
 //     joinClause.user = true;
 //   }
-//   if (include?.tenant) {
-//     joinClause.tenant = true;
+//   if (include?.organization) {
+//     joinClause.organization = true;
 //   }
 
 //   return joinClause;
 // };
 
-// export const list = async (params: ListTenantMembersParams) => {
+// export const list = async (params: ListOrganizationMembersParams) => {
 //   const {
 //     search,
 //     pageNum = DEFAULT_PAGE_NUM,
@@ -79,9 +79,9 @@
 
 //   const offset = (pageNum - 1) * pageSize;
 
-//   const data = await db.query.tenantMembers.findMany({
+//   const data = await db.query.member.findMany({
 //     where: buildWhereClause({ search, ...rest }),
-//     orderBy: desc(tenantMembers.createdAt),
+//     orderBy: desc(member.createdAt),
 //     limit: pageSize,
 //     offset,
 //     with: buildJoinClause(include),
@@ -91,78 +91,78 @@
 // };
 
 // export const get = async (
-//   params: GetTenantMemberParams
-// ): Promise<TenantMemberRawObject> => {
+//   params: GetOrganizationMemberParams
+// ): Promise<OrganizationMemberRawObject> => {
 //   const { id } = params;
 
-//   const member = await db.query.tenantMembers.findFirst({
-//     where: eq(tenantMembers.id, id),
+//   const found = await db.query.member.findFirst({
+//     where: eq(member.id, id),
 //   });
 
-//   if (!member) {
-//     throw new HttpError(404, "Tenant member not found");
+//   if (!found) {
+//     throw new HttpError(404, "Organization member not found");
 //   }
 
-//   return member;
+//   return found;
 // };
 
 // export const find = async (
-//   params: FindTenantMembersParams
-// ): Promise<TenantMemberRawObject[]> => {
+//   params: FindOrganizationMembersParams
+// ): Promise<OrganizationMemberRawObject[]> => {
 //   const { include, ...rest } = params;
 
-//   return await db.query.tenantMembers.findMany({
+//   return await db.query.member.findMany({
 //     where: buildWhereClause(rest),
 //     with: buildJoinClause(include),
 //   });
 // };
 
 // export const create = async (
-//   params: CreateTenantMemberParams
-// ): Promise<TenantMemberRawObject> => {
-//   const result = await db.insert(tenantMembers).values(params).returning();
+//   params: CreateOrganizationMemberParams
+// ): Promise<OrganizationMemberRawObject> => {
+//   const result = await db.insert(member).values(params).returning();
 
-//   const member = result[0];
-//   if (!member) {
-//     throw new HttpError(500, "Failed to create tenant member");
+//   const created = result[0];
+//   if (!created) {
+//     throw new HttpError(500, "Failed to create organization member");
 //   }
 
-//   return member;
+//   return created;
 // };
 
 // export const updateOne = async (
-//   params: UpdateTenantMemberParams
-// ): Promise<TenantMemberRawObject> => {
+//   params: UpdateOrganizationMemberParams
+// ): Promise<OrganizationMemberRawObject> => {
 //   const { id, ...data } = params;
 
 //   const result = await db
-//     .update(tenantMembers)
+//     .update(member)
 //     .set({ ...data, updatedAt: new Date() })
-//     .where(eq(tenantMembers.id, id))
+//     .where(eq(member.id, id))
 //     .returning();
 
-//   const member = result[0];
-//   if (!member) {
-//     throw new HttpError(404, "Tenant member not found");
+//   const updated = result[0];
+//   if (!updated) {
+//     throw new HttpError(404, "Organization member not found");
 //   }
 
-//   return member;
+//   return updated;
 // };
 
 // export const deleteOne = async (
-//   params: DeleteTenantMemberParams
-// ): Promise<TenantMemberRawObject> => {
+//   params: DeleteOrganizationMemberParams
+// ): Promise<OrganizationMemberRawObject> => {
 //   const { id } = params;
 
 //   const result = await db
-//     .delete(tenantMembers)
-//     .where(eq(tenantMembers.id, id))
+//     .delete(member)
+//     .where(eq(member.id, id))
 //     .returning();
 
-//   const member = result[0];
-//   if (!member) {
-//     throw new HttpError(404, "Tenant member not found");
+//   const deleted = result[0];
+//   if (!deleted) {
+//     throw new HttpError(404, "Organization member not found");
 //   }
 
-//   return member;
+//   return deleted;
 // };

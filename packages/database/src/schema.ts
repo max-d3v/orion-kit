@@ -21,7 +21,11 @@ export const tasktatusEnum = pgEnum("task_status", [
   "cancelled",
 ]);
 
-export const tenantRole = pgEnum("tenant_roles", ["owner", "admin", "member"]);
+export const organizationRole = pgEnum("organization_roles", [
+  "owner",
+  "admin",
+  "member",
+]);
 
 export const userPreference = pgTable("user_preferences", {
   id: uuid().default(sql`gen_random_uuid()`).primaryKey(),

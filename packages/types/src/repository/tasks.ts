@@ -12,12 +12,12 @@ export type UpdateTaskParams = Partial<typeof task.$inferInsert> & {
 
 export type WhereParams = {
   userId: string;
-  tenantId?: string;
+  organizationId?: string;
 };
 
 export type JoinableParams = {
   users: boolean;
-  tenants: boolean;
+  organizations: boolean;
 };
 
 export type GetTaskParams = {

@@ -11,11 +11,11 @@ export type UpdateUserParams = Partial<typeof user.$inferInsert> & {
 
 export type WhereParams = {
   email?: string;
-  tenantId?: string;
+  organizationId?: string;
 };
 
 export type JoinableParams = {
-  tenant: boolean;
+  organization: boolean;
   preferences: boolean;
   tasks: boolean;
   memberships: boolean;

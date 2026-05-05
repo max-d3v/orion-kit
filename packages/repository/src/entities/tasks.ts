@@ -27,14 +27,14 @@ const buildSearchClause = (search?: string) => {
 };
 
 const buildWhere = (whereables: WhereClauseParams) => {
-  const { userId, tenantId } = whereables;
+  const { userId, organizationId } = whereables;
 
   const whereClause: SQLWrapper[] = [];
   if (userId) {
     whereClause.push(eq(task.userId, userId));
   }
-  if (tenantId) {
-    whereClause.push(eq(organization.id, tenantId));
+  if (organizationId) {
+    whereClause.push(eq(organization.id, organizationId));
   }
 
   return and(...whereClause);
@@ -62,8 +62,8 @@ const buildJoinClause = (include: JoinableParams | undefined) => {
   if (include?.users) {
     joinClause.users = true;
   }
-  if (include?.tenants) {
-    joinClause.tenants = true;
+  if (include?.organizations) {
+    joinClause.organizations = true;
   }
 
   return joinClause;
