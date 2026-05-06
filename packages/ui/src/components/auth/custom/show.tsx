@@ -11,7 +11,7 @@ export function Show({ when, children }: ShowProps) {
     const { authClient } = useAuth();
     const { data: session, isPending, error } = authClient.useSession();
 
-    if (isPending) return ( <>Loading...</> );
+    if (isPending) return ( <></> );
     if (error) return ( <>Error: {error.message}</> );
 
     if (when === "signed-in" && session) {
