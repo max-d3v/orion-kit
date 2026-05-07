@@ -1,4 +1,4 @@
-import { customMutationKeys } from "./utils"
+import { assertAuthClientHasOrganizationOrThrow, customMutationKeys } from "@workspace/ui/lib/utils"
 import {
   mutationOptions,
   useMutation,
@@ -6,13 +6,9 @@ import {
 } from "@tanstack/react-query"
 import type { BetterFetchError } from "better-auth/react"
 import { useSession, sessionOptions, AuthClient } from "@better-auth-ui/react"
-import { createAuthClient } from "better-auth/react"
-import { organizationClient } from "better-auth/client/plugins"
+import { OrganizationClient } from "../lib/utils"
 
 
-type OrganizationClient = ReturnType<typeof createAuthClient<{
-    plugins: [ReturnType<typeof organizationClient<{}>>];
-}>>;
 
 export type CreateOrganizationOptions = Omit<
   ReturnType<typeof createOrganizationOptions>,
@@ -48,11 +44,6 @@ export function createOrganizationOptions(
   })
 }
 
-
-function authClientHasOrganizationPlugin(authClient: AuthClient): authClient is OrganizationClient {
-    return "organization" in authClient
-}
-
 /**
  * Create a mutation for creating a organization.
  *
@@ -68,13 +59,11 @@ export function useCreateOrganization(
   options?: CreateOrganizationOptions
 ) {
 
-    if (!authClientHasOrganizationPlugin(authClient)) {
-        throw new Error("The provided authClient does not have the organization plugin. Please ensure your auth client is created with the organization plugin from better-auth/client/plugins.")
-    }
+    assertAuthClientHasOrganizationOrThrow(authClient)
 
   const { data: session, refetch: refetchSession } = useSession(authClient, {
     refetchOnMount: false
-  })
+  }) 
 
   const queryClient = useQueryClient()
 
