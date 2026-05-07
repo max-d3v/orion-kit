@@ -16,7 +16,8 @@ export type BaseOrganizationRoles = "member" | "admin" | "owner"
 
 export const customMutationKeys = {
     createOrganization: ["createOrganization"],
-    inviteUsers: ["inviteUsers"]
+    inviteUsers: ["inviteUsers"],
+    updateOrganization: ["updateOrganization"]
 }
 
 export const customQueryKeys = {
