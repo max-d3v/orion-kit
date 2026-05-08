@@ -4,9 +4,9 @@ import {
 } from "@workspace/ui/components/sidebar";
 import { Suspense } from "react";
 import { DashboardHeader } from "@/components/dashboard/dashboard-header";
-import { AppSidebar } from "@/components/dashboard/sidebar";
+import { SettingsSidebar } from "@/components/settings/sidebar";
 
-export default async function DashboardLayout({
+export default function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
@@ -14,13 +14,13 @@ export default async function DashboardLayout({
   return (
     <SidebarProvider>
       <Suspense
-        fallback={<div>Loading sidebar...(This should not be visible)</div>}
+        fallback={<div>Loading sidebar... (This should not be visible)</div>}
       >
-        <AppSidebar />
+        <SettingsSidebar />
       </Suspense>
       <SidebarInset>
         <DashboardHeader />
-        <div className="flex flex-1 flex-col">{children}</div>
+        <div className="flex flex-1 flex-col p-6">{children}</div>
       </SidebarInset>
     </SidebarProvider>
   );

@@ -2,7 +2,7 @@
 
 import { fileToBase64 } from "@better-auth-ui/core"
 import { useCreateOrganization } from "@workspace/ui/hooks/create-organization-mutation"
-import { Building2, Upload } from "lucide-react"
+import { Upload } from "lucide-react"
 import { type ChangeEvent, type SyntheticEvent, useRef, useState } from "react"
 import { toast } from "sonner"
 import {
@@ -11,8 +11,8 @@ import {
   AvatarImage
 } from "@workspace/ui/components/avatar"
 import { Button } from "@workspace/ui/components/button"
-import { Card, CardContent, CardFooter } from "@workspace/ui/components/card"
-import { Field, FieldError } from "@workspace/ui/components/field"
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@workspace/ui/components/card"
+import { Field, FieldDescription, FieldError } from "@workspace/ui/components/field"
 import { Input } from "@workspace/ui/components/input"
 import { Label } from "@workspace/ui/components/label"
 import { Spinner } from "@workspace/ui/components/spinner"
@@ -23,15 +23,32 @@ export type CreateOrganizationProps = {
   className?: string
 }
 
+function slugify(input: string): string {
+  return input
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9\s-]/g, "")
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-")
+}
+
 export function CreateOrganization({ className }: CreateOrganizationProps) {
-    const { authClient } = useAuth()
+    const { authClient, navigate } = useAuth()
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [logoPreview, setLogoPreview] = useState<string | undefined>(undefined)
   const [isUploading, setIsUploading] = useState(false)
+  const [name, setName] = useState("")
+  const [slug, setSlug] = useState("")
+  const [slugTouched, setSlugTouched] = useState(false)
 
   const { mutate: createOrganization, isPending: createPending } =
     useCreateOrganization(authClient, {
-      onSuccess: () => toast.success("Organization created successfully")
+      onSuccess: () => {
+        toast.success("Organization created successfully")
+        navigate({ to: "/settings/organization/profile" })
+      }
     })
 
   const [fieldErrors, setFieldErrors] = useState<{
@@ -63,10 +80,6 @@ export function CreateOrganization({ className }: CreateOrganizationProps) {
   function handleSubmit(e: SyntheticEvent<HTMLFormElement>) {
     e.preventDefault()
 
-    const formData = new FormData(e.currentTarget)
-    const name = formData.get("name") as string
-    const slug = formData.get("slug") as string
-
     createOrganization({
       name,
       slug,
@@ -75,12 +88,15 @@ export function CreateOrganization({ className }: CreateOrganizationProps) {
   }
 
   return (
-    <div>
-      <h2 className="text-sm font-semibold mb-3">Create Organization</h2>
+    <form onSubmit={handleSubmit} className="w-full max-w-sm">
+      <Card className={cn(className)}>
+        <CardHeader>
+          <CardTitle className="font-semibold text-xl">
+            Create Organization
+          </CardTitle>
+        </CardHeader>
 
-      <form onSubmit={handleSubmit}>
-        <Card className={cn(className)}>
-          <CardContent className="flex flex-col gap-6">
+        <CardContent className="flex flex-col gap-6">
             <Field>
               <Label htmlFor="logo">Logo</Label>
 
@@ -94,29 +110,49 @@ export function CreateOrganization({ className }: CreateOrganizationProps) {
               />
 
               <div className="flex items-center gap-4">
-                <Avatar className="size-12 rounded-md">
-                  <AvatarImage
-                    src={logoPreview ?? undefined}
-                    alt="Organization logo"
-                  />
-
-                  <AvatarFallback className="rounded-md">
-                    <Building2 className="size-5 text-muted-foreground" />
-                  </AvatarFallback>
-                </Avatar>
-
-                <Button
+                <button
                   type="button"
-                  variant="secondary"
-                  size="sm"
                   disabled={isPending}
                   onClick={() => fileInputRef.current?.click()}
+                  aria-label="Upload organization logo"
+                  className="cursor-pointer rounded-md outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                  {isPending && <Spinner />}
+                  <Avatar
+                    className={cn(
+                      "size-[72px] rounded-md bg-transparent transition-colors",
+                      !logoPreview &&
+                        "border-2 border-muted-foreground/40 border-dashed hover:border-muted-foreground/70"
+                    )}
+                  >
+                    <AvatarImage
+                      src={logoPreview ?? undefined}
+                      alt="Organization logo"
+                    />
 
-                  <Upload className="text-muted-foreground" />
-                  Upload Logo
-                </Button>
+                    <AvatarFallback className="rounded-md bg-transparent">
+                      <Upload className="size-6 text-muted-foreground" />
+                    </AvatarFallback>
+                  </Avatar>
+                </button>
+
+                <div className="flex flex-col items-start gap-1">
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    size="sm"
+                    disabled={isPending}
+                    onClick={() => fileInputRef.current?.click()}
+                  >
+                    {isPending && <Spinner />}
+
+                    <Upload className="text-muted-foreground" />
+                    Upload Logo
+                  </Button>
+
+                  <FieldDescription>
+                    Recommended size 1:1, up to 10MB.
+                  </FieldDescription>
+                </div>
               </div>
             </Field>
 
@@ -130,7 +166,13 @@ export function CreateOrganization({ className }: CreateOrganizationProps) {
                 placeholder="Acme Inc."
                 disabled={isPending}
                 required
-                onChange={() => {
+                value={name}
+                onChange={(e) => {
+                  const newName = e.target.value
+                  setName(newName)
+                  if (!slugTouched || slug === "") {
+                    setSlug(slugify(newName))
+                  }
                   setFieldErrors((prev) => ({
                     ...prev,
                     name: undefined
@@ -159,7 +201,10 @@ export function CreateOrganization({ className }: CreateOrganizationProps) {
                 placeholder="acme"
                 disabled={isPending}
                 required
-                onChange={() => {
+                value={slug}
+                onChange={(e) => {
+                  setSlug(e.target.value)
+                  setSlugTouched(true)
                   setFieldErrors((prev) => ({
                     ...prev,
                     slug: undefined
@@ -178,16 +223,15 @@ export function CreateOrganization({ className }: CreateOrganizationProps) {
 
               <FieldError>{fieldErrors.slug}</FieldError>
             </Field>
-          </CardContent>
+        </CardContent>
 
-          <CardFooter>
-            <Button type="submit" size="sm" disabled={isPending}>
-              {isPending && <Spinner />}
-              Create Organization
-            </Button>
-          </CardFooter>
-        </Card>
-      </form>
-    </div>
+        <CardFooter className="justify-end">
+          <Button type="submit" size="sm" disabled={isPending}>
+            {isPending && <Spinner />}
+            Create Organization
+          </Button>
+        </CardFooter>
+      </Card>
+    </form>
   )
 }

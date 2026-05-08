@@ -1,15 +1,14 @@
 "use client";
 
-import type { AuthUser } from "@workspace/types/use-cases/users";
+import { useQuery } from "@tanstack/react-query";
+import { orpc } from "@workspace/data-layer/orpc.tanstack";
 import { Button } from "@workspace/ui/components/button";
 import { useState } from "react";
 import { EditProfileModal } from "./edit-profile-modal";
 
-interface EditProfileButtonProps {
-  readonly user: AuthUser;
-}
+export function EditProfileButton() {
+  const { data: user } = useQuery(orpc.users.getUser.queryOptions());
 
-export function EditProfileButton({ user }: EditProfileButtonProps) {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -17,6 +16,7 @@ export function EditProfileButton({ user }: EditProfileButtonProps) {
       <Button onClick={() => setIsOpen(true)} size="sm" variant="outline">
         Edit Profile
       </Button>
+
       <EditProfileModal onOpenChange={setIsOpen} open={isOpen} user={user} />
     </>
   );

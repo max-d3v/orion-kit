@@ -38,4 +38,10 @@ export const config = {
     enabled: true,
   },
   socialProviders: getSocialProviders(),
+  session: {
+    cookieCache: {
+      enabled: true,
+      maxAge: 5 * 60,
+    },
+  },
 };

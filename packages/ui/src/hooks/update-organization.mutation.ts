@@ -5,13 +5,12 @@ import {
   useQueryClient
 } from "@tanstack/react-query"
 import type { BetterFetchError } from "better-auth/react"
-import { useSession, sessionOptions, AuthClient } from "@better-auth-ui/react"
+import { sessionOptions, AuthClient } from "@better-auth-ui/react"
 import { OrganizationClient } from "../lib/utils"
 
 
-
 export type UpdateOrganizationOptions = Omit<
-  ReturnType<typeof createOrganizationOptions>,
+  ReturnType<typeof updateOrganizationOptions>,
   "mutationKey" | "mutationFn"
 >
 
@@ -19,11 +18,11 @@ type UpdateOrganizationParams = Parameters<OrganizationClient["organization"]["u
 
 
 /**
- * Mutation options factory for updating the authenticated user's profile.
+ * Mutation options factory for updating an organization.
  *
  * @param authClient - The Better Auth client.
  */
-export function createOrganizationOptions(
+export function updateOrganizationOptions(
   authClient: OrganizationClient
 ) {
   const mutationKey = customMutationKeys.updateOrganization
@@ -45,41 +44,29 @@ export function createOrganizationOptions(
 }
 
 /**
- * Create a mutation for creating a organization.
+ * Create a mutation for updating an organization.
  *
- * Wraps `authClient.organization.create`, optimistically patches the cached session
- * with the new fields, refetches the session, and forwards React Query
- * mutation options such as `onSuccess`, `onError`, and `retry`.
+ * Wraps `authClient.organization.update` and invalidates the cached session so
+ * downstream consumers see fresh organization data.
  *
  * @param authClient - The Better Auth client.
  * @param options - React Query options forwarded to `useMutation`.
  */
-export function useCreateOrganization(
+export function useUpdateOrganization(
   authClient: AuthClient,
   options?: UpdateOrganizationOptions
 ) {
-
-    assertAuthClientHasOrganizationOrThrow(authClient)
-
-  const { data: session, refetch: refetchSession } = useSession(authClient, {
-    refetchOnMount: false
-  }) 
+  assertAuthClientHasOrganizationOrThrow(authClient)
 
   const queryClient = useQueryClient()
 
   return useMutation({
-    ...createOrganizationOptions(authClient),
+    ...updateOrganizationOptions(authClient),
     ...options,
     onSuccess: async (data, variables, ...rest) => {
-
-      if (session) {
-        queryClient.setQueryData(sessionOptions(authClient).queryKey, {
-          ...session,
-          session: { ...session.session, activeOrganizationId: data.id }
-        })
-      }
-
-      refetchSession()
+      await queryClient.invalidateQueries({
+        queryKey: sessionOptions(authClient).queryKey
+      })
 
       await options?.onSuccess?.(data, variables, ...rest)
     }

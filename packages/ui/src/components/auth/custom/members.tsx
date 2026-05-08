@@ -4,26 +4,67 @@ import { useAuth } from "@better-auth-ui/react";
 import { OrganizationInvitations } from "@workspace/ui/components/auth/custom/organization-invitations";
 import { OrganizationMembers } from "@workspace/ui/components/auth/custom/organization-members";
 import { Badge } from "@workspace/ui/components/badge";
+import { Button } from "@workspace/ui/components/button";
+import { Card, CardContent } from "@workspace/ui/components/card";
 import {
   Tabs,
   TabsContent,
   TabsList,
   TabsTrigger,
 } from "@workspace/ui/components/tabs";
-import { useActiveOrganizationInvitations } from "@workspace/ui/hooks/use-invites";
-import { cn } from "@workspace/ui/lib/utils";
+import { useOrganizationInvitations } from "@workspace/ui/hooks/use-invites";
+import {
+  assertAuthClientHasOrganizationOrThrow,
+  cn,
+} from "@workspace/ui/lib/utils";
+import { Building2 } from "lucide-react";
 
 export type MembersProps = {
   className?: string;
 };
 
 export function Members({ className }: MembersProps) {
-  const { authClient } = useAuth();
-  const { data: invitations } = useActiveOrganizationInvitations(authClient);
+  const { authClient, Link } = useAuth();
+  assertAuthClientHasOrganizationOrThrow(authClient);
+
+  const { data: activeOrganization } = authClient.useActiveOrganization();
+  const organizationId = activeOrganization?.id;
+
+  const { data: invitations } = useOrganizationInvitations(
+    authClient,
+    organizationId
+  );
 
   const activeInvitationsCount =
     invitations?.filter((invitation) => invitation.status === "pending")
       .length ?? 0;
+
+  if (!organizationId) {
+    return (
+      <div className={cn("flex flex-col gap-6", className)}>
+        <h1 className="font-bold text-3xl">Members</h1>
+
+        <Card>
+          <CardContent className="flex flex-col items-center gap-4 py-12 text-center">
+            <div className="flex size-12 items-center justify-center rounded-full bg-muted">
+              <Building2 className="size-5 text-muted-foreground" />
+            </div>
+
+            <div className="flex flex-col gap-1">
+              <p className="font-medium">No active organization</p>
+              <p className="text-muted-foreground text-sm">
+                Create an organization to invite members and collaborate.
+              </p>
+            </div>
+
+            <Button asChild size="sm">
+              <Link href="/auth/onboarding">Create organization</Link>
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className={cn("flex flex-col gap-6", className)}>
@@ -43,11 +84,11 @@ export function Members({ className }: MembersProps) {
         </TabsList>
 
         <TabsContent value="members">
-          <OrganizationMembers />
+          <OrganizationMembers organizationId={organizationId} />
         </TabsContent>
 
         <TabsContent value="invitations">
-          <OrganizationInvitations />
+          <OrganizationInvitations organizationId={organizationId} />
         </TabsContent>
       </Tabs>
     </div>

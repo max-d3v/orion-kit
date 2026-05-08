@@ -31,11 +31,13 @@ import { type BaseOrganizationRoles } from "@workspace/ui/lib/utils"
 export type InviteMembersSheetProps = {
   open: boolean
   onOpenChange: (open: boolean) => void
+  organizationId: string | undefined
 }
 
 export function InviteMembersSheet({
   open,
-  onOpenChange
+  onOpenChange,
+  organizationId
 }: InviteMembersSheetProps) {
   const { authClient } = useAuth()
   const [emails, setEmails] = useState("")
@@ -46,7 +48,7 @@ export function InviteMembersSheet({
     isPending,
     error,
     reset
-  } = useInviteUsers(authClient, {
+  } = useInviteUsers(authClient, organizationId, {
     onSuccess: (data) => {
       toast.success(
         `Sent ${data.length} invitation${data.length === 1 ? "" : "s"}.`
@@ -69,6 +71,11 @@ export function InviteMembersSheet({
 
   function handleSubmit(e: SyntheticEvent<HTMLFormElement>) {
     e.preventDefault()
+
+    if (!organizationId) {
+      toast.error("No active organization.")
+      return
+    }
 
     const parsed = emails
       .split(/[\s,;]+/)

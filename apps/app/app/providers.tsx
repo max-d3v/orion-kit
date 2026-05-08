@@ -8,8 +8,6 @@ import { ThemeProvider } from "next-themes";
 import { useState } from "react";
 
 export function Providers({ children }: { children: React.ReactNode }) {
-  // Create a client instance per request
-  // This ensures each user gets their own QueryClient
   const [queryClient] = useState(() => createQueryClient());
 
   return (

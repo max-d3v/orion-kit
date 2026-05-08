@@ -24,6 +24,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
       redirectTo="/dashboard"
       socialProviders={["google"]}
+      viewPaths={{ settings: { account: "account/profile" } }}
     >
       {children}
     </DefaultAuthProvider>

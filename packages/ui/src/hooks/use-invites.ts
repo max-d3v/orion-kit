@@ -2,24 +2,24 @@ import { AuthClient } from "@better-auth-ui/react"
 import { assertAuthClientHasOrganizationOrThrow, customQueryKeys } from "../lib/utils"
 import { useQuery } from "@tanstack/react-query"
 
-export function useActiveOrganizationInvitations(authClient: AuthClient) {
+
+/**
+ * Query the invitations for a given organization.
+ *
+ * Shares query key with the server-side "organizationInvitationsOptions",
+ * so SSR-prefetched results hydrate seamlessly. When `organizationId` is
+ * undefined, the query is disabled.
+ */
+export function useOrganizationInvitations(authClient: AuthClient, organizationId: string | undefined) {
   assertAuthClientHasOrganizationOrThrow(authClient)
 
-  const { data: activeOrganization } = authClient.useActiveOrganization()
-
-  const queryKey = customQueryKeys.organizationInvitations(activeOrganization?.id)
-
   return useQuery({
-    queryKey: queryKey,
-    enabled: !!activeOrganization,
+    queryKey: customQueryKeys.organizationInvitations(organizationId),
+    enabled: !!organizationId,
     queryFn: async () => {
-      if (!activeOrganization) {
-        throw new Error("No active organization found.")
-      }
-
       return await authClient.organization.listInvitations({
         query: {
-          organizationId: activeOrganization.id
+          organizationId: organizationId as string
         },
         fetchOptions: {
             throw: true

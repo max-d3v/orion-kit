@@ -20,7 +20,6 @@ const tasksRouter = {
   }),
   getUserTasks: authenticatedProcedure.handler(async ({ context }) => {
     const { id } = context.user;
-    await new Promise((resolve) => setTimeout(resolve, 10_000));
     return await getUserTasks({ userId: id });
   }),
   create: authenticatedProcedure
@@ -29,7 +28,6 @@ const tasksRouter = {
       const { id } = context.user;
       return await createTask({ userId: id, ...input });
     }),
-
   update: authenticatedProcedure
     .input(updateTaskInputSchema)
     .handler(async ({ context, input }) => {

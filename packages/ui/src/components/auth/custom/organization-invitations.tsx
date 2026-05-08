@@ -1,6 +1,6 @@
 "use client"
 
-import { useActiveOrganizationInvitations } from "@workspace/ui/hooks/use-invites"
+import { useOrganizationInvitations } from "@workspace/ui/hooks/use-invites"
 import { useAuth } from "@better-auth-ui/react"
 import {
   AlertCircle,
@@ -61,17 +61,19 @@ function getInitial(email: string) {
 
 export type OrganizationInvitationsProps = {
   className?: string
+  organizationId: string | undefined
 }
 
 export function OrganizationInvitations({
-  className
+  className,
+  organizationId
 }: OrganizationInvitationsProps) {
   const { authClient } = useAuth()
   const {
     data: invitations,
     isPending,
     error
-  } = useActiveOrganizationInvitations(authClient)
+  } = useOrganizationInvitations(authClient, organizationId)
 
   const [inviteOpen, setInviteOpen] = useState(false)
 
@@ -205,7 +207,11 @@ export function OrganizationInvitations({
         </Table>
       </Card>
 
-      <InviteMembersSheet open={inviteOpen} onOpenChange={setInviteOpen} />
+      <InviteMembersSheet
+        open={inviteOpen}
+        onOpenChange={setInviteOpen}
+        organizationId={organizationId}
+      />
     </div>
   )
 }

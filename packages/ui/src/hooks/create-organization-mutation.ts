@@ -5,7 +5,7 @@ import {
   useQueryClient
 } from "@tanstack/react-query"
 import type { BetterFetchError } from "better-auth/react"
-import { useSession, sessionOptions, AuthClient } from "@better-auth-ui/react"
+import { sessionOptions, AuthClient } from "@better-auth-ui/react"
 import { OrganizationClient } from "../lib/utils"
 
 
@@ -19,7 +19,7 @@ type CreateOrganizationParams = Parameters<OrganizationClient["organization"]["c
 
 
 /**
- * Mutation options factory for updating the authenticated user's profile.
+ * Mutation options factory for creating an organization.
  *
  * @param authClient - The Better Auth client.
  */
@@ -45,11 +45,10 @@ export function createOrganizationOptions(
 }
 
 /**
- * Create a mutation for creating a organization.
+ * Create a mutation for creating an organization.
  *
- * Wraps `authClient.organization.create`, optimistically patches the cached session
- * with the new fields, refetches the session, and forwards React Query
- * mutation options such as `onSuccess`, `onError`, and `retry`.
+ * Wraps `authClient.organization.create` and invalidates the cached session
+ * so that consumers reading the active organization see the freshly created one.
  *
  * @param authClient - The Better Auth client.
  * @param options - React Query options forwarded to `useMutation`.
@@ -58,12 +57,7 @@ export function useCreateOrganization(
   authClient: AuthClient,
   options?: CreateOrganizationOptions
 ) {
-
-    assertAuthClientHasOrganizationOrThrow(authClient)
-
-  const { data: session, refetch: refetchSession } = useSession(authClient, {
-    refetchOnMount: false
-  }) 
+  assertAuthClientHasOrganizationOrThrow(authClient)
 
   const queryClient = useQueryClient()
 
@@ -71,15 +65,9 @@ export function useCreateOrganization(
     ...createOrganizationOptions(authClient),
     ...options,
     onSuccess: async (data, variables, ...rest) => {
-
-      if (session) {
-        queryClient.setQueryData(sessionOptions(authClient).queryKey, {
-          ...session,
-          session: { ...session.session, activeOrganizationId: data.id }
-        })
-      }
-
-      refetchSession()
+      await queryClient.invalidateQueries({
+        queryKey: sessionOptions(authClient).queryKey
+      })
 
       await options?.onSuccess?.(data, variables, ...rest)
     }

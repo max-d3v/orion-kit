@@ -2,16 +2,14 @@ import { getQueryClient } from "@workspace/data-layer/hydration";
 import { orpc } from "@workspace/data-layer/orpc.tanstack";
 import { Settings } from "lucide-react";
 import { SettingsNotifications } from "./settings-notifications";
-import { SettingsProfile } from "./settings-profile";
 import { SettingsTaskPreferences } from "./settings-task-preferences";
 
 export async function SettingsContent() {
   const queryClient = getQueryClient();
 
-  const [user, preferences] = await Promise.all([
-    queryClient.fetchQuery(orpc.users.getUser.queryOptions()),
-    queryClient.fetchQuery(orpc.preferences.get.queryOptions()),
-  ]);
+  const preferences = await queryClient.fetchQuery(
+    orpc.preferences.get.queryOptions()
+  );
 
   return (
     <div className="flex flex-1 flex-col gap-6 p-6">
@@ -28,7 +26,7 @@ export async function SettingsContent() {
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <SettingsProfile user={user} />
+        {/* <SettingsProfile user={user} /> */}
 
         <SettingsTaskPreferences
           defaultStatus={preferences?.defaultTaskStatus}

@@ -1,6 +1,6 @@
 "use client"
 
-import { useActiveOrganizationMembers } from "@workspace/ui/hooks/use-organization"
+import { useOrganizationMembers } from "@workspace/ui/hooks/use-organization"
 import { useAuth } from "@better-auth-ui/react"
 import {
   AlertCircle,
@@ -59,15 +59,16 @@ function getInitials(name: string) {
 
 export type OrganizationMembersProps = {
   className?: string
+  organizationId: string | undefined
 }
 
-export function OrganizationMembers({ className }: OrganizationMembersProps) {
+export function OrganizationMembers({ className, organizationId }: OrganizationMembersProps) {
   const { authClient } = useAuth()
   const {
     data: members,
     isPending,
     error
-  } = useActiveOrganizationMembers(authClient)
+  } = useOrganizationMembers(authClient, organizationId)
 
 
   const [search, setSearch] = useState("")
@@ -89,7 +90,7 @@ export function OrganizationMembers({ className }: OrganizationMembersProps) {
   return (
     <div className={cn("flex flex-col gap-4", className)}>
       <div className="flex items-center gap-2">
-        <div className="relative flex-1">
+        <div className="relative w-3/5">
           <Search className="absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" />
 
           <Input
@@ -102,7 +103,7 @@ export function OrganizationMembers({ className }: OrganizationMembersProps) {
           />
         </div>
 
-        <Button size="sm" onClick={() => setInviteOpen(true)}>
+        <Button size="sm" onClick={() => setInviteOpen(true)} className="ml-auto">
           <UserPlus />
           Invite
         </Button>
@@ -229,7 +230,11 @@ export function OrganizationMembers({ className }: OrganizationMembersProps) {
         </Table>
       </Card>
 
-      <InviteMembersSheet open={inviteOpen} onOpenChange={setInviteOpen} />
+      <InviteMembersSheet
+        open={inviteOpen}
+        onOpenChange={setInviteOpen}
+        organizationId={organizationId}
+      />
     </div>
   )
 }

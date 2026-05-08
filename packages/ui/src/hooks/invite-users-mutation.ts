@@ -4,7 +4,7 @@ import {
   useMutation,
   useQueryClient
 } from "@tanstack/react-query"
-import { useSession, AuthClient } from "@better-auth-ui/react"
+import { AuthClient } from "@better-auth-ui/react"
 import { OrganizationClient } from "../lib/utils"
 import { BetterFetchError } from "better-auth/client"
 import { ClientFetchOption } from "better-auth"
@@ -23,13 +23,13 @@ type UserInvitationsParams = {
 }
 
 
-function inviteMultipleUsers({authClient, emails, role, orgId, fetchOptions}: {authClient: OrganizationClient, emails: string[], role: BaseOrganizationRoles, orgId: string, fetchOptions?: ClientFetchOption}) {
+function inviteMultipleUsers({authClient, emails, role, organizationId, fetchOptions}: {authClient: OrganizationClient, emails: string[], role: BaseOrganizationRoles, organizationId: string, fetchOptions?: ClientFetchOption}) {
   return Promise.all(
     emails.map((email) =>
       authClient.organization.inviteMember({
         email,
         role,
-        organizationId: orgId,
+        organizationId,
         fetchOptions,
         resend: true
       })
@@ -37,11 +37,16 @@ function inviteMultipleUsers({authClient, emails, role, orgId, fetchOptions}: {a
   )
 }
 
-function createInviteOptions(authClient: OrganizationClient, orgId: string) {
+function createInviteOptions(authClient: OrganizationClient, organizationId: string | undefined) {
   const mutationKey = customMutationKeys.inviteUsers
 
-  const mutationFn = (params: UserInvitationsParams) => inviteMultipleUsers({authClient, orgId, ...params, fetchOptions: { ...params.fetchOptions, throw: true }})
-  
+  const mutationFn = (params: UserInvitationsParams) => {
+    if (!organizationId) {
+      throw new Error("organizationId is required to invite users.")
+    }
+    return inviteMultipleUsers({authClient, organizationId, ...params, fetchOptions: { ...params.fetchOptions, throw: true }})
+  }
+
   return mutationOptions<
     Awaited<ReturnType<typeof mutationFn>>,
     BetterFetchError,
@@ -55,37 +60,30 @@ function createInviteOptions(authClient: OrganizationClient, orgId: string) {
 
 
 /**
- * Create a mutation for inviting users to active organization.
+ * Create a mutation for inviting users to a specific organization.
  *
- * Wraps `authClient.organization.inviteMember`, optimistically patches the cached session
- * Forwards React Query
+ * Wraps `authClient.organization.inviteMember` and forwards React Query
  * mutation options such as `onSuccess`, `onError`, and `retry`.
  *
  * @param authClient - The Better Auth client.
+ * @param organizationId - The organization to invite users to. When undefined, calling `mutate` will throw.
  * @param options - React Query options forwarded to `useMutation`.
  */
 export function useInviteUsers(
   authClient: AuthClient,
+  organizationId: string | undefined,
   options?: InviteUsersOptions
 ) {
-    assertAuthClientHasOrganizationOrThrow(authClient)
-
-  const { data: session } = useSession(authClient, {
-    refetchOnMount: false
-  })
-
-  const orgId = session?.session.activeOrganizationId
-
-  if (!orgId) throw new Error("No active organization found in session. An active organization is required to invite users.")
+  assertAuthClientHasOrganizationOrThrow(authClient)
 
   const queryClient = useQueryClient()
 
   return useMutation({
-    ...createInviteOptions(authClient, orgId),
+    ...createInviteOptions(authClient, organizationId),
     ...options,
     onSuccess: async (data, variables, ...rest) => {
       queryClient.setQueryData(
-        customQueryKeys.organizationMembers(orgId),
+        customQueryKeys.organizationMembers(organizationId),
         (oldData: any) => {
           if (!oldData) return oldData
 
