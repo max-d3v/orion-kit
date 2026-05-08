@@ -23,8 +23,8 @@ type UserInvitationsParams = {
 }
 
 
-function inviteMultipleUsers({authClient, emails, role, organizationId, fetchOptions}: {authClient: OrganizationClient, emails: string[], role: BaseOrganizationRoles, organizationId: string, fetchOptions?: ClientFetchOption}) {
-  return Promise.all(
+async function inviteMultipleUsers({authClient, emails, role, organizationId, fetchOptions}: {authClient: OrganizationClient, emails: string[], role: BaseOrganizationRoles, organizationId: string, fetchOptions?: ClientFetchOption}) {
+  const results = await Promise.allSettled(
     emails.map((email) =>
       authClient.organization.inviteMember({
         email,
@@ -34,6 +34,42 @@ function inviteMultipleUsers({authClient, emails, role, organizationId, fetchOpt
         resend: true
       })
     )
+  )
+
+  const failures = results
+    .map((result, index) => ({ result, email: emails[index] }))
+    .filter(({ result }) => result.status === "rejected") as Array<{
+      result: PromiseRejectedResult
+      email: string
+    }>
+
+  if (failures.length > 0) {
+    if (typeof window !== "undefined") {
+      console.error("inviteMember failures", failures.map(({ email, result }) => ({ email, reason: result.reason })))
+    }
+
+    const detail = failures
+      .map(({ email, result }) => {
+        const reason = result.reason as BetterFetchError | undefined
+        const message =
+          (reason?.error as { message?: string } | undefined)?.message ??
+          (reason?.error as { code?: string } | undefined)?.code ??
+          reason?.statusText ??
+          reason?.message ??
+          "Unknown error"
+        return `${email}: ${message}`
+      })
+      .join("; ")
+
+    throw Object.assign(new Error(`Failed to invite ${failures.length} of ${emails.length}. ${detail}`), {
+      status: 0,
+      statusText: "PARTIAL_FAILURE",
+      failures
+    })
+  }
+
+  return results.flatMap((result) =>
+    result.status === "fulfilled" ? [result.value] : []
   )
 }
 
@@ -82,17 +118,11 @@ export function useInviteUsers(
     ...createInviteOptions(authClient, organizationId),
     ...options,
     onSuccess: async (data, variables, ...rest) => {
-      queryClient.setQueryData(
-        customQueryKeys.organizationMembers(organizationId),
-        (oldData: any) => {
-          if (!oldData) return oldData
+      await queryClient.invalidateQueries({
+        queryKey: customQueryKeys.organizationInvitations(organizationId)
+      })
 
-          return {
-            ...oldData,
-            members: [...oldData.members, data]
-          }
-        }
-      )
+      await options?.onSuccess?.(data, variables, ...rest)
     }
   })
 }

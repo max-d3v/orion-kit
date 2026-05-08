@@ -6,10 +6,11 @@ import {
   AlertCircle,
   MailX,
   MoreHorizontal,
+  Search,
   Send,
   UserPlus
 } from "lucide-react"
-import { useState } from "react"
+import { useMemo, useState } from "react"
 import {
   Avatar,
   AvatarFallback
@@ -24,6 +25,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger
 } from "@workspace/ui/components/dropdown-menu"
+import { Input } from "@workspace/ui/components/input"
 import { Skeleton } from "@workspace/ui/components/skeleton"
 import {
   Table,
@@ -75,12 +77,37 @@ export function OrganizationInvitations({
     error
   } = useOrganizationInvitations(authClient, organizationId)
 
+  const [search, setSearch] = useState("")
   const [inviteOpen, setInviteOpen] = useState(false)
+
+  const filteredInvitations = useMemo(() => {
+    if (!invitations) return []
+
+    const query = search.trim().toLowerCase()
+    if (!query) return invitations
+
+    return invitations.filter((invitation) =>
+      invitation.email.toLowerCase().includes(query)
+    )
+  }, [invitations, search])
 
   return (
     <div className={cn("flex flex-col gap-4", className)}>
-      <div className="flex items-center justify-end">
-        <Button size="sm" onClick={() => setInviteOpen(true)}>
+      <div className="flex items-center gap-2">
+        <div className="relative w-3/5">
+          <Search className="absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" />
+
+          <Input
+            type="search"
+            placeholder="Search invitations..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="pl-8"
+            disabled={isPending || !!error}
+          />
+        </div>
+
+        <Button size="sm" onClick={() => setInviteOpen(true)} className="ml-auto">
           <UserPlus />
           Invite
         </Button>
@@ -94,8 +121,8 @@ export function OrganizationInvitations({
                 <span className="sr-only">Photo</span>
               </TableHead>
               <TableHead>User</TableHead>
-              <TableHead>Invited</TableHead>
-              <TableHead>Role</TableHead>
+              <TableHead className="w-[160px]">Invited</TableHead>
+              <TableHead className="w-[120px]">Role</TableHead>
               <TableHead className="w-[60px] pr-4 text-right">
                 <span className="sr-only">Actions</span>
               </TableHead>
@@ -127,20 +154,20 @@ export function OrganizationInvitations({
                 )
               }
 
-              if (invitations.length === 0) {
+              if (filteredInvitations.length === 0) {
                 return (
                   <TableRow>
                     <TableCell
                       colSpan={COLUMN_COUNT}
                       className="h-24 text-center text-muted-foreground text-sm"
                     >
-                      No pending invitations.
+                      No invitations found.
                     </TableCell>
                   </TableRow>
                 )
               }
 
-              return invitations.map((invitation) => (
+              return filteredInvitations.map((invitation) => (
                 <TableRow key={invitation.id}>
                   <TableCell className="pl-4">
                     <Avatar className="size-9">

@@ -117,8 +117,8 @@ export function OrganizationMembers({ className, organizationId }: OrganizationM
                 <span className="sr-only">Photo</span>
               </TableHead>
               <TableHead>User</TableHead>
-              <TableHead>Joined</TableHead>
-              <TableHead>Role</TableHead>
+              <TableHead className="w-[160px]">Joined</TableHead>
+              <TableHead className="w-[120px]">Role</TableHead>
               <TableHead className="w-[60px] pr-4 text-right">
                 <span className="sr-only">Actions</span>
               </TableHead>
