@@ -1,13 +1,15 @@
 "use client";
 
-import { Button } from "@workspace/ui/components/button";
 import {
   Sidebar,
   SidebarContent,
   SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
   SidebarRail,
 } from "@workspace/ui/components/sidebar";
-import { ArrowLeft, Building, User, Users } from "lucide-react";
+import { ArrowLeft, Building2, User, Users } from "lucide-react";
 import Link from "next/link";
 import { NavMain } from "@/components/nav-main";
 
@@ -28,7 +30,7 @@ const navMain = [
       {
         title: "General",
         url: "/settings/organization/general",
-        icon: Building,
+        icon: Building2,
       },
       {
         title: "Members",
@@ -45,16 +47,16 @@ export function SettingsSidebar({
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
-        <Button
-          asChild
-          className="w-full justify-start rounded-full bg-transparent"
-          variant="ghost"
-        >
-          <Link href="/dashboard">
-            <ArrowLeft />
-            <span>Back to app</span>
-          </Link>
-        </Button>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton asChild tooltip="Back to app">
+              <Link href="/dashboard">
+                <ArrowLeft />
+                <span>Back to app</span>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={navMain} />

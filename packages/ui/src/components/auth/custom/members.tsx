@@ -12,6 +12,7 @@ import {
   TabsList,
   TabsTrigger,
 } from "@workspace/ui/components/tabs";
+import { useActiveOrganization } from "@workspace/ui/hooks/use-active-organization";
 import { useOrganizationInvitations } from "@workspace/ui/hooks/use-invites";
 import {
   assertAuthClientHasOrganizationOrThrow,
@@ -27,7 +28,7 @@ export function Members({ className }: MembersProps) {
   const { authClient, Link } = useAuth();
   assertAuthClientHasOrganizationOrThrow(authClient);
 
-  const { data: activeOrganization } = authClient.useActiveOrganization();
+  const { data: activeOrganization } = useActiveOrganization(authClient);
   const organizationId = activeOrganization?.id;
 
   const { data: invitations } = useOrganizationInvitations(

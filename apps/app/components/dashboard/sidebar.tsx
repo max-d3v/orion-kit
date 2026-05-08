@@ -1,13 +1,12 @@
 "use client";
 
+import { OrganizationSwitcher } from "@workspace/ui/components/auth/custom/organization-switcher";
 import { UserButton } from "@workspace/ui/components/auth/user/user-button";
 import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
   SidebarHeader,
-  SidebarMenu,
-  SidebarMenuItem,
 } from "@workspace/ui/components/sidebar";
 import { BarChart3, LayoutDashboard, ListTodo } from "lucide-react";
 import type * as React from "react";
@@ -35,11 +34,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar variant="inset" {...props}>
       <SidebarHeader>
-        <SidebarMenu>
-          <SidebarMenuItem>
-            Org switcher switchemdom (coming...)
-          </SidebarMenuItem>
-        </SidebarMenu>
+        <OrganizationSwitcher />
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={navItems} />

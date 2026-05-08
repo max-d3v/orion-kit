@@ -5,7 +5,7 @@ import { createAuthClient } from "better-auth/react";
 import { organizationClient } from "better-auth/client/plugins";
 import { betterAuth } from "better-auth/minimal";
 import { organization } from "better-auth/plugins";
-import type { Auth, BetterAuthOptions } from "better-auth";
+import type { Auth   } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 
 export function cn(...inputs: ClassValue[]) {
@@ -16,7 +16,7 @@ export type OrganizationClient = ReturnType<typeof createAuthClient<{
     plugins: [ReturnType<typeof organizationClient<{}>>];
 }>>;
 
-export type OrganizationAuth =
+export type OrganizationAuth =  
   ReturnType<typeof betterAuth<{
     database: ReturnType<typeof drizzleAdapter>
     plugins: [ReturnType<typeof organization>]
@@ -31,6 +31,8 @@ export const customMutationKeys = {
 }
 
 export const customQueryKeys = {
+    organizations: () => ["organizations"],
+    activeOrganization: () => ["organizations", "active"],
     organizationMembers: (organizationId?: string) => ["organization", "members", organizationId],
     organizationInvitations: (organizationId?: string) => ["organization", "invitations", organizationId]
 }
