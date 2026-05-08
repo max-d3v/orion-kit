@@ -1,13 +1,12 @@
 import { AuthClient } from "@better-auth-ui/react"
-import { assertAuthClientHasOrganizationOrThrow, customQueryKeys } from "../lib/utils"
+import { assertAuthClientHasOrganizationOrThrow } from "../lib/utils"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
-import { sessionOptions } from "@better-auth-ui/react"
 
 /**
  * Mutation to set the active organization for the current session.
  *
- * Invalidates the session query so that consumers reading the active organization
- * see the updated value immediately.
+ * Invalidates every query in the cache so any org-scoped data fetched by the
+ * consumer is refetched against the new active organization.
  */
 export function useSetActiveOrganization(authClient: AuthClient) {
   assertAuthClientHasOrganizationOrThrow(authClient)
@@ -23,12 +22,8 @@ export function useSetActiveOrganization(authClient: AuthClient) {
       })
     },
     onSuccess: async () => {
-      await queryClient.invalidateQueries({
-        queryKey: sessionOptions(authClient).queryKey
-      })
-      await queryClient.invalidateQueries({
-        queryKey: customQueryKeys.organizations()
-      })
+      // Invalidate all user queries for safety.
+      await queryClient.invalidateQueries()
     }
   })
 }
