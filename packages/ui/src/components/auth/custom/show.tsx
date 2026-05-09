@@ -12,7 +12,7 @@ export function Show({ when, children }: ShowProps) {
     const { data: session, isPending, error } = authClient.useSession();
 
     if (isPending) return ( <></> );
-    if (error) return ( <>Error: {error.message}</> );
+    if (error) return ( <>Error: {error.error.message}</> );
 
     if (when === "signed-in" && session) {
         return <>{children}</>;

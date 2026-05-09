@@ -1,7 +1,9 @@
 "use client"
 
 import { useOrganizationMembers } from "@workspace/ui/hooks/use-organization"
+import { useOrganizationPermissions } from "@workspace/ui/hooks/use-organization-permissions"
 import { useAuth } from "@better-auth-ui/react"
+import type { BetterFetchError } from "better-auth/react"
 import {
   AlertCircle,
   MoreHorizontal,
@@ -38,6 +40,7 @@ import {
 } from "@workspace/ui/components/table"
 import { cn } from "@workspace/ui/lib/utils"
 import { InviteMembersSheet } from "@workspace/ui/components/auth/custom/invite-members-sheet"
+import { UpdateMemberRoleDialog } from "@workspace/ui/components/auth/custom/update-member-role-dialog"
 
 const COLUMN_COUNT = 5
 const SKELETON_ROWS = 4
@@ -59,20 +62,23 @@ function getInitials(name: string) {
 
 export type OrganizationMembersProps = {
   className?: string
-  organizationId: string | undefined
 }
 
-export function OrganizationMembers({ className, organizationId }: OrganizationMembersProps) {
+export function OrganizationMembers({ className }: OrganizationMembersProps) {
   const { authClient } = useAuth()
   const {
     data: members,
     isPending,
     error
-  } = useOrganizationMembers(authClient, organizationId)
+  } = useOrganizationMembers(authClient)
+  const { permissions } = useOrganizationPermissions(authClient)
 
 
   const [search, setSearch] = useState("")
   const [inviteOpen, setInviteOpen] = useState(false)
+  const [editingMember, setEditingMember] = useState<
+    NonNullable<typeof members>[number] | null
+  >(null)
 
   const filteredMembers = useMemo(() => {
     if (!members) return []
@@ -103,10 +109,12 @@ export function OrganizationMembers({ className, organizationId }: OrganizationM
           />
         </div>
 
-        <Button size="sm" onClick={() => setInviteOpen(true)} className="ml-auto">
-          <UserPlus />
-          Invite
-        </Button>
+        {permissions.invitation.create && (
+          <Button size="sm" onClick={() => setInviteOpen(true)} className="ml-auto">
+            <UserPlus />
+            Invite
+          </Button>
+        )}
       </div>
 
       <Card className="overflow-hidden py-0">
@@ -143,7 +151,7 @@ export function OrganizationMembers({ className, organizationId }: OrganizationM
                       <div className="flex flex-col items-center gap-2 text-muted-foreground text-sm">
                         <AlertCircle className="size-5 text-destructive" />
                         <span>Failed to load members.</span>
-                        <span className="text-xs">{error.message}</span>
+                        <span className="text-xs">{(error as BetterFetchError).error.message}</span>
                       </div>
                     </TableCell>
                   </TableRow>
@@ -197,31 +205,39 @@ export function OrganizationMembers({ className, organizationId }: OrganizationM
                   </TableCell>
 
                   <TableCell className="pr-4 text-right">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button
-                          variant="ghost"
-                          size="icon-sm"
-                          aria-label={`Open actions for ${member.user.name}`}
-                        >
-                          <MoreHorizontal />
-                        </Button>
-                      </DropdownMenuTrigger>
+                    {(permissions.member.update || permissions.member.delete) && (
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon-sm"
+                            aria-label={`Open actions for ${member.user.name}`}
+                          >
+                            <MoreHorizontal />
+                          </Button>
+                        </DropdownMenuTrigger>
 
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem>
-                          <Shield />
-                          Change role
-                        </DropdownMenuItem>
+                        <DropdownMenuContent align="end">
+                          {permissions.member.update && (
+                            <DropdownMenuItem onSelect={() => setEditingMember(member)}>
+                              <Shield />
+                              Change role
+                            </DropdownMenuItem>
+                          )}
 
-                        <DropdownMenuSeparator />
+                          {permissions.member.update && permissions.member.delete && (
+                            <DropdownMenuSeparator />
+                          )}
 
-                        <DropdownMenuItem variant="destructive">
-                          <Trash2 />
-                          Remove member
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+                          {permissions.member.delete && (
+                            <DropdownMenuItem variant="destructive">
+                              <Trash2 />
+                              Remove member
+                            </DropdownMenuItem>
+                          )}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    )}
                   </TableCell>
                 </TableRow>
               ))
@@ -233,8 +249,17 @@ export function OrganizationMembers({ className, organizationId }: OrganizationM
       <InviteMembersSheet
         open={inviteOpen}
         onOpenChange={setInviteOpen}
-        organizationId={organizationId}
       />
+
+      {editingMember && (
+        <UpdateMemberRoleDialog
+          open={!!editingMember}
+          onOpenChange={(next) => {
+            if (!next) setEditingMember(null)
+          }}
+          member={editingMember}
+        />
+      )}
     </div>
   )
 }

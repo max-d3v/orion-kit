@@ -33,8 +33,9 @@ export const customMutationKeys = {
 export const customQueryKeys = {
     organizations: () => ["organizations"],
     activeOrganization: () => ["organizations", "active"],
-    organizationMembers: (organizationId?: string) => ["organization", "members", organizationId],
-    organizationInvitations: (organizationId?: string) => ["organization", "invitations", organizationId]
+    activeMemberRole: () => ["organizations", "active", "member-role"],
+    organizationMembers: () => ["organization", "members", "active"],
+    organizationInvitations: () => ["organization", "invitations", "active"]
 }
 
 export function authHasOrganizationPlugin<T extends Auth>(auth: T): auth is T & OrganizationAuth {

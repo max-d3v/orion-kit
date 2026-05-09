@@ -4,6 +4,7 @@ import { useAuth } from "@better-auth-ui/react"
 import { useActiveOrganization } from "@workspace/ui/hooks/use-active-organization"
 import { useDeleteOrganization } from "@workspace/ui/hooks/delete-organization.mutation"
 import { useLeaveOrganization } from "@workspace/ui/hooks/leave-organization.mutation"
+import { useOrganizationPermissions } from "@workspace/ui/hooks/use-organization-permissions"
 import { useSetActiveOrganization } from "@workspace/ui/hooks/use-set-active-organization"
 import { Building2, LogOut, Trash2 } from "lucide-react"
 import { useState } from "react"
@@ -55,6 +56,7 @@ export function OrganizationGeneral({ className }: OrganizationGeneralProps) {
 
   const { data: activeOrganization, isPending } =
     useActiveOrganization(authClient)
+  const { permissions } = useOrganizationPermissions(authClient)
 
   const [updateOpen, setUpdateOpen] = useState(false)
   const [leaveOpen, setLeaveOpen] = useState(false)
@@ -70,11 +72,11 @@ export function OrganizationGeneral({ className }: OrganizationGeneralProps) {
             toast.success("You left the organization")
             setLeaveOpen(false)
           },
-          onError: (error) => toast.error(error.message)
+          onError: (error) => toast.error(error.error.message)
         })
       },
       onError: (error) => {
-        toast.error(`Failed to leave organization. ${error.message}`)
+        toast.error(`Failed to leave organization. ${error.error.message}`)
       }
     })
 
@@ -86,11 +88,11 @@ export function OrganizationGeneral({ className }: OrganizationGeneralProps) {
             toast.success("Organization deleted")
             setDeleteOpen(false)
           },
-          onError: (error) => toast.error(error.message)
+          onError: (error) => toast.error(error.error.message)
         })
       },
       onError: (error) => {
-        toast.error(`Failed to delete organization. ${error.message}`)
+        toast.error(`Failed to delete organization. ${error.error.message}`)
       }
     })
 
@@ -178,11 +180,13 @@ export function OrganizationGeneral({ className }: OrganizationGeneralProps) {
           </div>
         </CardContent>
 
-        <CardFooter className="justify-end">
-          <Button size="sm" onClick={() => setUpdateOpen(true)}>
-            Update organization
-          </Button>
-        </CardFooter>
+        {permissions.organization.update && (
+          <CardFooter className="justify-end">
+            <Button size="sm" onClick={() => setUpdateOpen(true)}>
+              Update organization
+            </Button>
+          </CardFooter>
+        )}
       </Card>
 
       <Card>
@@ -209,29 +213,31 @@ export function OrganizationGeneral({ className }: OrganizationGeneralProps) {
         </CardFooter>
       </Card>
 
-      <Card className="border-destructive/50">
-        <CardHeader>
-          <CardTitle>Delete organization</CardTitle>
+      {permissions.organization.delete && (
+        <Card className="border-destructive/50">
+          <CardHeader>
+            <CardTitle>Delete organization</CardTitle>
 
-          <CardDescription>
-            Permanently delete this organization and all of its data. This
-            action cannot be undone.
-          </CardDescription>
-        </CardHeader>
+            <CardDescription>
+              Permanently delete this organization and all of its data. This
+              action cannot be undone.
+            </CardDescription>
+          </CardHeader>
 
-        <CardFooter className="justify-end">
-          <Button
-            variant="destructive"
-            size="sm"
-            onClick={() => setDeleteOpen(true)}
-            disabled={isDeleting}
-          >
-            {isDeleting && <Spinner />}
-            <Trash2 />
-            Delete organization
-          </Button>
-        </CardFooter>
-      </Card>
+          <CardFooter className="justify-end">
+            <Button
+              variant="destructive"
+              size="sm"
+              onClick={() => setDeleteOpen(true)}
+              disabled={isDeleting}
+            >
+              {isDeleting && <Spinner />}
+              <Trash2 />
+              Delete organization
+            </Button>
+          </CardFooter>
+        </Card>
+      )}
 
       <UpdateOrganizationDialog
         open={updateOpen}

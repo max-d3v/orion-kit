@@ -63,7 +63,7 @@ export function UpdateOrganizationDialog({
       onOpenChange(false)
     },
     onError: (err) => {
-      toast.error(`Failed to update organization. ${err.message}`)
+      toast.error(`Failed to update organization. ${err.error.message}`)
     }
   })
 
@@ -126,7 +126,7 @@ export function UpdateOrganizationDialog({
               className="flex items-start gap-2 rounded-md border border-destructive/50 bg-destructive/10 px-3 py-2 text-destructive text-sm"
             >
               <AlertCircle className="mt-0.5 size-4 shrink-0" />
-              <span>{error.message}</span>
+              <span>{error.error.message}</span>
             </div>
           )}
 

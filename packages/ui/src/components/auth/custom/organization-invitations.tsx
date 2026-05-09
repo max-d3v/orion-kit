@@ -1,7 +1,9 @@
 "use client"
 
 import { useOrganizationInvitations } from "@workspace/ui/hooks/use-invites"
+import { useOrganizationPermissions } from "@workspace/ui/hooks/use-organization-permissions"
 import { useAuth } from "@better-auth-ui/react"
+import type { BetterFetchError } from "better-auth/react"
 import {
   AlertCircle,
   MailX,
@@ -63,19 +65,18 @@ function getInitial(email: string) {
 
 export type OrganizationInvitationsProps = {
   className?: string
-  organizationId: string | undefined
 }
 
 export function OrganizationInvitations({
-  className,
-  organizationId
+  className
 }: OrganizationInvitationsProps) {
   const { authClient } = useAuth()
   const {
     data: invitations,
     isPending,
     error
-  } = useOrganizationInvitations(authClient, organizationId)
+  } = useOrganizationInvitations(authClient)
+  const { permissions } = useOrganizationPermissions(authClient)
 
   const [search, setSearch] = useState("")
   const [inviteOpen, setInviteOpen] = useState(false)
@@ -107,10 +108,12 @@ export function OrganizationInvitations({
           />
         </div>
 
-        <Button size="sm" onClick={() => setInviteOpen(true)} className="ml-auto">
-          <UserPlus />
-          Invite
-        </Button>
+        {permissions.invitation.create && (
+          <Button size="sm" onClick={() => setInviteOpen(true)} className="ml-auto">
+            <UserPlus />
+            Invite
+          </Button>
+        )}
       </div>
 
       <Card className="overflow-hidden py-0">
@@ -147,7 +150,7 @@ export function OrganizationInvitations({
                       <div className="flex flex-col items-center gap-2 text-muted-foreground text-sm">
                         <AlertCircle className="size-5 text-destructive" />
                         <span>Failed to load invitations.</span>
-                        <span className="text-xs">{error.message}</span>
+                        <span className="text-xs">{(error as BetterFetchError).error.message}</span>
                       </div>
                     </TableCell>
                   </TableRow>
@@ -201,31 +204,39 @@ export function OrganizationInvitations({
                   </TableCell>
 
                   <TableCell className="pr-4 text-right">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button
-                          variant="ghost"
-                          size="icon-sm"
-                          aria-label={`Open actions for ${invitation.email}`}
-                        >
-                          <MoreHorizontal />
-                        </Button>
-                      </DropdownMenuTrigger>
+                    {(permissions.invitation.create || permissions.invitation.cancel) && (
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon-sm"
+                            aria-label={`Open actions for ${invitation.email}`}
+                          >
+                            <MoreHorizontal />
+                          </Button>
+                        </DropdownMenuTrigger>
 
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem>
-                          <Send />
-                          Resend invitation
-                        </DropdownMenuItem>
+                        <DropdownMenuContent align="end">
+                          {permissions.invitation.create && (
+                            <DropdownMenuItem>
+                              <Send />
+                              Resend invitation
+                            </DropdownMenuItem>
+                          )}
 
-                        <DropdownMenuSeparator />
+                          {permissions.invitation.create && permissions.invitation.cancel && (
+                            <DropdownMenuSeparator />
+                          )}
 
-                        <DropdownMenuItem variant="destructive">
-                          <MailX />
-                          Cancel invitation
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+                          {permissions.invitation.cancel && (
+                            <DropdownMenuItem variant="destructive">
+                              <MailX />
+                              Cancel invitation
+                            </DropdownMenuItem>
+                          )}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    )}
                   </TableCell>
                 </TableRow>
               ))
@@ -237,7 +248,6 @@ export function OrganizationInvitations({
       <InviteMembersSheet
         open={inviteOpen}
         onOpenChange={setInviteOpen}
-        organizationId={organizationId}
       />
     </div>
   )

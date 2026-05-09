@@ -4,23 +4,18 @@ import { useQuery } from "@tanstack/react-query"
 
 
 /**
- * Query the invitations for a given organization.
+ * Query the invitations of the active organization.
  *
- * Shares query key with the server-side "organizationInvitationsOptions",
- * so SSR-prefetched results hydrate seamlessly. When `organizationId` is
- * undefined, the query is disabled.
+ * Auth resolves the organization from the session, so callers don't pass an ID.
+ * Shares the query key with `organizationInvitationsOptions` for SSR hydration.
  */
-export function useOrganizationInvitations(authClient: AuthClient, organizationId: string | undefined) {
+export function useOrganizationInvitations(authClient: AuthClient) {
   assertAuthClientHasOrganizationOrThrow(authClient)
 
   return useQuery({
-    queryKey: customQueryKeys.organizationInvitations(organizationId),
-    enabled: !!organizationId,
+    queryKey: customQueryKeys.organizationInvitations(),
     queryFn: async () => {
       return await authClient.organization.listInvitations({
-        query: {
-          organizationId: organizationId as string
-        },
         fetchOptions: {
             throw: true
         }

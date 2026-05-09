@@ -18,6 +18,9 @@ type DeleteOrganizationParams = Parameters<OrganizationClient["organization"]["d
 
 const mutationKey = ["deleteOrganization"]
 
+
+
+
 /**
  * Mutation options factory for deleting an organization.
  *
@@ -27,6 +30,8 @@ export function deleteOrganizationOptions(
   authClient: OrganizationClient
 ) {
   const mutationFn = (params: DeleteOrganizationParams) =>
+      
+
     authClient.organization.delete({
       ...params,
       fetchOptions: { ...params?.fetchOptions, throw: true }

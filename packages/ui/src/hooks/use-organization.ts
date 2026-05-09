@@ -3,22 +3,18 @@ import { assertAuthClientHasOrganizationOrThrow, customQueryKeys } from "../lib/
 import { useQuery } from "@tanstack/react-query"
 
 /**
- * Query the members for a given organization.
+ * Query the members of the active organization.
  *
- * When `organizationId` is undefined, the query is disabled and returns no data,
- * letting consumers render gracefully without an active organization.
+ * Auth resolves the organization from the session, so callers don't pass an ID.
+ * Shares the query key with `organizationMembersOptions` for SSR hydration.
  */
-export function useOrganizationMembers(authClient: AuthClient, organizationId: string | undefined) {
+export function useOrganizationMembers(authClient: AuthClient) {
   assertAuthClientHasOrganizationOrThrow(authClient)
 
   return useQuery({
-    queryKey: customQueryKeys.organizationMembers(organizationId),
-    enabled: !!organizationId,
+    queryKey: customQueryKeys.organizationMembers(),
     queryFn: async () => {
       const { members } = await authClient.organization.listMembers({
-        query: {
-          organizationId: organizationId as string
-        },
         fetchOptions: {
           throw: true
         }

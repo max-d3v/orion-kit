@@ -166,7 +166,7 @@ export function OrganizationSwitcher() {
                   onClick={() => {
                     if (isActive) return
                     setActiveOrganization(org.id, {
-                      onError: (error) => toast.error(error.message)
+                      onError: (error) => toast.error(error.error.message)
                     })
                   }}
                   disabled={settingActive}

@@ -5,22 +5,12 @@ import {
   organizationInvitationsOptions,
   organizationMembersOptions,
 } from "@workspace/ui/hooks/server/organization";
-import { headers } from "next/headers";
 
-export default async function Page() {
+export default function Page() {
   const queryClient = getQueryClient();
-  const session = await auth.api.getSession({ headers: await headers() });
-  const organizationId = session?.session.activeOrganizationId;
 
-  if (organizationId) {
-    void queryClient.prefetchQuery(
-      organizationInvitationsOptions(auth, organizationId)
-    );
-
-    void queryClient.prefetchQuery(
-      organizationMembersOptions(auth, organizationId)
-    );
-  }
+  void queryClient.prefetchQuery(organizationInvitationsOptions(auth));
+  void queryClient.prefetchQuery(organizationMembersOptions(auth));
 
   return <Members />;
 }

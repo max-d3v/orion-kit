@@ -23,13 +23,12 @@ type UserInvitationsParams = {
 }
 
 
-async function inviteMultipleUsers({authClient, emails, role, organizationId, fetchOptions}: {authClient: OrganizationClient, emails: string[], role: BaseOrganizationRoles, organizationId: string, fetchOptions?: ClientFetchOption}) {
+async function inviteMultipleUsers({authClient, emails, role, fetchOptions}: {authClient: OrganizationClient, emails: string[], role: BaseOrganizationRoles, fetchOptions?: ClientFetchOption}) {
   const results = await Promise.allSettled(
     emails.map((email) =>
       authClient.organization.inviteMember({
         email,
         role,
-        organizationId,
         fetchOptions,
         resend: true
       })
@@ -61,9 +60,12 @@ async function inviteMultipleUsers({authClient, emails, role, organizationId, fe
       })
       .join("; ")
 
-    throw Object.assign(new Error(`Failed to invite ${failures.length} of ${emails.length}. ${detail}`), {
+    const summary = `Failed to invite ${failures.length} of ${emails.length}. ${detail}`
+
+    throw Object.assign(new Error(summary), {
       status: 0,
       statusText: "PARTIAL_FAILURE",
+      error: { message: summary, code: "PARTIAL_FAILURE" },
       failures
     })
   }
@@ -73,15 +75,11 @@ async function inviteMultipleUsers({authClient, emails, role, organizationId, fe
   )
 }
 
-function createInviteOptions(authClient: OrganizationClient, organizationId: string | undefined) {
+function createInviteOptions(authClient: OrganizationClient) {
   const mutationKey = customMutationKeys.inviteUsers
 
-  const mutationFn = (params: UserInvitationsParams) => {
-    if (!organizationId) {
-      throw new Error("organizationId is required to invite users.")
-    }
-    return inviteMultipleUsers({authClient, organizationId, ...params, fetchOptions: { ...params.fetchOptions, throw: true }})
-  }
+  const mutationFn = (params: UserInvitationsParams) =>
+    inviteMultipleUsers({authClient, ...params, fetchOptions: { ...params.fetchOptions, throw: true }})
 
   return mutationOptions<
     Awaited<ReturnType<typeof mutationFn>>,
@@ -96,18 +94,16 @@ function createInviteOptions(authClient: OrganizationClient, organizationId: str
 
 
 /**
- * Create a mutation for inviting users to a specific organization.
+ * Create a mutation for inviting users to the active organization.
  *
  * Wraps `authClient.organization.inviteMember` and forwards React Query
  * mutation options such as `onSuccess`, `onError`, and `retry`.
  *
  * @param authClient - The Better Auth client.
- * @param organizationId - The organization to invite users to. When undefined, calling `mutate` will throw.
  * @param options - React Query options forwarded to `useMutation`.
  */
 export function useInviteUsers(
   authClient: AuthClient,
-  organizationId: string | undefined,
   options?: InviteUsersOptions
 ) {
   assertAuthClientHasOrganizationOrThrow(authClient)
@@ -115,11 +111,11 @@ export function useInviteUsers(
   const queryClient = useQueryClient()
 
   return useMutation({
-    ...createInviteOptions(authClient, organizationId),
+    ...createInviteOptions(authClient),
     ...options,
     onSuccess: async (data, variables, ...rest) => {
       await queryClient.invalidateQueries({
-        queryKey: customQueryKeys.organizationInvitations(organizationId)
+        queryKey: customQueryKeys.organizationInvitations()
       })
 
       await options?.onSuccess?.(data, variables, ...rest)

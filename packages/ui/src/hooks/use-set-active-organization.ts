@@ -1,6 +1,7 @@
 import { AuthClient } from "@better-auth-ui/react"
 import { assertAuthClientHasOrganizationOrThrow } from "../lib/utils"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
+import type { BetterFetchError } from "better-auth/react"
 
 /**
  * Mutation to set the active organization for the current session.
@@ -12,8 +13,12 @@ export function useSetActiveOrganization(authClient: AuthClient) {
   assertAuthClientHasOrganizationOrThrow(authClient)
   const queryClient = useQueryClient()
 
-  return useMutation({
-    mutationFn: async (organizationId: string | null) => {
+  return useMutation<
+    Awaited<ReturnType<typeof authClient.organization.setActive>>,
+    BetterFetchError,
+    string | null
+  >({
+    mutationFn: async (organizationId) => {
       return await authClient.organization.setActive({
         organizationId,
         fetchOptions: {

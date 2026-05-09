@@ -31,13 +31,11 @@ import { type BaseOrganizationRoles } from "@workspace/ui/lib/utils"
 export type InviteMembersSheetProps = {
   open: boolean
   onOpenChange: (open: boolean) => void
-  organizationId: string | undefined
 }
 
 export function InviteMembersSheet({
   open,
-  onOpenChange,
-  organizationId
+  onOpenChange
 }: InviteMembersSheetProps) {
   const { authClient } = useAuth()
   const [emails, setEmails] = useState("")
@@ -48,7 +46,7 @@ export function InviteMembersSheet({
     isPending,
     error,
     reset
-  } = useInviteUsers(authClient, organizationId, {
+  } = useInviteUsers(authClient, {
     onSuccess: (data) => {
       toast.success(
         `Sent ${data.length} invitation${data.length === 1 ? "" : "s"}.`
@@ -59,7 +57,7 @@ export function InviteMembersSheet({
     },
     onError: (error) => {
       toast.error(
-        `Failed to send invitations. ${error.message}`
+        `Failed to send invitations. ${error.error.message}`
       )
     }
   })
@@ -71,11 +69,6 @@ export function InviteMembersSheet({
 
   function handleSubmit(e: SyntheticEvent<HTMLFormElement>) {
     e.preventDefault()
-
-    if (!organizationId) {
-      toast.error("No active organization.")
-      return
-    }
 
     const parsed = emails
       .split(/[\s,;]+/)
@@ -153,7 +146,7 @@ export function InviteMembersSheet({
                 className="flex items-start gap-2 rounded-md border border-destructive/50 bg-destructive/10 px-3 py-2 text-destructive text-sm"
               >
                 <AlertCircle className="mt-0.5 size-4 shrink-0" />
-                <span>{error.message}</span>
+                <span>{error.error.message}</span>
               </div>
             )}
           </div>

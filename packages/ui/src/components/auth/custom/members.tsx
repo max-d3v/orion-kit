@@ -31,10 +31,7 @@ export function Members({ className }: MembersProps) {
   const { data: activeOrganization } = useActiveOrganization(authClient);
   const organizationId = activeOrganization?.id;
 
-  const { data: invitations } = useOrganizationInvitations(
-    authClient,
-    organizationId
-  );
+  const { data: invitations } = useOrganizationInvitations(authClient);
 
   const activeInvitationsCount =
     invitations?.filter((invitation) => invitation.status === "pending")
@@ -85,11 +82,11 @@ export function Members({ className }: MembersProps) {
         </TabsList>
 
         <TabsContent value="members">
-          <OrganizationMembers organizationId={organizationId} />
+          <OrganizationMembers />
         </TabsContent>
 
         <TabsContent value="invitations">
-          <OrganizationInvitations organizationId={organizationId} />
+          <OrganizationInvitations />
         </TabsContent>
       </Tabs>
     </div>
