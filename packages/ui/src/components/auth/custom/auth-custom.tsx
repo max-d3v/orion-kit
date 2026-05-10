@@ -11,7 +11,9 @@ import { SignIn } from "@workspace/ui/components/auth/sign-in";
 import { SignOut } from "@workspace/ui/components/auth/sign-out";
 import { SignUp } from "@workspace/ui/components/auth/sign-up";
 import { Organization } from "better-auth/client";
+import { Onboarding } from "./onboarding";
 import { CreateOrganization } from "./create-organization";
+import { OrganizationList } from "./organization-list";
 
 export type AuthProps = {
   className?: string;
@@ -87,6 +89,10 @@ export function Auth({
     case "signOut":
       return <SignOut className={className} />;
     case "onboarding":
+      return <Onboarding className={className} />
+    case "listOrganizations":
+      return <OrganizationList className={className} />
+    case "createOrganization":
       return <CreateOrganization className={className} />
     default:
       throw new Error(

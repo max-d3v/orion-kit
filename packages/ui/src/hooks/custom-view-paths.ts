@@ -4,6 +4,8 @@ export const customViewPaths = {
     ...viewPaths,
     auth: {
         ...viewPaths.auth,
-        onboarding: "onboarding"
+        onboarding: "onboarding",
+        listOrganizations: "list-organizations",
+        createOrganization: "create-organization"
     }
 }

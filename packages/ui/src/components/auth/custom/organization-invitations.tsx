@@ -2,6 +2,7 @@
 
 import { useOrganizationInvitations } from "@workspace/ui/hooks/use-invites"
 import { useOrganizationPermissions } from "@workspace/ui/hooks/use-organization-permissions"
+import { useResendInvitation } from "@workspace/ui/hooks/resend-invitation.mutation"
 import { useAuth } from "@better-auth-ui/react"
 import type { BetterFetchError } from "better-auth/react"
 import {
@@ -13,6 +14,8 @@ import {
   UserPlus
 } from "lucide-react"
 import { useMemo, useState } from "react"
+import { toast } from "sonner"
+import { type BaseOrganizationRoles } from "@workspace/ui/lib/utils"
 import {
   Avatar,
   AvatarFallback
@@ -38,9 +41,10 @@ import {
   TableRow
 } from "@workspace/ui/components/table"
 import { cn } from "@workspace/ui/lib/utils"
+import { CancelInvitationDialog } from "@workspace/ui/components/auth/custom/cancel-invitation-dialog"
 import { InviteMembersSheet } from "@workspace/ui/components/auth/custom/invite-members-sheet"
 
-const COLUMN_COUNT = 5
+const COLUMN_COUNT = 6
 const SKELETON_ROWS = 4
 
 const dateFormatter = new Intl.DateTimeFormat("en-US", {
@@ -49,14 +53,22 @@ const dateFormatter = new Intl.DateTimeFormat("en-US", {
   year: "numeric"
 })
 
-const STATUS_VARIANTS: Record<
-  string,
-  "default" | "secondary" | "outline" | "destructive"
-> = {
-  pending: "outline",
-  accepted: "default",
-  rejected: "destructive",
-  canceled: "secondary"
+const STATUS_STYLES: Record<string, string> = {
+  pending:
+    "border-amber-500/20 bg-amber-500/10 text-amber-600 dark:text-amber-400",
+  accepted:
+    "border-green-500/20 bg-green-500/10 text-green-600 dark:text-green-400",
+  rejected:
+    "border-red-500/20 bg-red-500/10 text-red-600 dark:text-red-400",
+  canceled:
+    "border-muted-foreground/20 bg-muted text-muted-foreground"
+}
+
+const STATUS_PRIORITY: Record<string, number> = {
+  pending: 0,
+  accepted: 1,
+  rejected: 2,
+  canceled: 3
 }
 
 function getInitial(email: string) {
@@ -80,15 +92,33 @@ export function OrganizationInvitations({
 
   const [search, setSearch] = useState("")
   const [inviteOpen, setInviteOpen] = useState(false)
+  const [cancelingInvitation, setCancelingInvitation] = useState<
+    NonNullable<typeof invitations>[number] | null
+  >(null)
+
+  const { mutate: resendInvitation, isPending: isResending, variables: resendingVars } =
+    useResendInvitation(authClient, {
+      onSuccess: (_, variables) => {
+        toast.success(`Resent invitation to ${variables.email}`)
+      },
+      onError: (err) => {
+        toast.error(`Failed to resend invitation. ${err.error.message}`)
+      }
+    })
 
   const filteredInvitations = useMemo(() => {
     if (!invitations) return []
 
     const query = search.trim().toLowerCase()
-    if (!query) return invitations
+    const matched = query
+      ? invitations.filter((invitation) =>
+          invitation.email.toLowerCase().includes(query)
+        )
+      : invitations
 
-    return invitations.filter((invitation) =>
-      invitation.email.toLowerCase().includes(query)
+    return [...matched].sort(
+      (a, b) =>
+        (STATUS_PRIORITY[a.status] ?? 99) - (STATUS_PRIORITY[b.status] ?? 99)
     )
   }, [invitations, search])
 
@@ -124,6 +154,7 @@ export function OrganizationInvitations({
                 <span className="sr-only">Photo</span>
               </TableHead>
               <TableHead>User</TableHead>
+              <TableHead className="w-[120px]">Status</TableHead>
               <TableHead className="w-[160px]">Invited</TableHead>
               <TableHead className="w-[120px]">Role</TableHead>
               <TableHead className="w-[60px] pr-4 text-right">
@@ -181,18 +212,19 @@ export function OrganizationInvitations({
                   </TableCell>
 
                   <TableCell>
-                    <div className="flex flex-col gap-1">
-                      <span className="font-medium">{invitation.email}</span>
+                    <span className="font-medium">{invitation.email}</span>
+                  </TableCell>
 
-                      <Badge
-                        variant={
-                          STATUS_VARIANTS[invitation.status] ?? "outline"
-                        }
-                        className="w-fit text-[10px] capitalize"
-                      >
-                        {invitation.status}
-                      </Badge>
-                    </div>
+                  <TableCell>
+                    <Badge
+                      variant="outline"
+                      className={cn(
+                        "capitalize",
+                        STATUS_STYLES[invitation.status]
+                      )}
+                    >
+                      {invitation.status}
+                    </Badge>
                   </TableCell>
 
                   <TableCell className="text-muted-foreground">
@@ -204,7 +236,8 @@ export function OrganizationInvitations({
                   </TableCell>
 
                   <TableCell className="pr-4 text-right">
-                    {(permissions.invitation.create || permissions.invitation.cancel) && (
+                    {invitation.status === "pending" &&
+                      (permissions.invitation.create || permissions.invitation.cancel) && (
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <Button
@@ -218,7 +251,18 @@ export function OrganizationInvitations({
 
                         <DropdownMenuContent align="end">
                           {permissions.invitation.create && (
-                            <DropdownMenuItem>
+                            <DropdownMenuItem
+                              disabled={
+                                isResending &&
+                                resendingVars?.email === invitation.email
+                              }
+                              onSelect={() =>
+                                resendInvitation({
+                                  email: invitation.email,
+                                  role: invitation.role as BaseOrganizationRoles
+                                })
+                              }
+                            >
                               <Send />
                               Resend invitation
                             </DropdownMenuItem>
@@ -229,7 +273,10 @@ export function OrganizationInvitations({
                           )}
 
                           {permissions.invitation.cancel && (
-                            <DropdownMenuItem variant="destructive">
+                            <DropdownMenuItem
+                              variant="destructive"
+                              onSelect={() => setCancelingInvitation(invitation)}
+                            >
                               <MailX />
                               Cancel invitation
                             </DropdownMenuItem>
@@ -249,6 +296,16 @@ export function OrganizationInvitations({
         open={inviteOpen}
         onOpenChange={setInviteOpen}
       />
+
+      {cancelingInvitation && (
+        <CancelInvitationDialog
+          open={!!cancelingInvitation}
+          onOpenChange={(next) => {
+            if (!next) setCancelingInvitation(null)
+          }}
+          invitation={cancelingInvitation}
+        />
+      )}
     </div>
   )
 }
@@ -260,10 +317,10 @@ function InvitationSkeletonRow() {
         <Skeleton className="size-9 rounded-full" />
       </TableCell>
       <TableCell>
-        <div className="flex flex-col gap-1.5">
-          <Skeleton className="h-4 w-40" />
-          <Skeleton className="h-3 w-16" />
-        </div>
+        <Skeleton className="h-4 w-40" />
+      </TableCell>
+      <TableCell>
+        <Skeleton className="h-5 w-16 rounded-md" />
       </TableCell>
       <TableCell>
         <Skeleton className="h-4 w-20" />

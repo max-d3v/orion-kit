@@ -40,6 +40,7 @@ import {
 } from "@workspace/ui/components/table"
 import { cn } from "@workspace/ui/lib/utils"
 import { InviteMembersSheet } from "@workspace/ui/components/auth/custom/invite-members-sheet"
+import { RemoveMemberDialog } from "@workspace/ui/components/auth/custom/remove-member-dialog"
 import { UpdateMemberRoleDialog } from "@workspace/ui/components/auth/custom/update-member-role-dialog"
 
 const COLUMN_COUNT = 5
@@ -77,6 +78,9 @@ export function OrganizationMembers({ className }: OrganizationMembersProps) {
   const [search, setSearch] = useState("")
   const [inviteOpen, setInviteOpen] = useState(false)
   const [editingMember, setEditingMember] = useState<
+    NonNullable<typeof members>[number] | null
+  >(null)
+  const [removingMember, setRemovingMember] = useState<
     NonNullable<typeof members>[number] | null
   >(null)
 
@@ -230,7 +234,10 @@ export function OrganizationMembers({ className }: OrganizationMembersProps) {
                           )}
 
                           {permissions.member.delete && (
-                            <DropdownMenuItem variant="destructive">
+                            <DropdownMenuItem
+                              variant="destructive"
+                              onSelect={() => setRemovingMember(member)}
+                            >
                               <Trash2 />
                               Remove member
                             </DropdownMenuItem>
@@ -258,6 +265,16 @@ export function OrganizationMembers({ className }: OrganizationMembersProps) {
             if (!next) setEditingMember(null)
           }}
           member={editingMember}
+        />
+      )}
+
+      {removingMember && (
+        <RemoveMemberDialog
+          open={!!removingMember}
+          onOpenChange={(next) => {
+            if (!next) setRemovingMember(null)
+          }}
+          member={removingMember}
         />
       )}
     </div>
