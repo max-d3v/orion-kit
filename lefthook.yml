@@ -17,7 +17,6 @@ pre-push:
 pre-commit:
   parallel: true
   jobs:
-    - run: bun run fix
     - run: bun run check
 
     
