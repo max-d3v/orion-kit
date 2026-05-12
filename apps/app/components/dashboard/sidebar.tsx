@@ -7,6 +7,8 @@ import {
   SidebarContent,
   SidebarFooter,
   SidebarHeader,
+  SidebarMenu,
+  SidebarMenuItem,
 } from "@workspace/ui/components/sidebar";
 import { BarChart3, LayoutDashboard, ListTodo } from "lucide-react";
 import type * as React from "react";
@@ -34,7 +36,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar variant="inset" {...props}>
       <SidebarHeader>
-        <OrganizationSwitcher />
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <OrganizationSwitcher />
+          </SidebarMenuItem>
+        </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={navItems} />
