@@ -5,6 +5,7 @@
   "exports": {
     "./router": "./src/router.ts",
     "./orpc/*": "./src/orpc/*.ts",
+    "./errors": "./src/errors.ts",
     "./middleware/*": "./src/middleware/*.ts"
   },
   "scripts": {
@@ -20,8 +21,8 @@
   "dependencies": {
     "@clerk/nextjs": "^7.0.8",
     "@opentelemetry/api": "catalog:otel",
-    "@orpc/client": "^1.14.0",
-    "@orpc/server": "^1.13.13",
+    "@orpc/client": "catalog:data-layer",
+    "@orpc/server": "catalog:data-layer",
     "@workspace/analytics": "workspace:*",
     "@workspace/auth": "workspace:*",
     "@workspace/core": "workspace:*",

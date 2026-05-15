@@ -11,11 +11,12 @@
     "./use-cases/*": "./src/use-cases/*.ts"
   },
   "dependencies": {
+    "@orpc/server": "catalog:data-layer",
+    "@workspace/analytics": "workspace:*",
     "@workspace/auth": "workspace:*",
     "@workspace/payment": "workspace:*",
     "@workspace/repository": "workspace:*",
     "@workspace/types": "workspace:*",
-    "@workspace/analytics": "workspace:*",
     "next": "catalog:web"
   },
   "devDependencies": {

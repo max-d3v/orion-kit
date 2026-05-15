@@ -1,3 +1,4 @@
+import { ORPCError } from "@orpc/server";
 import { EVENTS } from "@workspace/analytics/events";
 import { capture } from "@workspace/analytics/server";
 import {
@@ -24,12 +25,12 @@ const countTasksByStatus = (tasks: TaskRawObject[]) => ({
 
 export const getUserTasks = async (params: GetUserTasksInput) => {
   const { userId } = params;
-  //throw new HttpError(500, "test error")
   return await list({ userId });
 };
 
 export const getUserTasksWithCount = async (params: GetUserTasksInput) => {
   const { userId } = params;
+
   const tasks = await list({ userId });
   const taskCounts = countTasksByStatus(tasks);
   return { tasks, taskCounts };
@@ -37,6 +38,10 @@ export const getUserTasksWithCount = async (params: GetUserTasksInput) => {
 
 export const createTask = async (params: CreateTask) => {
   const { userId, title, description } = params;
+  throw new ORPCError("EXPECTED_ERROR_DEMO", {
+    message: "test?",
+    defined: true,
+  });
 
   const preferences = await getOrCreate({ userId });
   const defaultStatus =

@@ -15,7 +15,7 @@
     "@better-auth-ui/core": "^1.6.4",
     "@better-auth-ui/react": "^1.6.4",
     "@hookform/resolvers": "^5.2.2",
-    "@orpc/server": "^1.14.1",
+    "@orpc/server": "catalog:data-layer",
     "@sentry/nextjs": "^9.0.0",
     "@t3-oss/env-nextjs": "^0.13.11",
     "@tanstack/react-query": "catalog:data-layer",

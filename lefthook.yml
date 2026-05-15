@@ -15,9 +15,10 @@ pre-push:
       run: bun run build
 
 pre-commit:
-  parallel: true
   jobs:
-    - run: bun run check
+    - name: ultracite fix
+      run: bun x ultracite fix {staged_files}
+      stage_fixed: true
 
     
     

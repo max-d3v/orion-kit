@@ -18,7 +18,7 @@
     "typescript": "^5"
   },
   "dependencies": {
-    "@orpc/client": "^1.13.13",
+    "@orpc/client": "catalog:data-layer",
     "@orpc/tanstack-query": "catalog:data-layer",
     "@tanstack/react-query": "catalog:data-layer",
     "@workspace/rpc": "workspace:*",
