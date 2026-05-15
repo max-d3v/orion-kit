@@ -1,6 +1,6 @@
-# Orion Kit
+# Cracked Template
 
-**Production-ready SaaS monorepo** with clean architecture, end-to-end type safety, and everything a modern project needs.
+**The opinionated B2B SaaS monorepo template.** Authentication, subscription billing, background jobs, and observability — already decided and wired together with end-to-end type safety. Ship product, not boilerplate.
 
 [Docs](https://orion-kit-docs.vercel.app/) | [Architecture](https://orion-kit-docs.vercel.app/architecture/overview) | [Packages](https://orion-kit-docs.vercel.app/packages)
 

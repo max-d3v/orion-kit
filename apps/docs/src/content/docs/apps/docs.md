@@ -28,7 +28,7 @@ apps/docs/
 ├── src/
 │   ├── content/docs/
 │   │   ├── index.mdx              # Home page (splash template)
-│   │   ├── introduction.md        # What Orion Kit is
+│   │   ├── introduction.md        # What Cracked Template is
 │   │   ├── quick-start.md         # Setup guide
 │   │   ├── architecture/          # Monorepo, clean architecture, types
 │   │   ├── apps/                  # Per-app documentation

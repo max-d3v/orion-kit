@@ -3,16 +3,16 @@ import { Header } from "@/components/header";
 import Landing from "@/components/landing";
 
 export const metadata: Metadata = {
-  title: "Orion Kit - Production-Ready SaaS Boilerplate for Next.js",
+  title: "Cracked Template — Opinionated B2B SaaS Monorepo Template",
   description:
-    "Build SaaS applications faster with Orion Kit. Production-ready Next.js 15 boilerplate with TypeScript, authentication, payments, background jobs, and deployment built-in. Open source and type-safe.",
+    "Ship B2B SaaS fast. Cracked Template is an opinionated Next.js monorepo with authentication, subscription billing, background jobs, and observability wired together — production-ready and end-to-end type-safe.",
   keywords: [
-    "Next.js boilerplate",
-    "SaaS starter kit",
+    "B2B SaaS template",
+    "SaaS monorepo template",
+    "Next.js monorepo",
     "TypeScript",
-    "React",
-    "Stripe payments",
-    "JWT authentication",
+    "Stripe billing",
+    "Clerk authentication",
     "TailwindCSS",
     "Drizzle ORM",
     "Turborepo",
@@ -21,9 +21,9 @@ export const metadata: Metadata = {
     "production ready",
     "open source",
   ],
-  authors: [{ name: "Orion Kit" }],
-  creator: "Orion Kitt",
-  publisher: "Orion Kit",
+  authors: [{ name: "Cracked Template" }],
+  creator: "Cracked Template",
+  publisher: "Cracked Template",
   formatDetection: {
     email: false,
     address: false,
@@ -33,26 +33,26 @@ export const metadata: Metadata = {
     type: "website",
     locale: "en_US",
     url: "https://orion-kit-web.vercel.app/",
-    siteName: "Orion Kit",
-    title: "Orion Kit - Production-Ready SaaS Boilerplate for Next.js",
+    siteName: "Cracked Template",
+    title: "Cracked Template — Opinionated B2B SaaS Monorepo Template",
     description:
-      "Build SaaS applications faster with Orion Kit. Production-ready Next.js 15 boilerplate with authentication, payments, and more. Open source and type-safe.",
+      "Ship B2B SaaS fast. An opinionated Next.js monorepo with authentication, subscription billing, background jobs, and observability wired together. Open source and end-to-end type-safe.",
     images: [
       {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "Orion Kit - Production-Ready SaaS Boilerplate",
+        alt: "Cracked Template — Opinionated B2B SaaS Monorepo Template",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Orion Kit - Production-Ready SaaS Boilerplate for Next.js",
+    title: "Cracked Template — Opinionated B2B SaaS Monorepo Template",
     description:
-      "Build SaaS applications faster with authentication, payments, background jobs, and deployment built-in. Open source and type-safe.",
+      "Ship B2B SaaS fast — authentication, subscription billing, background jobs, and observability wired together. Open source and end-to-end type-safe.",
     images: ["/og-image.png"],
-    creator: "@orionkit",
+    creator: "@crackedtemplate",
   },
   robots: {
     index: true,

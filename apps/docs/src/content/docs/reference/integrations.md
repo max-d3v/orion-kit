@@ -1,13 +1,13 @@
 ---
 title: Integration Guides
-description: Add features to Orion Kit
+description: Add features to Cracked Template
 ---
 
 :::tip[TL;DR]
-Orion Kit includes 90% of what you need. Add integrations only when you have real user demand and clear business value. Start simple, scale smart.
+Cracked Template includes 90% of what you need. Add integrations only when you have real user demand and clear business value. Start simple, scale smart.
 :::
 
-Orion Kit is a **production-ready boilerplate** with essential SaaS features built-in. We've included what 90% of projects need, but left out features that are project-specific or can be easily swapped.
+Cracked Template is an **opinionated B2B SaaS template** with essential features built-in. We've included what 90% of projects need, but left out features that are project-specific or can be easily swapped.
 
 ## Available Integrations
 
@@ -26,9 +26,9 @@ Add these features **only when you need them**:
 
 ## Why This Approach?
 
-### 🎯 **Boilerplate Philosophy**
+### 🎯 **Template Philosophy**
 
-Orion Kit focuses on **universal SaaS needs** that 90% of projects require:
+Cracked Template focuses on **universal SaaS needs** that 90% of projects require:
 
 - ✅ **Authentication** - Custom JWT system (can be swapped for providers)
 - ✅ **Database** - Neon PostgreSQL with Drizzle ORM
@@ -165,7 +165,7 @@ Adding integrations can easily double this cost.
 
 **"Perfect is the enemy of good."**
 
-Orion Kit gives you a solid foundation. Add features when you have:
+Cracked Template gives you a solid foundation. Add features when you have:
 
 - ✅ **Real user demand**
 - ✅ **Clear business value**

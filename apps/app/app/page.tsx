@@ -14,11 +14,11 @@ export default function RootPage() {
       <div className="mb-8 flex flex-col items-center gap-4">
         <OrionLogo size="lg" />
         <h1 className="text-center font-bold text-4xl">
-          Welcome to Cracked Kit
+          Welcome to Cracked Template
         </h1>
         <p className="max-w-md text-center text-lg text-muted-foreground">
-          A modern, full-stack development kit built with Next.js, TypeScript,
-          Tailwind CSS and modern cloud services.
+          An opinionated B2B SaaS monorepo built with Next.js, TypeScript,
+          Tailwind CSS, and production cloud services.
         </p>
       </div>
 

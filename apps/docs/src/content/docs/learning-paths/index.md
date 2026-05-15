@@ -3,7 +3,7 @@ title: Learning Paths
 description: Choose your path based on your experience and goals
 ---
 
-Choose the path that best fits your experience and goals with Orion Kit.
+Choose the path that best fits your experience and goals with Cracked Template.
 
 ## 🚀 **I'm New to SaaS Development**
 
@@ -11,7 +11,7 @@ Choose the path that best fits your experience and goals with Orion Kit.
 
 **Path:**
 
-1. [Introduction](/introduction) - Understand what Orion Kit includes
+1. [Introduction](/introduction) - Understand what Cracked Template includes
 2. [Getting Started](/getting-started) - Get the app running in 5 minutes
 3. [Customization](/getting-started/customization) - Make it your own
 4. [Deployment](/getting-started/deployment) - Deploy to production

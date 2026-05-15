@@ -25,23 +25,24 @@ export function Hero() {
         <div className="mx-auto max-w-3xl text-center">
           <div className="mb-8 inline-flex items-center gap-2 rounded-full border bg-muted px-4 py-2 text-sm">
             <Sparkles className="h-4 w-4" />
-            <span>Open Source SaaS Boilerplate</span>
+            <span>The opinionated B2B SaaS monorepo</span>
           </div>
 
           <h1 className="mb-6 text-balance font-bold tracking-tight">
             <span className="block font-mono text-6xl sm:text-6xl lg:text-7xl">
-              Orion Kit
+              Cracked Template
             </span>
             <span className="mt-4 block font-medium text-2xl text-muted-foreground sm:text-3xl">
-              Build SaaS faster — production‑ready, type‑safe, and beautiful
-              from day one
+              Ship B2B SaaS fast — auth, billing, and the production stack
+              already wired together
             </span>
           </h1>
 
           <p className="mb-10 text-lg text-muted-foreground leading-relaxed sm:text-xl">
-            An open‑source boilerplate for TypeScript and Next.js with
-            authentication, payments, background jobs, and deployment ready out
-            of the box.
+            An opinionated TypeScript monorepo template for B2B SaaS.
+            Authentication, subscription billing, background jobs, and
+            observability are decided and wired together — so you ship product,
+            not boilerplate.
           </p>
 
           <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">

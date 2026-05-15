@@ -15,7 +15,7 @@ interface Tech {
 const techStack: Tech[] = [
   {
     emoji: "⚛️",
-    title: "Next.js 15",
+    title: "Next.js 16",
     description:
       "App Router, React 19 & Server Actions for modern full-stack development.",
   },

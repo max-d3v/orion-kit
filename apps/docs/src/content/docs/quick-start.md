@@ -1,6 +1,6 @@
 ---
 title: Quick Start
-description: Get up and running with Orion Kit
+description: Get up and running with Cracked Template
 ---
 
 :::tip[TL;DR]

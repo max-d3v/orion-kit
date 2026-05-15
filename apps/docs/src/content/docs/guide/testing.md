@@ -5,7 +5,7 @@ description: Unit and E2E testing with Vitest and Playwright
 
 ## Unit Testing (Vitest)
 
-Orion Kit uses [Vitest](https://vitest.dev) for fast unit testing of schemas, utilities, and business logic.
+Cracked Template uses [Vitest](https://vitest.dev) for fast unit testing of schemas, utilities, and business logic.
 
 ### Running Tests
 

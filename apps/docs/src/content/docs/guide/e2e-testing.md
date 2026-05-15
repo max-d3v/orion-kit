@@ -44,7 +44,7 @@ test.describe("Dashboard", () => {
     await expect(page.locator("h1").first()).toBeVisible();
 
     await expect(
-      page.locator("text=/Orion Kit|Dashboard|Features/i").first()
+      page.locator("text=/Cracked Template|Dashboard|Features/i").first()
     ).toBeVisible();
   });
 });

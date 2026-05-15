@@ -60,11 +60,11 @@ export function Features() {
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         <div className="mb-12 text-center">
           <h2 className="mb-4 font-bold text-3xl tracking-tight sm:text-4xl">
-            Everything you need — nothing you don&apos;t
+            Opinionated by default, yours to extend
           </h2>
           <p className="mx-auto max-w-2xl text-lg text-muted-foreground leading-relaxed">
-            A production SaaS foundation without the lock-in. Every piece is
-            swap-able and every layer is inspectable.
+            Every decision a B2B SaaS needs is already made — and every layer
+            stays inspectable and swappable when you outgrow the defaults.
           </p>
         </div>
 

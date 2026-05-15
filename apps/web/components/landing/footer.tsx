@@ -19,7 +19,7 @@ export function Footer() {
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
           <p className="text-muted-foreground text-sm">
-            © 2025 Orion Kit. Open source under MIT License.
+            © 2026 Cracked Template. Open source under MIT License.
           </p>
           <div className="flex gap-6 text-muted-foreground text-sm">
             {links.map((link) => (

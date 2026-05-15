@@ -3,7 +3,7 @@ title: Troubleshooting
 description: Common issues and solutions
 ---
 
-Quick fixes for common issues when getting started with Orion Kit.
+Quick fixes for common issues when getting started with Cracked Template.
 
 ## 🚀 **Getting Started Issues**
 

@@ -1,9 +1,9 @@
 ---
 title: Deployment Guide
-description: Deploy Orion Kit to production
+description: Deploy Cracked Template to production
 ---
 
-Deploy your Orion Kit application to production in **15 minutes**.
+Deploy your Cracked Template application to production in **15 minutes**.
 
 ## 🚀 **Quick Deploy (Vercel)**
 

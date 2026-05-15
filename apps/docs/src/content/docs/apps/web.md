@@ -58,8 +58,8 @@ The root layout defines comprehensive metadata:
 // app/layout.tsx
 export const metadata: Metadata = {
   title: {
-    default: "Orion Kit - Production-Ready SaaS Boilerplate for Next.js",
-    template: "%s | Orion Kit",
+    default: "Cracked Template — Opinionated B2B SaaS Monorepo Template",
+    template: "%s | Cracked Template",
   },
   description: "Build faster with authentication, payments, analytics...",
   openGraph: { ... },

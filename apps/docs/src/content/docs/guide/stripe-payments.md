@@ -1,9 +1,9 @@
 ---
 title: Stripe Payments
-description: Complete guide to setting up Stripe subscriptions in Orion Kit
+description: Complete guide to setting up Stripe subscriptions in Cracked Template
 ---
 
-Orion Kit includes a full Stripe subscription implementation with checkout, webhooks, billing portal, and multi-plan support. This guide walks you through setup, testing, and production deployment.
+Cracked Template includes a full Stripe subscription implementation with checkout, webhooks, billing portal, and multi-plan support. This guide walks you through setup, testing, and production deployment.
 
 After setup, users can:
 

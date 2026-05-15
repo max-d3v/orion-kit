@@ -31,7 +31,7 @@ export function OrionLogo({
 
       {showText && (
         <span className={cn("font-bold tracking-tight", textSizes[size])}>
-          Orion<span className="font-extrabold">Kit</span>
+          Cracked&nbsp;<span className="font-extrabold">Template</span>
         </span>
       )}
     </div>

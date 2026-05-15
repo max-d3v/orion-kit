@@ -21,10 +21,10 @@ export const WelcomeEmail = ({ name }: WelcomeEmailProps) => (
           <Section className="mt-8 rounded-md bg-zinc-200 p-px">
             <Section className="rounded-[5px] bg-white p-8">
               <Text className="mt-0 mb-4 font-semibold text-2xl text-zinc-950">
-                Welcome to Orion Kit {name}
+                Welcome to Cracked Template, {name}
               </Text>
               <Text className="m-0 text-zinc-500">
-                Thank you for signing up to Orion Kit.
+                Thank you for signing up to Cracked Template.
               </Text>
             </Section>
           </Section>

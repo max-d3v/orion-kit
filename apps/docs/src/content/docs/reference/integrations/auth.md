@@ -3,11 +3,11 @@ title: Auth Providers
 description: Replace custom JWT with Clerk, Auth0, or Better Auth
 ---
 
-Replace Orion Kit's custom JWT authentication with popular auth providers for enterprise features, social login, and SSO.
+Replace Cracked Template's custom JWT authentication with popular auth providers for enterprise features, social login, and SSO.
 
 ## Why Replace Custom Auth?
 
-Orion Kit's custom JWT system is perfect for most SaaS apps, but you might need auth providers for:
+Cracked Template's custom JWT system is perfect for most SaaS apps, but you might need auth providers for:
 
 - **Enterprise SSO** - SAML, OIDC, Active Directory
 - **Social Login** - Google, GitHub, Apple, Microsoft

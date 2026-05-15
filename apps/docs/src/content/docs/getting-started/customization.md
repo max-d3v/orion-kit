@@ -1,9 +1,9 @@
 ---
 title: Customization Guide
-description: Customize Orion Kit for your needs
+description: Customize Cracked Template for your needs
 ---
 
-Learn how to customize Orion Kit for your specific use case.
+Learn how to customize Cracked Template for your specific use case.
 
 ## 🎨 **UI & Branding**
 

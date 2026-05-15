@@ -13,11 +13,12 @@ export function CTA() {
 
       <div className="relative mx-auto max-w-3xl px-6 text-center lg:px-8">
         <h2 className="mb-6 text-balance font-bold text-4xl tracking-tight sm:text-5xl">
-          Focus on your idea — Orion Kit handles the rest
+          Focus on your product — Cracked Template ships the rest
         </h2>
         <p className="mx-auto mb-10 max-w-2xl text-lg text-muted-foreground leading-relaxed">
-          Clone the repo, point it at your services, and ship. Clean
-          architecture, type safety, and production integrations all included.
+          Clone the template, point it at your services, and ship. Opinionated
+          architecture, end-to-end type safety, and production integrations all
+          included.
         </p>
 
         <div className="relative flex flex-col items-center justify-center gap-4 sm:flex-row">

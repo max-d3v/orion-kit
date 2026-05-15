@@ -13,7 +13,7 @@ Shared UI components based on **shadcn/ui** with Radix UI primitives and Tailwin
 **Forms:** Button, Input, Textarea, Form, Label  
 **Data:** Table, Badge, Avatar, Skeleton  
 **Overlays:** Dialog, Dropdown Menu, Tooltip, Collapsible  
-**Navigation:** Breadcrumb, Orion Logo
+**Navigation:** Breadcrumb, Brand Logo
 
 Full list: [shadcn/ui components](https://ui.shadcn.com/)
 

@@ -1,9 +1,9 @@
 ---
 title: Feature Integration
-description: Add features to Orion Kit
+description: Add features to Cracked Template
 ---
 
-Add powerful features to Orion Kit when you need them.
+Add powerful features to Cracked Template when you need them.
 
 ## 🎯 **When to Add Features**
 
@@ -40,7 +40,7 @@ Start simple, add features when you have **real user demand** and **clear busine
 
 ## 💰 **Cost Considerations**
 
-**Base Orion Kit cost:** ~$118/month for full production setup
+**Base Cracked Template cost:** ~$118/month for full production setup
 
 Adding integrations can easily **double this cost**. Track usage before integrating:
 

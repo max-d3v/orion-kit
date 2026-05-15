@@ -1,10 +1,10 @@
 ---
 title: Introduction
-description: Production-ready SaaS monorepo with clean architecture and end-to-end type safety
+description: Opinionated B2B SaaS monorepo template with auth, billing, and end-to-end type safety
 ---
 
-:::tip[What is Orion Kit?]
-A production-ready SaaS monorepo built on clean architecture principles. Uses oRPC for type-safe RPC, Clerk for authentication, Drizzle ORM with Neon PostgreSQL, and TanStack Query for data management. Everything is end-to-end type-safe from database schema to UI components.
+:::tip[What is Cracked Template?]
+An opinionated B2B SaaS monorepo template. Every architectural and stack decision is already made: oRPC for type-safe RPC, Clerk for authentication, Drizzle ORM with Neon PostgreSQL, and TanStack Query for data management. Everything is end-to-end type-safe from database schema to UI components — so you ship product, not boilerplate.
 :::
 
 ## What You Get

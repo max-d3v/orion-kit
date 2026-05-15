@@ -6,7 +6,7 @@ title: Cloud Accounts Setup
 You need 5 services: Neon (database), Stripe (payments), Resend (email), PostHog (analytics), Sentry (errors + tracing). All have generous free tiers!
 :::
 
-Orion Kit uses cloud services for database, payments, and monitoring. Authentication is handled by our custom JWT system (no external dependencies!).
+Cracked Template uses cloud services for database, payments, and monitoring. Authentication is handled by our custom JWT system (no external dependencies!).
 
 | Service     | What It Does          | Used Where            | Free Tier    | Setup Time |
 | ----------- | --------------------- | --------------------- | ------------ | ---------- |
@@ -19,7 +19,7 @@ Orion Kit uses cloud services for database, payments, and monitoring. Authentica
 
 ## 🔐 Authentication (Custom JWT)
 
-Orion Kit uses a **custom JWT-based authentication system** - no external auth provider needed!
+Cracked Template uses a **custom JWT-based authentication system** - no external auth provider needed!
 
 ### Setup
 

@@ -1,9 +1,9 @@
 ---
 title: Deployment Guide
-description: Complete guide to deploying Orion Kit to production on Vercel
+description: Complete guide to deploying Cracked Template to production on Vercel
 ---
 
-Deploy Orion Kit's three Next.js apps (`web`, `app`, `api`) to Vercel.
+Deploy Cracked Template's three Next.js apps (`web`, `app`, `api`) to Vercel.
 
 **Deploy:** `apps/web` (marketing), `apps/app` (dashboard), `apps/api` (backend)  
 **Skip:** `apps/studio` (local only), `apps/docs` (optional)  
@@ -11,7 +11,7 @@ Deploy Orion Kit's three Next.js apps (`web`, `app`, `api`) to Vercel.
 
 ## Prerequisites
 
-1. **GitHub repository** with your Orion Kit code
+1. **GitHub repository** with your Cracked Template code
 2. **Vercel account** (free plan is fine)
 3. **Production API keys**: Neon, Stripe, Resend, Sentry, PostHog
 

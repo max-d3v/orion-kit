@@ -12,7 +12,7 @@ export default defineConfig({
   },
   integrations: [
     starlight({
-      title: "Orion Kit",
+      title: "Cracked Template",
 
       social: [
         {
