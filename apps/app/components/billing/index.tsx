@@ -15,11 +15,17 @@ export function BillingContent() {
     orpc.billing.getSubscription.queryOptions()
   );
 
+  // These two own their error UX (per-error-code messaging + redirect below),
+  // so opt out of the global error toast.
   const checkout = useMutation(
-    orpc.billing.createCheckoutSession.mutationOptions()
+    orpc.billing.createCheckoutSession.mutationOptions({
+      meta: { silent: true },
+    })
   );
   const billingPortal = useMutation(
-    orpc.billing.createBillingPortalSession.mutationOptions()
+    orpc.billing.createBillingPortalSession.mutationOptions({
+      meta: { silent: true },
+    })
   );
 
   const [selectedPriceId, setSelectedPriceId] = useState<string | null>(null);

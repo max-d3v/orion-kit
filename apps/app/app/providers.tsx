@@ -6,9 +6,18 @@ import { AuthProvider } from "@workspace/auth/provider";
 import { createQueryClient } from "@workspace/data-layer/client";
 import { ThemeProvider } from "next-themes";
 import { useState } from "react";
+import {
+  createAppMutationCache,
+  createAppQueryCache,
+} from "@/lib/tanstack-error-handler";
 
 export function Providers({ children }: { children: React.ReactNode }) {
-  const [queryClient] = useState(() => createQueryClient());
+  const [queryClient] = useState(() =>
+    createQueryClient({
+      queryCache: createAppQueryCache(),
+      mutationCache: createAppMutationCache(),
+    })
+  );
 
   return (
     <QueryClientProvider client={queryClient}>

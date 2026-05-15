@@ -62,6 +62,7 @@ export function useUpdateOrganization(
 
   return useMutation({
     ...updateOrganizationOptions(authClient),
+    meta: { errorTitle: "Failed to update organization" },
     ...options,
     onSuccess: async (data, variables, ...rest) => {
       await queryClient.invalidateQueries({

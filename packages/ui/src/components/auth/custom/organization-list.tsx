@@ -2,7 +2,6 @@
 
 import { useAuth } from "@better-auth-ui/react"
 import { Check, Plus } from "lucide-react"
-import { toast } from "sonner"
 
 import {
   Avatar,
@@ -89,8 +88,7 @@ export function OrganizationList({ className }: OrganizationListProps) {
                       return
                     }
                     setActiveOrganization(org.id, {
-                      onSuccess: () => navigate({ to: "/" }),
-                      onError: (error) => toast.error(error.error.message)
+                      onSuccess: () => navigate({ to: "/" })
                     })
                   }}
                   className="flex w-full items-center gap-3 bg-transparent px-6 py-3 text-left transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 data-[active=true]:bg-accent"

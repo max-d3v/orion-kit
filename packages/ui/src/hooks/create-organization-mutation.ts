@@ -63,6 +63,7 @@ export function useCreateOrganization(
 
   return useMutation({
     ...createOrganizationOptions(authClient),
+    meta: { errorTitle: "Failed to create organization" },
     ...options,
     onSuccess: async (data, variables, ...rest) => {
       await queryClient.invalidateQueries({

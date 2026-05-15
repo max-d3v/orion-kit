@@ -20,7 +20,7 @@ import {
   SelectValue
 } from "@workspace/ui/components/select"
 import { Spinner } from "@workspace/ui/components/spinner"
-import { useUpdateMemberRole } from "@workspace/ui/hooks/update-member-role.mutation"
+import { useUpdateMemberRole } from "@workspace/ui/hooks/update-member-role-mutation"
 import { type BaseOrganizationRoles } from "@workspace/ui/lib/utils"
 import { AlertCircle } from "lucide-react"
 import { type SyntheticEvent, useEffect, useState } from "react"
@@ -55,9 +55,6 @@ export function UpdateMemberRoleDialog({
     onSuccess: () => {
       toast.success("Role updated successfully")
       onOpenChange(false)
-    },
-    onError: (err) => {
-      toast.error(err.error.message)
     }
   })
 

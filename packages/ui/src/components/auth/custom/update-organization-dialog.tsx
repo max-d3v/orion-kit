@@ -1,7 +1,7 @@
 "use client"
 
 import { useAuth } from "@better-auth-ui/react"
-import { useUpdateOrganization } from "@workspace/ui/hooks/update-organization.mutation"
+import { useUpdateOrganization } from "@workspace/ui/hooks/update-organization-mutation"
 import { AlertCircle } from "lucide-react"
 import { type SyntheticEvent, useEffect, useState } from "react"
 import { toast } from "sonner"
@@ -61,9 +61,6 @@ export function UpdateOrganizationDialog({
     onSuccess: () => {
       toast.success("Organization updated successfully")
       onOpenChange(false)
-    },
-    onError: (err) => {
-      toast.error(`Failed to update organization. ${err.error.message}`)
     }
   })
 

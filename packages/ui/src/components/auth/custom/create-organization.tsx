@@ -42,8 +42,7 @@ export function CreateOrganization({ className }: CreateOrganizationProps) {
           onSuccess: () => {
             toast.success("Organization created successfully")
             navigate({ to: "/settings/organization/general" })
-          },
-          onError: (error) => toast.error(error.error.message)
+          }
         })
       }
     }

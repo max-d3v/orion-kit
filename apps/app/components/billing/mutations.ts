@@ -6,6 +6,7 @@ import { toast } from "sonner";
 
 export function cancelSubscription(queryClient: QueryClient) {
   return orpc.billing.cancelSubscription.mutationOptions({
+    meta: { errorTitle: "Failed to cancel subscription" },
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: orpc.billing.getSubscription.key(),

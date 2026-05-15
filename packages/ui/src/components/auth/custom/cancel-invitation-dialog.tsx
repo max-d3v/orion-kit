@@ -12,7 +12,7 @@ import {
   AlertDialogTitle
 } from "@workspace/ui/components/alert-dialog"
 import { Spinner } from "@workspace/ui/components/spinner"
-import { useCancelInvitation } from "@workspace/ui/hooks/cancel-invitation.mutation"
+import { useCancelInvitation } from "@workspace/ui/hooks/cancel-invitation-mutation"
 import { toast } from "sonner"
 
 export type CancelInvitationDialogProps = {
@@ -37,9 +37,6 @@ export function CancelInvitationDialog({
       onSuccess: () => {
         toast.success(`Canceled invitation to ${invitation.email}`)
         onOpenChange(false)
-      },
-      onError: (err) => {
-        toast.error(`Failed to cancel invitation. ${err.error.message}`)
       }
     }
   )

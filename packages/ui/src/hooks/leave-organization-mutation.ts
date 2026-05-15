@@ -9,30 +9,25 @@ import { sessionOptions, AuthClient } from "@better-auth-ui/react"
 import { OrganizationClient } from "../lib/utils"
 
 
-export type DeleteOrganizationOptions = Omit<
-  ReturnType<typeof deleteOrganizationOptions>,
+export type LeaveOrganizationOptions = Omit<
+  ReturnType<typeof leaveOrganizationOptions>,
   "mutationKey" | "mutationFn"
 >
 
-type DeleteOrganizationParams = Parameters<OrganizationClient["organization"]["delete"]>[0]
+type LeaveOrganizationParams = Parameters<OrganizationClient["organization"]["leave"]>[0]
 
-const mutationKey = ["deleteOrganization"]
-
-
-
+const mutationKey = ["leaveOrganization"]
 
 /**
- * Mutation options factory for deleting an organization.
+ * Mutation options factory for leaving an organization.
  *
  * @param authClient - The Better Auth client.
  */
-export function deleteOrganizationOptions(
+export function leaveOrganizationOptions(
   authClient: OrganizationClient
 ) {
-  const mutationFn = (params: DeleteOrganizationParams) =>
-      
-
-    authClient.organization.delete({
+  const mutationFn = (params: LeaveOrganizationParams) =>
+    authClient.organization.leave({
       ...params,
       fetchOptions: { ...params?.fetchOptions, throw: true }
     })
@@ -48,24 +43,25 @@ export function deleteOrganizationOptions(
 }
 
 /**
- * Create a mutation for deleting an organization.
+ * Create a mutation for leaving an organization.
  *
- * Wraps `authClient.organization.delete` and invalidates the cached session and
- * organizations list so downstream consumers reflect the deleted organization.
+ * Wraps `authClient.organization.leave` and invalidates the cached session and
+ * organizations list so downstream consumers reflect the user's new membership state.
  *
  * @param authClient - The Better Auth client.
  * @param options - React Query options forwarded to `useMutation`.
  */
-export function useDeleteOrganization(
+export function useLeaveOrganization(
   authClient: AuthClient,
-  options?: DeleteOrganizationOptions
+  options?: LeaveOrganizationOptions
 ) {
   assertAuthClientHasOrganizationOrThrow(authClient)
 
   const queryClient = useQueryClient()
 
   return useMutation({
-    ...deleteOrganizationOptions(authClient),
+    ...leaveOrganizationOptions(authClient),
+    meta: { errorTitle: "Failed to leave organization" },
     ...options,
     onSuccess: async (data, variables, ...rest) => {
       await queryClient.invalidateQueries({

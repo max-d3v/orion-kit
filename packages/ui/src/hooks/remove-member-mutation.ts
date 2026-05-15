@@ -7,23 +7,23 @@ import {
   OrganizationClient
 } from "../lib/utils"
 
-export type UpdateMemberRoleOptions = Omit<
-  ReturnType<typeof updateMemberRoleOptions>,
+export type RemoveMemberOptions = Omit<
+  ReturnType<typeof removeMemberOptions>,
   "mutationKey" | "mutationFn"
 >
 
-type UpdateMemberRoleParams = Parameters<
-  OrganizationClient["organization"]["updateMemberRole"]
+type RemoveMemberParams = Parameters<
+  OrganizationClient["organization"]["removeMember"]
 >[0]
 
-const mutationKey = ["updateMemberRole"]
+const mutationKey = ["removeMember"]
 
 /**
- * Mutation options factory for updating a member's role.
+ * Mutation options factory for removing a member from the active organization.
  */
-export function updateMemberRoleOptions(authClient: OrganizationClient) {
-  const mutationFn = (params: UpdateMemberRoleParams) =>
-    authClient.organization.updateMemberRole({
+export function removeMemberOptions(authClient: OrganizationClient) {
+  const mutationFn = (params: RemoveMemberParams) =>
+    authClient.organization.removeMember({
       ...params,
       fetchOptions: { ...params?.fetchOptions, throw: true }
     })
@@ -39,20 +39,21 @@ export function updateMemberRoleOptions(authClient: OrganizationClient) {
 }
 
 /**
- * Create a mutation for updating a member's role in the active organization.
+ * Create a mutation for removing a member from the active organization.
  *
- * Wraps `authClient.organization.updateMemberRole` and invalidates the
- * organization members list so consumers reflect the new role.
+ * Wraps `authClient.organization.removeMember` and invalidates the
+ * organization members list so consumers reflect the removal.
  */
-export function useUpdateMemberRole(
+export function useRemoveMember(
   authClient: AuthClient,
-  options?: UpdateMemberRoleOptions
+  options?: RemoveMemberOptions
 ) {
   assertAuthClientHasOrganizationOrThrow(authClient)
   const queryClient = useQueryClient()
 
   return useMutation({
-    ...updateMemberRoleOptions(authClient),
+    ...removeMemberOptions(authClient),
+    meta: { errorTitle: "Failed to remove member" },
     ...options,
     onSuccess: async (data, variables, ...rest) => {
       await queryClient.invalidateQueries({

@@ -53,6 +53,7 @@ export function useCancelInvitation(
 
   return useMutation({
     ...cancelInvitationOptions(authClient),
+    meta: { errorTitle: "Failed to cancel invitation" },
     ...options,
     onSuccess: async (data, variables, ...rest) => {
       await queryClient.invalidateQueries({

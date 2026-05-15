@@ -54,11 +54,6 @@ export function InviteMembersSheet({
       setEmails("")
       setRole("member")
       onOpenChange(false)
-    },
-    onError: (error) => {
-      toast.error(
-        `Failed to send invitations. ${error.error.message}`
-      )
     }
   })
 

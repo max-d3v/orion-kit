@@ -112,6 +112,7 @@ export function useInviteUsers(
 
   return useMutation({
     ...createInviteOptions(authClient),
+    meta: { errorTitle: "Failed to send invitations" },
     ...options,
     onSuccess: async (data, variables, ...rest) => {
       await queryClient.invalidateQueries({

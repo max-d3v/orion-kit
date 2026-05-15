@@ -7,23 +7,23 @@ import {
   OrganizationClient
 } from "../lib/utils"
 
-export type RemoveMemberOptions = Omit<
-  ReturnType<typeof removeMemberOptions>,
+export type UpdateMemberRoleOptions = Omit<
+  ReturnType<typeof updateMemberRoleOptions>,
   "mutationKey" | "mutationFn"
 >
 
-type RemoveMemberParams = Parameters<
-  OrganizationClient["organization"]["removeMember"]
+type UpdateMemberRoleParams = Parameters<
+  OrganizationClient["organization"]["updateMemberRole"]
 >[0]
 
-const mutationKey = ["removeMember"]
+const mutationKey = ["updateMemberRole"]
 
 /**
- * Mutation options factory for removing a member from the active organization.
+ * Mutation options factory for updating a member's role.
  */
-export function removeMemberOptions(authClient: OrganizationClient) {
-  const mutationFn = (params: RemoveMemberParams) =>
-    authClient.organization.removeMember({
+export function updateMemberRoleOptions(authClient: OrganizationClient) {
+  const mutationFn = (params: UpdateMemberRoleParams) =>
+    authClient.organization.updateMemberRole({
       ...params,
       fetchOptions: { ...params?.fetchOptions, throw: true }
     })
@@ -39,20 +39,21 @@ export function removeMemberOptions(authClient: OrganizationClient) {
 }
 
 /**
- * Create a mutation for removing a member from the active organization.
+ * Create a mutation for updating a member's role in the active organization.
  *
- * Wraps `authClient.organization.removeMember` and invalidates the
- * organization members list so consumers reflect the removal.
+ * Wraps `authClient.organization.updateMemberRole` and invalidates the
+ * organization members list so consumers reflect the new role.
  */
-export function useRemoveMember(
+export function useUpdateMemberRole(
   authClient: AuthClient,
-  options?: RemoveMemberOptions
+  options?: UpdateMemberRoleOptions
 ) {
   assertAuthClientHasOrganizationOrThrow(authClient)
   const queryClient = useQueryClient()
 
   return useMutation({
-    ...removeMemberOptions(authClient),
+    ...updateMemberRoleOptions(authClient),
+    meta: { errorTitle: "Failed to update member role" },
     ...options,
     onSuccess: async (data, variables, ...rest) => {
       await queryClient.invalidateQueries({

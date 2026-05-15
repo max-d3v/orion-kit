@@ -1,10 +1,8 @@
+import { ORPCError } from "@orpc/client";
 import { auth } from "@workspace/auth/auth";
-import { HttpError } from "@workspace/types/errors/http";
 import { base } from "../base";
-//import { getSessionCookie } from "better-auth/cookies";
 
 export const authMiddleware = base.middleware(async ({ context, next }) => {
-  //console.log(context)
   const data = await auth.api.getSession({
     headers: context.headers,
   });
@@ -13,7 +11,9 @@ export const authMiddleware = base.middleware(async ({ context, next }) => {
   const sessionClaims = data?.session;
 
   if (!user) {
-    throw new HttpError(401, "Unauthorized");
+    throw new ORPCError("UNAUTHORIZED", {
+      message: "unauthorized",
+    });
   }
 
   const result = await next({

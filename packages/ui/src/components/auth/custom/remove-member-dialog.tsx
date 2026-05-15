@@ -12,7 +12,7 @@ import {
   AlertDialogTitle
 } from "@workspace/ui/components/alert-dialog"
 import { Spinner } from "@workspace/ui/components/spinner"
-import { useRemoveMember } from "@workspace/ui/hooks/remove-member.mutation"
+import { useRemoveMember } from "@workspace/ui/hooks/remove-member-mutation"
 import { toast } from "sonner"
 
 export type RemoveMemberDialogProps = {
@@ -35,9 +35,6 @@ export function RemoveMemberDialog({
     onSuccess: () => {
       toast.success(`Removed ${member.user.name} from the organization`)
       onOpenChange(false)
-    },
-    onError: (err) => {
-      toast.error(`Failed to remove member. ${err.error.message}`)
     }
   })
 

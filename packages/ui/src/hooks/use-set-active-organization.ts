@@ -18,6 +18,7 @@ export function useSetActiveOrganization(authClient: AuthClient) {
     BetterFetchError,
     string | null
   >({
+    meta: { errorTitle: "Failed to switch organization" },
     mutationFn: async (organizationId) => {
       return await authClient.organization.setActive({
         organizationId,

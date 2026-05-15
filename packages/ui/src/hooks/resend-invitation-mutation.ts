@@ -63,6 +63,7 @@ export function useResendInvitation(
 
   return useMutation({
     ...resendInvitationOptions(authClient),
+    meta: { errorTitle: "Failed to resend invitation" },
     ...options,
     onSuccess: async (data, variables, ...rest) => {
       await queryClient.invalidateQueries({

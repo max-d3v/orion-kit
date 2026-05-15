@@ -22,8 +22,10 @@
     "@opentelemetry/api": "catalog:otel",
     "@orpc/client": "^1.14.0",
     "@orpc/server": "^1.13.13",
+    "@workspace/analytics": "workspace:*",
     "@workspace/auth": "workspace:*",
     "@workspace/core": "workspace:*",
+    "@workspace/observability": "workspace:*",
     "@workspace/types": "workspace:*",
     "next": "catalog:web",
     "zod": "catalog:schemas"

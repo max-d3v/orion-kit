@@ -2,7 +2,7 @@
 
 import { useOrganizationInvitations } from "@workspace/ui/hooks/use-invites"
 import { useOrganizationPermissions } from "@workspace/ui/hooks/use-organization-permissions"
-import { useResendInvitation } from "@workspace/ui/hooks/resend-invitation.mutation"
+import { useResendInvitation } from "@workspace/ui/hooks/resend-invitation-mutation"
 import { useAuth } from "@better-auth-ui/react"
 import type { BetterFetchError } from "better-auth/react"
 import {
@@ -100,9 +100,6 @@ export function OrganizationInvitations({
     useResendInvitation(authClient, {
       onSuccess: (_, variables) => {
         toast.success(`Resent invitation to ${variables.email}`)
-      },
-      onError: (err) => {
-        toast.error(`Failed to resend invitation. ${err.error.message}`)
       }
     })
 

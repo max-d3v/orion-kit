@@ -24,6 +24,7 @@ const countTasksByStatus = (tasks: TaskRawObject[]) => ({
 
 export const getUserTasks = async (params: GetUserTasksInput) => {
   const { userId } = params;
+  //throw new HttpError(500, "test error")
   return await list({ userId });
 };
 

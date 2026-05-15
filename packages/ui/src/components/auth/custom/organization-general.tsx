@@ -2,8 +2,8 @@
 
 import { useAuth } from "@better-auth-ui/react"
 import { useActiveOrganization } from "@workspace/ui/hooks/use-active-organization"
-import { useDeleteOrganization } from "@workspace/ui/hooks/delete-organization.mutation"
-import { useLeaveOrganization } from "@workspace/ui/hooks/leave-organization.mutation"
+import { useDeleteOrganization } from "@workspace/ui/hooks/delete-organization-mutation"
+import { useLeaveOrganization } from "@workspace/ui/hooks/leave-organization-mutation"
 import { useOrganizationPermissions } from "@workspace/ui/hooks/use-organization-permissions"
 import { useSetActiveOrganization } from "@workspace/ui/hooks/use-set-active-organization"
 import { Building2, LogOut, Trash2 } from "lucide-react"
@@ -71,12 +71,8 @@ export function OrganizationGeneral({ className }: OrganizationGeneralProps) {
           onSuccess: () => {
             toast.success("You left the organization")
             setLeaveOpen(false)
-          },
-          onError: (error) => toast.error(error.error.message)
+          }
         })
-      },
-      onError: (error) => {
-        toast.error(`Failed to leave organization. ${error.error.message}`)
       }
     })
 
@@ -87,12 +83,8 @@ export function OrganizationGeneral({ className }: OrganizationGeneralProps) {
           onSuccess: () => {
             toast.success("Organization deleted")
             setDeleteOpen(false)
-          },
-          onError: (error) => toast.error(error.error.message)
+          }
         })
-      },
-      onError: (error) => {
-        toast.error(`Failed to delete organization. ${error.error.message}`)
       }
     })
 

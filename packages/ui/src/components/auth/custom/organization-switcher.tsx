@@ -2,7 +2,6 @@
 
 import { useAuth } from "@better-auth-ui/react"
 import { Building2, ChevronsUpDown, Plus } from "lucide-react"
-import { toast } from "sonner"
 
 import {
   Avatar,
@@ -133,9 +132,7 @@ export function OrganizationSwitcher() {
               key={org.id}
               onClick={() => {
                 if (isActive) return
-                setActiveOrganization(org.id, {
-                  onError: (error) => toast.error(error.error.message)
-                })
+                setActiveOrganization(org.id)
               }}
               disabled={settingActive}
               className="gap-2 p-2"
