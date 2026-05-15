@@ -1,4 +1,3 @@
-import { ORPCError } from "@orpc/server";
 import { EVENTS } from "@workspace/analytics/events";
 import { capture } from "@workspace/analytics/server";
 import {
@@ -38,10 +37,6 @@ export const getUserTasksWithCount = async (params: GetUserTasksInput) => {
 
 export const createTask = async (params: CreateTask) => {
   const { userId, title, description } = params;
-  throw new ORPCError("EXPECTED_ERROR_DEMO", {
-    message: "test?",
-    defined: true,
-  });
 
   const preferences = await getOrCreate({ userId });
   const defaultStatus =
